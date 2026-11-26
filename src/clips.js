@@ -35,6 +35,35 @@
     return f ? { key: lang + '/' + f, src: BASE + lang + '/' + f, lang: lang, text: String(text) } : null;
   }
 
+  /* Letter SOUND clips (window.LPW_SOUND = {lang: {key: {file, ipa}}}) and English explanation clips
+     (window.LPW_EXPLAIN = {lang: {key: {file, text}}}). English sounds are embedded in the standalone
+     (window.LPW_SOUND_EMBED = {key: data URI}); everything else loads from BASE + 'sound|explain/<lang>/NN.mp3'.
+     A key missing from window.LPW_APPROVED[lang] has no sound clip: callers fall back to the English explanation. */
+  var SOUND = window.LPW_SOUND || {}, EXPLAIN = window.LPW_EXPLAIN || {}, APPROVED = window.LPW_APPROVED || {};
+  var SEMBED = window.LPW_SOUND_EMBED || null;
+  function own(o, k) { return !!o && Object.prototype.hasOwnProperty.call(o, k); }
+  function approved(lang, key) { return Array.isArray(APPROVED[lang]) && APPROVED[lang].indexOf(key) >= 0; }
+  function soundMeta(lang, key) { return own(SOUND[lang], key) ? SOUND[lang][key] : null; }
+  function explainMeta(lang, key) { return own(EXPLAIN[lang], key) ? EXPLAIN[lang][key] : null; }
+  function remoteBlocked() { return REMOTE && (remoteDown || (window.navigator && navigator.onLine === false)); }
+  /* {key, src, lang} for the letter sound clip, or null (not approved / no clip / site unreachable). */
+  function sound(lang, key) {
+    var m = soundMeta(lang, key);
+    if (!m || !approved(lang, key)) return null;
+    var k = 'sound/' + lang + '/' + m.file;
+    if (lang === 'en' && SEMBED) return own(SEMBED, key) ? { key: k, src: SEMBED[key], lang: 'en', text: key } : null;
+    if (lang === 'en' && !REMOTE) return { key: k, src: './audio/' + k, lang: 'en', text: key };
+    if (remoteBlocked()) return null;
+    return { key: k, src: BASE + k, lang: lang === 'en' ? 'en-remote' : lang, text: key };
+  }
+  /* {key, src, lang, text} for the English explanation of a non-English letter, or null. */
+  function explain(lang, key) {
+    var m = explainMeta(lang, key);
+    if (!m || remoteBlocked()) return null;
+    var k = 'explain/' + lang + '/' + m.file;
+    return { key: k, src: BASE + k, lang: lang, text: m.text };
+  }
+
   function el() {
     if (audio) return audio;
     try { audio = new Audio(); } catch (e) { audio = null; return null; }
@@ -79,6 +108,7 @@
       if (my !== token) return;
       if (i >= entries.length) { cur = null; if (onDone) onDone(); return; }
       var e = entries[i];
+      if (e.pause && !e.paused) { e.paused = true; later(function () { if (my === token) step(); }, e.pause); return; }
       cur = e; log.push(e.key); if (log.length > 300) log.shift();
       a.onended = function () { if (my !== token) return; i++; step(); };
       a.onerror = function () { fail(); };
@@ -110,7 +140,8 @@
   window.CLIPS = {
     has: has, src: src, text: function (k) { return TEXT[k] || ''; }, slug: slug, embedded: !!EMBED,
     play: play, run: run, stop: stopAll, later: later,
-    native: native, nativeFile: nativeFile, nativeBase: function () { return BASE; }, remote: REMOTE,
+    native: native, nativeFile: nativeFile,
+    sound: sound, explain: explain, approved: approved, soundMeta: soundMeta, explainMeta: explainMeta, nativeBase: function () { return BASE; }, remote: REMOTE,
     nativeLangs: function () { return Object.keys(NATIVE); },
     state: function () {
       return { playing: !!(audio && cur && !audio.paused && !audio.ended), key: cur ? cur.key : null,

@@ -1,0 +1,98 @@
+{
+ "Αα": {
+  "file": "00.mp3",
+  "text": "This letter is Alpha. It makes the ah sound, like in father. The picture word means star."
+ },
+ "Ββ": {
+  "file": "01.mp3",
+  "text": "This letter is Vita. It makes the sound at the start of van. The picture word means boat."
+ },
+ "Γγ": {
+  "file": "02.mp3",
+  "text": "This letter is Gamma. It makes a soft, breathy g sound. The picture word means cat."
+ },
+ "Δδ": {
+  "file": "03.mp3",
+  "text": "This letter is Delta. It makes the sound at the start of this. The picture word means tree."
+ },
+ "Εε": {
+  "file": "04.mp3",
+  "text": "This letter is Epsilon. It makes the eh sound, like in egg. The picture word means elephant."
+ },
+ "Ζζ": {
+  "file": "05.mp3",
+  "text": "This letter is Zita. It makes the sound at the start of zebra. The picture word means zebra."
+ },
+ "Ηη": {
+  "file": "06.mp3",
+  "text": "This letter is Ita. It makes the ee sound, like in see. The picture word means sun."
+ },
+ "Θθ": {
+  "file": "07.mp3",
+  "text": "This letter is Thita. It makes the sound at the start of thumb. The picture word means sea."
+ },
+ "Ιι": {
+  "file": "08.mp3",
+  "text": "This letter is Yota. It makes the ee sound, like in see. The picture word means seahorse."
+ },
+ "Κκ": {
+  "file": "09.mp3",
+  "text": "This letter is Kappa. It makes the sound at the start of kite. The picture word means hen."
+ },
+ "Λλ": {
+  "file": "10.mp3",
+  "text": "This letter is Lambda. It makes the sound at the start of lion. The picture word means flower."
+ },
+ "Μμ": {
+  "file": "11.mp3",
+  "text": "This letter is Mi. It makes the sound at the start of moon. The picture word means apple."
+ },
+ "Νν": {
+  "file": "12.mp3",
+  "text": "This letter is Ni. It makes the sound at the start of nest. The picture word means water."
+ },
+ "Ξξ": {
+  "file": "13.mp3",
+  "text": "This letter is Ksi. It makes the sound at the end of fox. The picture word means wood."
+ },
+ "Οο": {
+  "file": "14.mp3",
+  "text": "This letter is Omikron. It makes the o sound, like in orange. The picture word means umbrella."
+ },
+ "Ππ": {
+  "file": "15.mp3",
+  "text": "This letter is Pi. It makes the sound at the start of pig. The picture word means duck."
+ },
+ "Ρρ": {
+  "file": "16.mp3",
+  "text": "This letter is Ro. It makes a rolled r. The picture word means clock."
+ },
+ "Σσς": {
+  "file": "17.mp3",
+  "text": "This letter is Sigma. It makes the sound at the start of sun. The picture word means dog."
+ },
+ "Ττ": {
+  "file": "18.mp3",
+  "text": "This letter is Taf. It makes the sound at the start of turtle. The picture word means cheese."
+ },
+ "Υυ": {
+  "file": "19.mp3",
+  "text": "This letter is Ipsilon. It makes the ee sound, like in see. The picture word means submarine."
+ },
+ "Φφ": {
+  "file": "20.mp3",
+  "text": "This letter is Fi. It makes the sound at the start of fish. The picture word means moon."
+ },
+ "Χχ": {
+  "file": "21.mp3",
+  "text": "This letter is Hi. It makes a scratchy h sound, from the back of the throat. The picture word means turtle."
+ },
+ "Ψψ": {
+  "file": "22.mp3",
+  "text": "This letter is Psi. It makes the sound at the end of cups. The picture word means fish."
+ },
+ "Ωω": {
+  "file": "23.mp3",
+  "text": "This letter is Omega. It makes the o sound, like in orange. The picture word means ocean."
+ }
+}

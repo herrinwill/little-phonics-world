@@ -2,7 +2,7 @@
 
 A joyful, picture-first phonics and early-language game for little learners (ages 4+), made for a child who **can't read yet** to play with a grown-up reading along.
 
-It has **zero external dependencies**: no CDNs, web fonts or third-party requests. All pictures are inline SVG and sound effects are synthesised with the Web Audio API. **All 5 languages now have natural, pre-recorded native voices**: English (119 clips in `audio/en/`), Hebrew, Greek, Thai and Spanish (native neural voices in `audio/he/`, `audio/el/`, `audio/th/`, `audio/es/`).
+It has **zero external dependencies**: no CDNs, web fonts or third-party requests. All pictures are inline SVG and sound effects are synthesised with the Web Audio API. **Each letter card has big Sound, Name and Word buttons** (plus **Explain in English** for Hebrew, Greek, Thai and Spanish); tapping a letter plays its sound twice, then its word. Sound credits are in the footer and Parent Info. **All 5 languages now have natural, pre-recorded native voices**: English (119 clips in `audio/en/`), Hebrew, Greek, Thai and Spanish (native neural voices in `audio/he/`, `audio/el/`, `audio/th/`, `audio/es/`).
 
 ## How to play
 
@@ -54,6 +54,8 @@ Classic, research-backed early-literacy games: **LeapFrog Letter Factory** and *
 src/            source files (CSS, per-language data, SVG art, audio, modes, app)
 audio/en/       natural English voice clips (MP3) + manifest.json (key -> spoken text)
 audio/he|el|th|es/  native voice clips NNN.mp3 + manifest.json (exact spoken text -> file; embedded into both builds)
+audio/sound/<lang>/  letter SOUND clips NN.mp3 + manifest.json (114: en 26, he 22, el 24, th 21, es 21); approved.json; CREDITS.md
+audio/explain/<lang>/ English "Explain in English" clips NN.mp3 + manifest.json (88: he/el/th/es)
 build.mjs       builds index.html (clips by relative URL) and Little-Phonics-World.html (clips embedded) from the same source
 tests/          headless-Chrome smoke tests (Playwright): index.html over a local HTTP server, the standalone file over file://
 ```

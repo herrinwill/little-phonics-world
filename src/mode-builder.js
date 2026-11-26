@@ -9,6 +9,18 @@
     if (W.say && W.say[k]) return W.say[k];
     return D.tileSay[t] || D.tileSay[base(t)] || t;
   }
+  /* Letter-SOUND clip key for tile k (null = keep the old tile clip). Thai syllable tiles keep their syllable clips.
+     W.sk overrides per tile (e.g. Hebrew vowel letters / final forms that have no matching sound clip). */
+  function marks(t) { try { return t.normalize('NFD').replace(/[\u0300-\u036f\u0591-\u05C7]/g, '').toLowerCase(); } catch (e) { return t; } }
+  function tileSoundKey(D, W, k) {
+    if (D.code === 'th') return null;
+    if (W.sk) return W.sk[k] || null;
+    var t = marks(W.tiles[k]);
+    if (D.code === 'en') return /^[a-z]$/.test(t) ? t : null;
+    for (var i = 0; i < D.letters.length; i++) if (marks(D.letters[i].ch).indexOf(t) >= 0) return D.letters[i].ch;
+    return null;
+  }
+  window.LPWBuilder = { tileSoundKey: tileSoundKey };
   function tileTr(D, t) { return (D.tileTr || {})[t] || (D.tileTr || {})[base(t)] || t; }
 
   function current(D) {
@@ -24,10 +36,11 @@
       root.innerHTML = '<div class="screen-title"><span class="ico">' + ICON.mBuilder + '</span><h1>' + this.title + '</h1></div>';
       var box = C.el('div', { class: 'builder' + (D.code === 'th' ? ' th' : ''), id: 'builder' });
       box.innerHTML =
+        '<div class="instr" lang="en" dir="ltr">Build the word!</div>' +
         '<div class="target"><div class="pic" id="bPic">' + pic(W.pic, '') + '</div>' +
         '<button class="roundbtn speak" id="bSay" aria-label="Hear the word">' + ICON.speaker + '</button></div>' +
         (D.code === 'en' ? '' : '<div style="text-align:center">' + C.mean(D, W.en) + '</div>') +
-        '<div class="ptxt parent" style="text-align:center">' + (D.code === 'en' ? 'Sound it out together: <b>' + C.esc(W.sylTr || W.w) + '</b> … <b>' + C.esc(W.w) + '</b>. Each tile says its sound.' :
+        '<div class="ptxt parent" style="text-align:center">' + (D.code === 'en' ? 'Sound it out together: <b>' + C.esc(W.sylTr || W.w) + '</b> … <b>' + C.esc(W.w) + '</b>. Each tile says its letter sound.' :
           '<span ' + la + '>' + C.esc(W.w) + '</span> = <i>' + C.esc(W.tr) + '</i> — “' + C.esc(W.en) + '”') +
         (D.dir === 'rtl' ? ' · Hebrew reads right → left: the first letter goes in the right-most slot.' : '') + '</div>' +
         '<div class="slots" id="slots" ' + la + '></div><div class="tray" id="tray" ' + la + '></div>' +
@@ -51,7 +64,14 @@
       C.later(function () { if (document.body.contains(box)) sayWord(); }, 350);
 
       function sayWord() { C.say([{ text: W.w, tr: W.tr }], { clip: C.wordKey(W.w) }); }
-      function speakTile(k) { C.say([{ text: tileSay(D, W, k), tr: tileTr(D, W.tiles[k]) }], { quiet: true, clip: 'tile-' + W.tiles[k] }); }
+      function oldTile(k) { C.say([{ text: tileSay(D, W, k), tr: tileTr(D, W.tiles[k]) }], { quiet: true, clip: 'tile-' + W.tiles[k] }); }
+      /* Tapping a letter tile plays its letter SOUND clip; anything without one keeps its old tile clip. */
+      function speakTile(k) {
+        var sk = tileSoundKey(D, W, k), e = sk && window.CLIPS ? CLIPS.sound(D.code, sk) : null;
+        if (!e) return oldTile(k);
+        if (D.code !== 'en' || document.body.classList.contains('parent-on')) { try { SPEECH.badge(W.tiles[k], tileTr(D, W.tiles[k]), D.dir); } catch (x) { /* ignore */ } }
+        CLIPS.run([e], function () { oldTile(k); });
+      }
       function nextSlot() { return slotsEl.querySelector('.slot:not(.filled)'); }
       function markNext() {
         slotsEl.querySelectorAll('.slot').forEach(function (s) { s.classList.remove('next'); });
@@ -59,7 +79,7 @@
       }
       /* target: a slot element (drag) or null (tap = next empty slot) */
       function tryPlace(tile, target) {
-        if (done) return false;
+        if (done || tile.classList.contains('used')) return false; /* a used (hidden) tile can never be placed twice, e.g. via keyboard */
         var slot = target || nextSlot();
         try { SFX.tap(); } catch (e) { /* ignore */ }
         if (slot && !slot.classList.contains('filled') && slot.getAttribute('data-t') === tile.getAttribute('data-t')) {
@@ -72,6 +92,13 @@
           return true;
         }
         try { SFX.boing(); } catch (e) { /* ignore */ }
+        /* Wrong TAP: boing, then still say this tile's own letter sound (drags already spoke on pick-up).
+           CLIPS.stop + CLIPS.later: any newer clip/tap cancels this, so only one clip ever plays. */
+        if (!target) {
+          var wk = +tile.getAttribute('data-k');
+          try { if (window.CLIPS) CLIPS.stop(); } catch (e) { /* ignore */ }
+          C.later(function () { if (document.body.contains(tile)) speakTile(wk); }, 380);
+        }
         C.restart(tile, 'no');
         return false;
       }

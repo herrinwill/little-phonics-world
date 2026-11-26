@@ -1,0 +1,86 @@
+{
+ "ก": {
+  "file": "00.mp3",
+  "text": "This letter is Gor Gai. It makes a sound between g and k. The picture word means chicken."
+ },
+ "ข": {
+  "file": "01.mp3",
+  "text": "This letter is Khor Khai. It makes the sound at the start of kite, with a puff of air. The picture word means egg."
+ },
+ "ค": {
+  "file": "02.mp3",
+  "text": "This letter is Khor Khwai. It makes the sound at the start of kite, with a puff of air. The picture word means buffalo."
+ },
+ "ง": {
+  "file": "03.mp3",
+  "text": "This letter is Ngor Ngu. It makes the sound at the end of sing. The picture word means snake."
+ },
+ "จ": {
+  "file": "04.mp3",
+  "text": "This letter is Jor Jan. It makes the sound at the start of jam, but softer. The picture word means plate."
+ },
+ "ช": {
+  "file": "05.mp3",
+  "text": "This letter is Chor Chang. It makes the sound at the start of chair. The picture word means elephant."
+ },
+ "ด": {
+  "file": "06.mp3",
+  "text": "This letter is Dor Dek. It makes the sound at the start of dog. The picture word means child."
+ },
+ "ต": {
+  "file": "07.mp3",
+  "text": "This letter is Dtor Dtao. It makes a sound between d and t. The picture word means turtle."
+ },
+ "น": {
+  "file": "08.mp3",
+  "text": "This letter is Nor Nu. It makes the sound at the start of nest. The picture word means mouse."
+ },
+ "บ": {
+  "file": "09.mp3",
+  "text": "This letter is Bor Baimai. It makes the sound at the start of bear. The picture word means leaf."
+ },
+ "ป": {
+  "file": "10.mp3",
+  "text": "This letter is Bpor Bpla. It makes a sound between b and p. The picture word means fish."
+ },
+ "พ": {
+  "file": "11.mp3",
+  "text": "This letter is Phor Phan. It makes the sound at the start of pig, with a puff of air. The picture word means offering tray."
+ },
+ "ฟ": {
+  "file": "12.mp3",
+  "text": "This letter is For Fan. It makes the sound at the start of fish. The picture word means tooth."
+ },
+ "ม": {
+  "file": "13.mp3",
+  "text": "This letter is Mor Ma. It makes the sound at the start of moon. The picture word means horse."
+ },
+ "ย": {
+  "file": "14.mp3",
+  "text": "This letter is Yor Yak. It makes the sound at the start of yellow. The picture word means giant."
+ },
+ "ร": {
+  "file": "15.mp3",
+  "text": "This letter is Ror Ruea. It makes a rolled r. The picture word means boat."
+ },
+ "ล": {
+  "file": "16.mp3",
+  "text": "This letter is Lor Ling. It makes the sound at the start of lion. The picture word means monkey."
+ },
+ "ว": {
+  "file": "17.mp3",
+  "text": "This letter is Wor Waen. It makes the sound at the start of whale. The picture word means ring."
+ },
+ "ส": {
+  "file": "18.mp3",
+  "text": "This letter is Sor Suea. It makes the sound at the start of sun. The picture word means tiger."
+ },
+ "ห": {
+  "file": "19.mp3",
+  "text": "This letter is Hor Hip. It makes the sound at the start of hat. The picture word means chest."
+ },
+ "อ": {
+  "file": "20.mp3",
+  "text": "This letter is Or Ang. A vowel holder. Here it says ah. The picture word means basin."
+ }
+}

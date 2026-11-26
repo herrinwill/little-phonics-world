@@ -1,0 +1,156 @@
+{
+ "א": {
+  "file": "00.mp3",
+  "ipa": "a",
+  "class": "vowel",
+  "carrier": "אַרְיֵה",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "בּ": {
+  "file": "01.mp3",
+  "ipa": "b",
+  "class": "stop",
+  "carrier": "בַּיִת",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "ג": {
+  "file": "02.mp3",
+  "ipa": "g",
+  "class": "stop",
+  "carrier": "גָּמָל",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "ד": {
+  "file": "03.mp3",
+  "ipa": "d",
+  "class": "stop",
+  "carrier": "דָּג",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "ה": {
+  "file": "04.mp3",
+  "ipa": "h",
+  "class": "fric",
+  "carrier": "הַר",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "ו": {
+  "file": "05.mp3",
+  "ipa": "v",
+  "class": "cont",
+  "carrier": "וֶרֶד",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural (Greek voice saying va; same /v/ sound)"
+ },
+ "ז": {
+  "file": "06.mp3",
+  "ipa": "z",
+  "class": "cont",
+  "carrier": "זֶבְּרָה",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "ח": {
+  "file": "07.mp3",
+  "ipa": "χ",
+  "class": "fric",
+  "carrier": "חָתוּל",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "ט": {
+  "file": "08.mp3",
+  "ipa": "t",
+  "class": "stop",
+  "carrier": "טַוָּס",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "י": {
+  "file": "09.mp3",
+  "ipa": "j",
+  "class": "cont",
+  "carrier": "יָרֵחַ",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "כּ": {
+  "file": "10.mp3",
+  "ipa": "k",
+  "class": "stop",
+  "carrier": "כַּדּוּר",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "ל": {
+  "file": "11.mp3",
+  "ipa": "l",
+  "class": "cont",
+  "carrier": "לֵב",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "מ": {
+  "file": "12.mp3",
+  "ipa": "m",
+  "class": "cont",
+  "carrier": "מְכוֹנִית",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "נ": {
+  "file": "13.mp3",
+  "ipa": "n",
+  "class": "cont",
+  "carrier": "נָחָשׁ",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "ס": {
+  "file": "14.mp3",
+  "ipa": "s",
+  "class": "fric",
+  "carrier": "סוּס",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "ע": {
+  "file": "15.mp3",
+  "ipa": "e",
+  "class": "vowel",
+  "carrier": "עֵץ",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "פּ": {
+  "file": "16.mp3",
+  "ipa": "p",
+  "class": "stop",
+  "carrier": "פִּיל",
+  "source": "Wikimedia Commons \"Voiceless bilabial plosive.ogg\" (CC BY-SA 3.0;  uploader Joni~commonswiki)"
+ },
+ "צ": {
+  "file": "17.mp3",
+  "ipa": "ts",
+  "class": "affr",
+  "carrier": "צָב",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "ק": {
+  "file": "18.mp3",
+  "ipa": "k",
+  "class": "stop",
+  "carrier": "קוֹף",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "ר": {
+  "file": "19.mp3",
+  "ipa": "ʁ",
+  "class": "cont",
+  "carrier": "רַכֶּבֶת",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "שׁ": {
+  "file": "20.mp3",
+  "ipa": "ʃ",
+  "class": "fric",
+  "carrier": "שֶׁמֶשׁ",
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural"
+ },
+ "ת": {
+  "file": "21.mp3",
+  "ipa": "t",
+  "class": "stop",
+  "carrier": "תַּפּוּחַ",
+  "source": "Wikimedia Commons \"Voiceless alveolar plosive.ogg\" (CC BY-SA 3.0;  uploader Karmosin~commonswiki)"
+ }
+}

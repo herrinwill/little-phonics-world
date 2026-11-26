@@ -37,7 +37,7 @@ window.LPW_DATA.el = {
     { w: 'νερό', tiles: ['ν', 'ε', 'ρ', 'ό'], tr: 'ne-RO',   en: 'water',  pic: 'water' },
     { w: 'τυρί', tiles: ['τ', 'υ', 'ρ', 'ί'], tr: 'tee-REE', en: 'cheese', pic: 'cheese' },
     { w: 'μαμά', tiles: ['μ', 'α', 'μ', 'ά'], tr: 'ma-MA',   en: 'mom',    pic: 'mom' },
-    { w: 'αυγό', tiles: ['α', 'υ', 'γ', 'ό'], tr: 'av-GHO',  en: 'egg',    pic: 'egg' },
+    { w: 'αυγό', tiles: ['α', 'υ', 'γ', 'ό'], sk: ['Αα', null, 'Γγ', 'Οο'], tr: 'av-GHO',  en: 'egg',    pic: 'egg' },
     { w: 'ήλιος', tiles: ['ή', 'λ', 'ι', 'ο', 'ς'], tr: 'EE-lee-os', en: 'sun', pic: 'sun' }
   ],
   /* Tiles say the letter name (accents are stripped to find the base letter). */

@@ -60,3 +60,34 @@
   .sticker-btn svg{width:64px;height:64px}
   .sticker-btn svg:last-child{width:38px!important;height:62px!important}
 }
+
+/* ---- Letter spotlight: plain-English line + big Sound / Name / Word / Explain buttons ---- */
+.instr{font-size:clamp(18px,2.4vw,24px);font-weight:900;color:#3b2f7a}
+.enline{font-size:17px;font-weight:700;color:#3b2f7a;background:#f4f1ff;border-radius:18px;padding:6px 14px;line-height:1.45;max-width:100%}
+.enline .mean{margin:0 0 0 2px;font-size:16px;white-space:normal}
+.lbtns{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;width:100%}
+.lbtn{
+  min-width:var(--tap);min-height:var(--tap);display:flex;align-items:center;gap:8px;padding:6px 16px 6px 8px;
+  border-radius:999px;background:#fff;box-shadow:var(--shadow);font-weight:900;font-size:18px;color:#2b2350;transition:transform .15s
+}
+.lbtn svg{width:48px;height:48px;flex:none}
+.lbtn:active{transform:scale(.94)}
+.lbtn.explain{background:#efe6ff}
+@media (max-width:480px){
+  .lbtn{flex-direction:column;gap:0;padding:6px 10px;min-width:96px;border-radius:24px;font-size:16px}
+  .lbtn svg{width:42px;height:42px}
+  .lbtn.explain{flex-direction:row;gap:8px;padding:6px 16px 6px 8px;border-radius:999px}
+}
+
+/* ---- Wider xylophone bars (>= 64px for small fingers) ---- */
+.xylo .bar{min-width:64px;max-width:132px;flex:1 1 0}
+@media (max-width:820px){
+  .xylo{padding:10px 4px;gap:8px 4px;flex-wrap:wrap;height:auto;align-items:flex-end}
+  .xylo .bar{flex:0 0 calc(20% - 4px);min-width:64px;max-width:none;height:var(--hp,120px);font-size:20px;border-radius:16px}
+}
+
+/* ---- Footer: sound credits (small) ---- */
+#credits{max-width:1200px;margin:0 auto;padding:6px 16px 18px;font-size:12px;line-height:1.5;color:#5a5180;text-align:center}
+#credits .full{display:none;text-align:left;max-width:780px;margin:6px auto 0}
+body.parent-on #credits .full{display:block}
+#credits ul{margin:4px 0;padding-left:18px}

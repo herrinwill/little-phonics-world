@@ -1,0 +1,184 @@
+{
+ "a": {
+  "file": "00.mp3",
+  "ipa": "æ",
+  "class": "vowel",
+  "carrier": "apple",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "b": {
+  "file": "01.mp3",
+  "ipa": "b",
+  "class": "stop",
+  "carrier": "bear",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "c": {
+  "file": "02.mp3",
+  "ipa": "k",
+  "class": "stop",
+  "carrier": "cat",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "d": {
+  "file": "03.mp3",
+  "ipa": "d",
+  "class": "stop",
+  "carrier": "dog",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "e": {
+  "file": "04.mp3",
+  "ipa": "ɛ",
+  "class": "vowel",
+  "carrier": "egg",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "f": {
+  "file": "05.mp3",
+  "ipa": "f",
+  "class": "fric",
+  "carrier": "fish",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "g": {
+  "file": "06.mp3",
+  "ipa": "g",
+  "class": "stop",
+  "carrier": "goat",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "h": {
+  "file": "07.mp3",
+  "ipa": "h",
+  "class": "fric",
+  "carrier": "hat",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "i": {
+  "file": "08.mp3",
+  "ipa": "ɪ",
+  "class": "vowel",
+  "carrier": "igloo",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "j": {
+  "file": "09.mp3",
+  "ipa": "dʒ",
+  "class": "affr",
+  "carrier": "jam",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "k": {
+  "file": "10.mp3",
+  "ipa": "k",
+  "class": "stop",
+  "carrier": "kite",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "l": {
+  "file": "11.mp3",
+  "ipa": "l",
+  "class": "cont",
+  "carrier": "lion",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "m": {
+  "file": "12.mp3",
+  "ipa": "m",
+  "class": "cont",
+  "carrier": "moon",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "n": {
+  "file": "13.mp3",
+  "ipa": "n",
+  "class": "cont",
+  "carrier": "nest",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "o": {
+  "file": "14.mp3",
+  "ipa": "ɑ",
+  "class": "vowel",
+  "carrier": "octopus",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "p": {
+  "file": "15.mp3",
+  "ipa": "p",
+  "class": "stop",
+  "carrier": "pig",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "q": {
+  "file": "16.mp3",
+  "ipa": "kw",
+  "class": "affr",
+  "carrier": "queen",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "r": {
+  "file": "17.mp3",
+  "ipa": "ɹ",
+  "class": "cont",
+  "carrier": "rabbit",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "s": {
+  "file": "18.mp3",
+  "ipa": "s",
+  "class": "fric",
+  "carrier": "sun",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "t": {
+  "file": "19.mp3",
+  "ipa": "t",
+  "class": "stop",
+  "carrier": "turtle",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "u": {
+  "file": "20.mp3",
+  "ipa": "ʌ",
+  "class": "vowel",
+  "carrier": "up",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "v": {
+  "file": "21.mp3",
+  "ipa": "v",
+  "class": "cont",
+  "carrier": "van",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "w": {
+  "file": "22.mp3",
+  "ipa": "w",
+  "class": "cont",
+  "carrier": "whale",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "x": {
+  "file": "23.mp3",
+  "ipa": "ks",
+  "class": "final",
+  "carrier": "fox",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "y": {
+  "file": "24.mp3",
+  "ipa": "j",
+  "class": "cont",
+  "carrier": "yellow",
+  "source": "Open Letter Sounds (CC0)"
+ },
+ "z": {
+  "file": "25.mp3",
+  "ipa": "z",
+  "class": "cont",
+  "carrier": "zebra",
+  "source": "Open Letter Sounds (CC0)"
+ }
+}

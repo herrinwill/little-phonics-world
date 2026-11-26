@@ -1,0 +1,90 @@
+{
+ "א": {
+  "file": "00.mp3",
+  "text": "This letter is Alef. It is silent. It just holds a vowel, like ah. The picture word means lion."
+ },
+ "בּ": {
+  "file": "01.mp3",
+  "text": "This letter is Bet. It makes the sound at the start of bear. The picture word means house."
+ },
+ "ג": {
+  "file": "02.mp3",
+  "text": "This letter is Gimel. It makes the sound at the start of goat. The picture word means camel."
+ },
+ "ד": {
+  "file": "03.mp3",
+  "text": "This letter is Dalet. It makes the sound at the start of dog. The picture word means fish."
+ },
+ "ה": {
+  "file": "04.mp3",
+  "text": "This letter is Hey. It makes the sound at the start of hat. The picture word means mountain."
+ },
+ "ו": {
+  "file": "05.mp3",
+  "text": "This letter is Vav. It makes the sound at the start of van. The picture word means rose."
+ },
+ "ז": {
+  "file": "06.mp3",
+  "text": "This letter is Zayin. It makes the sound at the start of zebra. The picture word means zebra."
+ },
+ "ח": {
+  "file": "07.mp3",
+  "text": "This letter is Chet. It makes a scratchy throat sound, like clearing your throat. The picture word means cat."
+ },
+ "ט": {
+  "file": "08.mp3",
+  "text": "This letter is Tet. It makes the sound at the start of turtle. The picture word means peacock."
+ },
+ "י": {
+  "file": "09.mp3",
+  "text": "This letter is Yod. It makes the sound at the start of yellow. The picture word means moon."
+ },
+ "כּ": {
+  "file": "10.mp3",
+  "text": "This letter is Kaf. It makes the sound at the start of kite. The picture word means ball."
+ },
+ "ל": {
+  "file": "11.mp3",
+  "text": "This letter is Lamed. It makes the sound at the start of lion. The picture word means heart."
+ },
+ "מ": {
+  "file": "12.mp3",
+  "text": "This letter is Mem. It makes the sound at the start of moon. The picture word means car."
+ },
+ "נ": {
+  "file": "13.mp3",
+  "text": "This letter is Nun. It makes the sound at the start of nest. The picture word means snake."
+ },
+ "ס": {
+  "file": "14.mp3",
+  "text": "This letter is Samech. It makes the sound at the start of sun. The picture word means horse."
+ },
+ "ע": {
+  "file": "15.mp3",
+  "text": "This letter is Ayin. It is silent. It just holds a vowel. The picture word means tree."
+ },
+ "פּ": {
+  "file": "16.mp3",
+  "text": "This letter is Pey. It makes the sound at the start of pig. The picture word means elephant."
+ },
+ "צ": {
+  "file": "17.mp3",
+  "text": "This letter is Tsadi. It makes the sound at the end of cats. The picture word means turtle."
+ },
+ "ק": {
+  "file": "18.mp3",
+  "text": "This letter is Kof. It makes the sound at the start of kite. The picture word means monkey."
+ },
+ "ר": {
+  "file": "19.mp3",
+  "text": "This letter is Resh. It makes a soft r sound, from the back of the throat. The picture word means train."
+ },
+ "שׁ": {
+  "file": "20.mp3",
+  "text": "This letter is Shin. It makes the sound at the start of ship. The picture word means sun."
+ },
+ "ת": {
+  "file": "21.mp3",
+  "text": "This letter is Tav. It makes the sound at the start of turtle. The picture word means apple."
+ }
+}

@@ -51,8 +51,34 @@ for (const l of NATIVE_LANGS) {
 const nativeMap = JSON.stringify(native);
 const nativeCount = Object.values(native).reduce((n, m) => n + Object.keys(m).length, 0);
 
-function page(clips) {
-  const pre = `window.LPW_NATIVE = ${nativeMap};\nwindow.LPW_CLIP_TEXT = ${textMap};\nwindow.LPW_CLIPS = ${clips};\n`;
+// Letter SOUND clips (all 5 languages) + English explanation clips (he/el/th/es) + approved.json.
+// index.html loads them from ./audio/sound|explain/<lang>/NN.mp3; the standalone embeds the small English sound clips.
+const ALL_LANGS = ['en', ...NATIVE_LANGS];
+const soundMeta = {}, explainMeta = {}, soundEmbed = {};
+const approved = JSON.parse(readFileSync(join(root, 'audio', 'sound', 'approved.json'), 'utf8'));
+for (const l of ALL_LANGS) {
+  const m = JSON.parse(readFileSync(join(root, 'audio', 'sound', l, 'manifest.json'), 'utf8'));
+  soundMeta[l] = {};
+  for (const [k, v] of Object.entries(m)) {
+    if (!/^[0-9]{2,3}\.mp3$/.test(v.file) || !existsSync(join(root, 'audio', 'sound', l, v.file))) throw new Error(`Missing/bad sound clip audio/sound/${l}/${v.file} for "${k}"`);
+    soundMeta[l][k] = { file: v.file, ipa: v.ipa || '' };
+    if (l === 'en') soundEmbed[k] = 'data:audio/mpeg;base64,' + readFileSync(join(root, 'audio', 'sound', l, v.file)).toString('base64');
+  }
+  if (!Array.isArray(approved[l])) throw new Error(`approved.json has no list for ${l}`);
+  if (l === 'en') continue;
+  const e = JSON.parse(readFileSync(join(root, 'audio', 'explain', l, 'manifest.json'), 'utf8'));
+  explainMeta[l] = {};
+  for (const [k, v] of Object.entries(e)) {
+    if (!/^[0-9]{2,3}\.mp3$/.test(v.file) || !existsSync(join(root, 'audio', 'explain', l, v.file))) throw new Error(`Missing/bad explain clip audio/explain/${l}/${v.file} for "${k}"`);
+    explainMeta[l][k] = { file: v.file, text: String(v.text || '') };
+  }
+}
+const soundPre = `window.LPW_SOUND = ${JSON.stringify(soundMeta)};\nwindow.LPW_EXPLAIN = ${JSON.stringify(explainMeta)};\nwindow.LPW_APPROVED = ${JSON.stringify(approved)};\n`;
+const soundCount = Object.values(soundMeta).reduce((n, m) => n + Object.keys(m).length, 0);
+const explainCount = Object.values(explainMeta).reduce((n, m) => n + Object.keys(m).length, 0);
+
+function page(clips, soundClips) {
+  const pre = `window.LPW_NATIVE = ${nativeMap};\nwindow.LPW_CLIP_TEXT = ${textMap};\n${soundPre}window.LPW_SOUND_EMBED = ${soundClips};\nwindow.LPW_CLIPS = ${clips};\n`;
   if (/<\/script/i.test(pre) || /https?:\/\//i.test(pre)) throw new Error('Clip data would break inlining or references a URL');
   return src('shell.html')
     .replace('/*@@STYLE@@*/', () => css)
@@ -60,8 +86,8 @@ function page(clips) {
 }
 
 const kb = (s) => (Buffer.byteLength(s) / 1024).toFixed(1) + ' KB';
-const web = page('null'), standalone = page(embedded);
+const web = page('null', 'null'), standalone = page(embedded, JSON.stringify(soundEmbed));
 if (Buffer.byteLength(standalone) > 2.5 * 1024 * 1024) throw new Error('Standalone file exceeds 2.5 MB');
 writeFileSync(join(root, 'index.html'), web);
 writeFileSync(join(root, 'Little-Phonics-World.html'), standalone);
-console.log(`Built index.html (${kb(web)}, clips from ./audio/en/) and Little-Phonics-World.html (${kb(standalone)}, ${keys.length} English clips embedded); ${nativeCount} native he/el/th/es clips mapped`);
+console.log(`Built index.html (${kb(web)}, clips from ./audio/en/) and Little-Phonics-World.html (${kb(standalone)}, ${keys.length} English clips + ${Object.keys(soundEmbed).length} English letter sounds embedded); ${nativeCount} native clips, ${soundCount} letter sounds, ${explainCount} English explanations mapped`);

@@ -11,6 +11,11 @@
   I.home = svg('<path d="M10 50L50 14l40 36" stroke="#ff5a5f" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 46v42h56V46L50 22z" fill="#fff"/><rect x="40" y="58" width="20" height="30" rx="8" fill="#4d96ff"/>');
   I.star = svg(A.star.split('<circle')[0]);
   I.speaker = svg('<path d="M12 38h16l22-18v60L28 62H12z" fill="#ff5a8a"/><path d="M62 34q10 16 0 32M72 24q18 26 0 52" stroke="#ff5a8a" stroke-width="7" fill="none" stroke-linecap="round"/>');
+  /* Letter spotlight buttons: Sound (mouth + waves), Name (speech bubble "Aa"), Word (picture), Explain in English ("EN" bubble). */
+  I.lSound = svg('<ellipse cx="34" cy="52" rx="22" ry="16" fill="#ff5a8a"/><ellipse cx="34" cy="55" rx="12" ry="6" fill="#7a1f3d"/><path d="M64 36q8 16 0 32M76 26q16 26 0 52" stroke="#ff5a8a" stroke-width="7" fill="none" stroke-linecap="round"/>');
+  I.lName = svg('<path d="M10 20h80v48H44L24 86V68H10z" fill="#4d96ff" stroke-linejoin="round"/><text x="50" y="56" text-anchor="middle" font-size="34" font-weight="900" fill="#fff" font-family="sans-serif">Aa</text>');
+  I.lWord = svg('<rect x="8" y="16" width="84" height="68" rx="12" fill="#3ddc84"/><circle cx="70" cy="36" r="10" fill="#ffd23f"/><path d="M8 72l26-26 20 20 12-12 26 26v4H8z" fill="#2e8b57"/>');
+  I.lExplain = svg('<path d="M10 18h80v50H46L26 86V68H10z" fill="#9b5de5"/><text x="50" y="55" text-anchor="middle" font-size="30" font-weight="900" fill="#fff" font-family="sans-serif">EN</text>');
   I.parent = svg('<circle cx="34" cy="28" r="12" fill="#4d96ff"/><path d="M14 72q0-30 20-30t20 30z" fill="#4d96ff"/><circle cx="68" cy="44" r="9" fill="#ff9f1c"/><path d="M54 78q0-22 14-22t14 22z" fill="#ff9f1c"/>' +
     '<rect x="40" y="70" width="44" height="22" rx="4" fill="#ffd23f"/><path d="M62 70v22" stroke="#fff" stroke-width="3"/>');
   I.next = svg('<circle cx="50" cy="50" r="44" fill="#fff" opacity=".0"/><path d="M30 20l36 30-36 30z" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"/>');

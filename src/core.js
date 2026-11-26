@@ -11,8 +11,15 @@
     try { var raw = window.localStorage && window.localStorage.getItem(KEY); if (raw) s = JSON.parse(raw); } catch (e) { s = null; }
     if (!s && memory) s = JSON.parse(memory);
     var f = fresh();
-    if (!s || typeof s !== 'object') return f;
+    if (!s || typeof s !== 'object' || Array.isArray(s)) return f;
     Object.keys(f).forEach(function (k) { if (s[k] === undefined) s[k] = f[k]; });
+    /* Corrupt / hand-edited saves: keep the game playable (stars a whole number, prog/stickers plain objects). */
+    var plain = function (o) { return !!o && typeof o === 'object' && !Array.isArray(o); };
+    s.stars = (typeof s.stars === 'number' && isFinite(s.stars) && s.stars > 0) ? Math.floor(s.stars) : 0;
+    if (!plain(s.prog)) s.prog = {};
+    if (!plain(s.stickers)) s.stickers = {};
+    Object.keys(s.prog).forEach(function (L) { if (!plain(s.prog[L])) delete s.prog[L]; else if (s.prog[L].letters && !Array.isArray(s.prog[L].letters)) delete s.prog[L].letters; });
+    s.parent = s.parent === true;
     return s;
   }
   var ST = load();

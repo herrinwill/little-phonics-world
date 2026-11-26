@@ -9,7 +9,8 @@ import { existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { serve, mediaTracker, requiredKeys, clipFiles, loadClips, rapidTap,
-  NATIVE_LANGS, SITE, nativeManifest, requiredTexts, routeSite, loadNative, rapidTapLang } from './audio-checks.mjs';
+  NATIVE_LANGS, SITE, nativeManifest, requiredTexts, routeSite, loadNative, rapidTapLang,
+  ALL_LANGS, soundManifest, explainManifest, approvedList, SOUND_COUNTS, loadEntries } from './audio-checks.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
@@ -100,6 +101,14 @@ for (const vp of VIEWPORTS) {
   check(await page.locator('.mean').count() === 0, `${vp.name}: no meaning captions on English home`);
   await homeLayout(page, vp);
   await snap('en-home', true);
+  // Sound credits: short note in the footer; full list (incl. CC BY-SA 3.0 link) under Parent Info.
+  const cr = await page.evaluate(() => ({ short: document.querySelector('#credits .short').textContent, full: document.querySelector('#credits .full').textContent,
+    fullShown: getComputedStyle(document.querySelector('#credits .full')).display !== 'none', fs: parseFloat(getComputedStyle(document.getElementById('credits')).fontSize) }));
+  check(/Sound credits/.test(cr.short) && /Open Letter Sounds \(CC0\)/.test(cr.short) && /Microsoft Edge neural voices/.test(cr.short) && /CC BY-SA 3\.0/.test(cr.short), `${vp.name}: footer sound credits (${cr.short})`);
+  check(cr.fs <= 13, `${vp.name}: credits are small text (${cr.fs}px)`);
+  check(!cr.fullShown, `${vp.name}: full credits hidden until Parent Info`);
+  const files = ['Voiceless bilabial plosive.ogg', 'Voiceless alveolar plosive.ogg', 'Open front unrounded vowel.ogg', 'Voiced velar fricative.ogg', 'Mid front unrounded vowel.ogg', 'Close front unrounded vowel.ogg', 'Velar nasal.ogg', 'Voiceless velar fricative.ogg'];
+  check(files.every((f) => cr.full.includes(f)) && cr.full.includes('https://creativecommons.org/licenses/by-sa/3.0/') && /Joni/.test(cr.full) && /Adamsa123/.test(cr.full) && /TFighterPilot/.test(cr.full), `${vp.name}: full Wikimedia credits listed`);
 
   // Home + parent toggle
   check(await page.locator('#homeBtn').isVisible(), 'home button visible');
@@ -109,6 +118,7 @@ for (const vp of VIEWPORTS) {
   check(pills.every(([w, h]) => w >= 64 && h >= 64), `${vp.name}: language pills >= 64px (${JSON.stringify(pills)})`);
   await page.click('#parentBtn');
   check(await page.evaluate(() => document.body.classList.contains('parent-on')), 'parent toggle on');
+  check(await page.evaluate(() => getComputedStyle(document.querySelector('#credits .full')).display !== 'none'), `${vp.name}: Parent Info shows the full sound credits`);
 
   for (const lang of LANGS) {
     await page.click(`.pill[data-lang="${lang}"]`);
@@ -122,12 +132,28 @@ for (const vp of VIEWPORTS) {
 
     // 1. Letter Factory
     await page.click('.mode-btn[data-mode="letters"]');
+    check((await page.locator('#spot .instr').textContent()) === 'Tap a letter to hear its sound!', `${lang} letters: English instruction shown`);
     let s0 = await stars();
     await page.locator('.lcard').nth(0).click();
     await page.locator('.lcard').nth(2).click();
     await page.waitForTimeout(950);
     check((await stars()) >= s0 + 2, `${vp.name} ${lang} letters: stars increase (${s0} -> ${await stars()})`);
     check(await page.locator('#spot svg.pic').count() === 1, `${lang} letters: picture pops`);
+    // Sound / Name / Word (+ Explain in English) buttons: present, visible, >= 64px, English labels.
+    const want = lang === 'en' ? ['btnSound', 'btnName', 'btnWord'] : ['btnSound', 'btnName', 'btnWord', 'btnExplain'];
+    const lb = await page.evaluate(() => [...document.querySelectorAll('#spot .lbtn')].map((b) => {
+      b.scrollIntoView({ block: 'nearest' }); const r = b.getBoundingClientRect();
+      const e = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return { id: b.id, w: Math.round(r.width), h: Math.round(r.height), label: b.querySelector('span').textContent.trim(), top: !!e && b.contains(e) };
+    }));
+    check(lb.map((b) => b.id).join() === want.join(), `${vp.name} ${lang} letters: spotlight buttons ${want} (${lb.map((b) => b.id)})`);
+    check(lb.every((b) => b.w >= 64 && b.h >= 64), `${vp.name} ${lang} letters: spotlight buttons >= 64px (${JSON.stringify(lb.map((b) => [b.id, b.w, b.h]))})`);
+    check(lb.every((b) => b.top), `${vp.name} ${lang} letters: spotlight buttons not covered (${JSON.stringify(lb.filter((b) => !b.top).map((b) => b.id))})`);
+    check(lb.map((b) => b.label).join('|') === ['Sound', 'Name', 'Word', 'Explain in English'].slice(0, want.length).join('|'), `${lang} letters: button labels in English (${lb.map((b) => b.label)})`);
+    if (lang !== 'en') {
+      const line = await page.locator('#spot .enline').textContent().catch(() => '');
+      check(/ — /.test(line) && /[A-Za-z]{3,}/.test(line) && (await page.locator('#spot .enline').isVisible()), `${vp.name} ${lang} letters: plain English line on the spotlight (${line})`);
+    } else check(await page.locator('#spot .enline').count() === 0, 'en letters: no extra English line needed');
     if (lang === 'he') {
       check(await page.locator('.lcard .ch[dir="rtl"]').count() >= 12, 'Hebrew letter cards dir=rtl');
       check(await page.locator('#spot .word[dir="rtl"]').count() === 1, 'Hebrew word dir=rtl');
@@ -149,6 +175,7 @@ for (const vp of VIEWPORTS) {
     // 2. Word Builder
     await page.click('#homeBtn');
     await page.click('.mode-btn[data-mode="builder"]');
+    check((await page.locator('#builder .instr').textContent()) === 'Build the word!', `${lang} builder: English instruction shown`);
     const expected = await page.locator('#slots .slot').evaluateAll((els) => els.map((e) => e.dataset.t));
     if (lang === 'en') check(expected.length >= 3 && expected.length <= 4, `en builder: 3–4 letter word (${expected.join('')})`);
     else check(await page.locator('#builder .mean').isVisible(), `${vp.name} ${lang} builder: English meaning visible`);
@@ -190,6 +217,7 @@ for (const vp of VIEWPORTS) {
     await page.click('#homeBtn');
     await page.click('.mode-btn[data-mode="bubbles"]');
     check(await page.locator('.bubble').count() >= 3, `${lang} bubbles: 3-4 bubbles`);
+    check((await page.locator('#listen .instr').textContent()) === 'Listen and pop the matching bubble!', `${lang} bubbles: English instruction shown`);
     if (lang !== 'en') {
       const nb = await page.locator('.bubble').count(), nm = await page.locator('.bubble .mean').count();
       check(nm === nb, `${vp.name} ${lang} bubbles: every bubble shows English meaning (${nm}/${nb})`);
@@ -216,7 +244,9 @@ for (const vp of VIEWPORTS) {
     check(await page.locator('#stageOut .w').count() === 1, `${lang} stage: number shown`);
     if (lang !== 'en') check(/ten/.test(await page.locator('#stageOut .mean').textContent().catch(() => '')), `${vp.name} ${lang} stage: number shows English meaning`);
     const barBox = await page.locator('.bar').nth(9).boundingBox();
-    check(barBox.width >= 28 && barBox.height >= 64, `${vp.name} ${lang} stage: bar tap target (${Math.round(barBox.width)}x${Math.round(barBox.height)})`);
+    const barW = await page.locator('.bar').evaluateAll((els) => els.map((e) => e.offsetWidth));
+    check(barW.every((w) => w >= 64), `${vp.name} ${lang} stage: every xylophone bar >= 64px wide (${barW})`);
+    check(barBox.width >= 64 && barBox.height >= 64, `${vp.name} ${lang} stage: bar tap target (${Math.round(barBox.width)}x${Math.round(barBox.height)})`);
     await noHScroll(`${lang} stage numbers`);
     await snap(`${lang}-stage`);
     await page.click('.tab[data-tab="colors"]');
@@ -237,7 +267,7 @@ for (const vp of VIEWPORTS) {
   // Speech: native clips for he/el/th/es; any device-voice use is correct-language only
   const spoken = await page.evaluate(() => window.__spoken);
   const used = await page.evaluate(() => ({ log: window.CLIPS.log(), missing: window.CLIPS.missing(), media: window.__media.errors, max: window.__media.max }));
-  for (const k of ['letter-a', 'letter-c', 'spell-', 'tile-', 'word-', 'cheer-']) check(used.log.some((x) => x.startsWith(k)), `${T.name} ${vp.name}: English clip ${k}… played`);
+  for (const k of ['sound/en/', 'spell-', 'word-', 'cheer-']) check(used.log.some((x) => x.startsWith(k)), `${T.name} ${vp.name}: English clip ${k}… played`);
   check(used.missing.length === 0, `${T.name} ${vp.name}: no missing English clips (${used.missing})`);
   check(used.media.length === 0, `${T.name} ${vp.name}: no media errors (${used.media})`);
   check(used.max <= 1, `${T.name} ${vp.name}: never more than one clip playing (${used.max})`);
@@ -292,7 +322,7 @@ url = TARGETS[0].url; T = TARGETS[0];
   await page.locator('.lcard').first().click();
   await page.waitForTimeout(400);
   check((await page.evaluate(() => window.LPW.state().stars)) === 1, 'stars work without localStorage');
-  check((await page.evaluate(() => window.LPW.audioState().key)) === 'letter-a', 'no speech API: English still plays its natural clip');
+  check((await page.evaluate(() => window.LPW.audioState().key)) === 'sound/en/00.mp3', 'no speech API: English still plays its letter sound clip');
   await page.click('.pill[data-lang="he"]');
   await page.click('#homeBtn'); await page.click('.mode-btn[data-mode="letters"]');
   await page.locator('.lcard').first().click();
@@ -309,6 +339,10 @@ for (const [label, saved, expectLang, expectStars] of [
   ['missing lang', JSON.stringify({ stars: 3, prog: {}, stickers: {} }), 'en', 3],
   ['non-string lang', JSON.stringify({ stars: 2, lang: 42, prog: {}, stickers: {} }), 'en', 2],
   ['corrupt JSON', '{not json', 'en', 0],
+  // Audit regression: wrong-shaped saves used to crash progress() / make stars a string.
+  ['bad shapes', JSON.stringify({ stars: '5', lang: 'es', parent: 'yes', prog: null, stickers: [] }), 'es', 0],
+  ['bad prog entry', JSON.stringify({ stars: 4.7, lang: 'el', prog: { el: 7, he: { letters: 'x' } }, stickers: null }), 'el', 4],
+  ['array save', '[1,2]', 'en', 0],
   ['old Hebrew save', JSON.stringify({ stars: 12, lang: 'he', parent: false, prog: { he: { letters: ['א'] } }, stickers: { 'he-builder': 1 } }), 'he', 12]
 ]) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
@@ -339,9 +373,9 @@ for (const [label, saved, expectLang, expectStars] of [
   await page.waitForFunction(() => window.LPW && document.querySelector('.mode-btn'));
   await page.click('.mode-btn[data-mode="letters"]');
   await page.locator('.lcard').nth(0).click();
-  await page.waitForTimeout(1000);
+  await page.waitForFunction(() => window.CLIPS.log().length >= 3 && !window.LPW.audioState().playing, null, { timeout: 8000 }).catch(() => {});
   const said = await page.evaluate(() => ({ spoken: window.__spoken.map((u) => u.text), clips: window.CLIPS.log() }));
-  check(said.clips.join('|') === 'letter-a' && said.spoken.length === 0, `en letter A plays one natural clip "A! A is for apple." (${said.clips} / ${said.spoken})`);
+  check(said.clips.join('|') === 'sound/en/00.mp3|sound/en/00.mp3|word-apple' && said.spoken.length === 0, `en letter A plays sound, sound, word "/a/ … /a/ … apple" (${said.clips} / ${said.spoken})`);
   await page.screenshot({ path: join(shots, 'desktop-en-letters.png') }); shotCount++;
   await page.click('#homeBtn'); await page.click('.mode-btn[data-mode="builder"]');
   await page.waitForTimeout(400);
@@ -361,9 +395,12 @@ for (const [label, saved, expectLang, expectStars] of [
   const a = readFileSync(join(root, 'index.html'), 'utf8'), b = readFileSync(join(root, 'Little-Phonics-World.html'), 'utf8');
   check(/window\.LPW_CLIPS = null;/.test(a) && !/"data:audio\/mpeg/.test(a), 'index.html loads clips from ./audio/en (no embedded audio)');
   const n = (b.match(/"data:audio\/mpeg;base64,/g) || []).length;
-  check(n === clipFiles(root).size, `standalone embeds all ${clipFiles(root).size} clips (${n})`);
+  check(n === clipFiles(root).size + SOUND_COUNTS.en, `standalone embeds all ${clipFiles(root).size} English clips + ${SOUND_COUNTS.en} English letter sounds (${n})`);
+  check(/window\.LPW_SOUND_EMBED = null;/.test(a), 'index.html loads letter sounds from ./audio/sound (none embedded)');
+  check((b.match(/window\.LPW_SOUND_EMBED = \{"a":"data:audio\/mpeg;base64,/g) || []).length === 1, 'standalone embeds the English letter sounds');
   check(Buffer.byteLength(b) < 2.5 * 1024 * 1024, `standalone < 2.5 MB (${(Buffer.byteLength(b) / 1048576).toFixed(2)} MB)`);
-  check(a.replace(/window\.LPW_CLIPS = [\s\S]*?;\n\/\* ---- data-en/, '') === b.replace(/window\.LPW_CLIPS = [\s\S]*?;\n\/\* ---- data-en/, ''), 'both builds share identical game code');
+  const strip = (x) => x.replace(/window\.LPW_SOUND_EMBED = [^\n]*\n/, '').replace(/window\.LPW_CLIPS = [\s\S]*?;\n\/\* ---- data-en/, '');
+  check(strip(a) === strip(b), 'both builds share identical game code');
   const bad = httpLog.filter(([, st]) => st !== 200);
   check(bad.length === 0, 'local HTTP server: every request 200 (' + JSON.stringify(bad.slice(0, 5)) + ')');
   console.log(`HTTP requests served: ${httpLog.length}, mp3: ${httpLog.filter(([u]) => u.endsWith('.mp3')).length}`);
@@ -431,7 +468,7 @@ async function audioSuite() {
   const rt = await rapidTap(page);
   console.log(`  ${T.name} rapid tap: 8 taps in ${rt.ms} ms -> ${JSON.stringify({ key: rt.key, playing: rt.playing, now: rt.now, max: rt.max, t: rt.t })}`);
   check(rt.ms < 1600, `${T.name}: 8 taps happened quickly (${rt.ms} ms)`);
-  check(rt.key === 'letter-' + rt.last, `${T.name}: rapid tap ends on the last tapped letter (${rt.key} vs letter-${rt.last})`);
+  check(rt.key === rt.want, `${T.name}: rapid tap ends on the last tapped letter's sound (${rt.key} vs ${rt.want})`);
   check(rt.playing === true && rt.now <= 1 && rt.max <= 1, `${T.name}: exactly one clip playing after rapid taps (playing=${rt.playing}, now=${rt.now}, max=${rt.max})`);
   check(rt.t > 0, `${T.name}: last clip is actually progressing (currentTime ${rt.t})`);
   check(rt.spoken === 0 && rt.errs.length === 0, `${T.name}: no Web Speech stacking / media errors (${rt.spoken}, ${rt.errs})`);
@@ -460,6 +497,7 @@ async function audioSuite() {
   const ck = (await page.evaluate(() => window.LPW.audioState())).key;
   check(ck === 'cheer-' + cheerText.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''), `${T.name}: spoken cheer matches the pop-up "${cheerText}" (${ck})`);
   await nativeChecks(page);
+  await soundSuite(page);
   check(errs.length === 0, `${T.name}: audio suite has no errors (${errs.join(' | ')})`);
   await ctx.close();
 
@@ -485,6 +523,7 @@ async function fallbackAndVoices() {
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
     await ctx.addInitScript(voicesMock, list);
     await ctx.route('**/audio/en/letter-a.mp3', (r) => r.fulfill({ status: 404, body: 'nope' }));
+    await ctx.route('**/audio/sound/en/00.mp3', (r) => r.fulfill({ status: 404, body: 'nope' }));
     const page = await ctx.newPage();
     const errs = [];
     page.on('pageerror', (e) => errs.push(e.message));
@@ -522,10 +561,10 @@ async function nativeChecks(page) {
     await page.waitForTimeout(250);
     const st = await page.evaluate(() => {
       const D = window.LPW_DATA[window.LPW.state().lang], L = D.letters[0], b = document.getElementById('badge');
-      return { ...window.LPW.audioState(), want: window.CLIPS.native(D.code, L.name).key, badge: b.classList.contains('show') && getComputedStyle(b).visibility === 'visible',
+      return { ...window.LPW.audioState(), want: window.CLIPS.sound(D.code, L.ch).key, badge: b.classList.contains('show') && getComputedStyle(b).visibility === 'visible',
         spoken: window.__spoken.length, errs: window.__media.errors.slice() };
     });
-    check(st.lang === l && st.key === st.want && st.playing, `${T.name}: tapping a ${l} letter plays its native clip (${JSON.stringify({ key: st.key, lang: st.lang, playing: st.playing, want: st.want })})`);
+    check(st.lang === l && st.key === st.want && st.playing, `${T.name}: tapping a ${l} letter plays its letter sound clip first (${JSON.stringify({ key: st.key, lang: st.lang, playing: st.playing, want: st.want })})`);
     check(st.badge, `${T.name}: ${l} sound-out badge visible while the native clip plays`);
     check(st.spoken === 0 && st.errs.length === 0, `${T.name}: ${l} letter used no device voice / media errors (${st.spoken}, ${st.errs})`);
     if (l === 'he') await page.screenshot({ path: join(shots, `${T.shot}native-he-letter.png`) }), shotCount++;
@@ -605,4 +644,153 @@ async function offlineRun(deviceOffline) {
     check(errs.length <= 1, `${tag}: at most one browser network message (${errs.length})`);
   }
   await ctx.close();
+}
+
+/* Letter SOUND / NAME / WORD buttons, Explain in English, builder tile sounds, approved.json fallback, overlap. */
+async function soundSuite(page) {
+  const fs = await import('node:fs');
+  const approved = approvedList(root);
+  // 1. Every manifest key resolves to a clip that exists and loads; keys match the letters in the data.
+  for (const l of ALL_LANGS) {
+    const sm = soundManifest(root, l), keys = Object.keys(sm);
+    check(keys.length === SOUND_COUNTS[l], `${T.name}: ${l} has ${SOUND_COUNTS[l]} sound clips (${keys.length})`);
+    check([...approved[l]].sort().join() === [...keys].sort().join(), `${T.name}: approved.json lists every ${l} key`);
+    check(keys.every((k) => fs.existsSync(join(root, 'audio', 'sound', l, sm[k].file))), `${T.name}: every ${l} sound file exists`);
+    const r = await page.evaluate(({ l, keys }) => {
+      const D = window.LPW_DATA[l];
+      return { letterKeys: D.letters.map((L) => window.LPWLetters.soundKey(D, L)),
+        unresolved: keys.filter((k) => !window.CLIPS.sound(l, k)), sounds: keys.map((k) => window.CLIPS.sound(l, k)).filter(Boolean),
+        exUnresolved: l === 'en' ? [] : keys.filter((k) => !window.CLIPS.explain(l, k)),
+        explains: l === 'en' ? [] : keys.map((k) => window.CLIPS.explain(l, k)).filter(Boolean),
+        exMeta: l === 'en' ? {} : window.LPW_EXPLAIN[l] };
+    }, { l, keys });
+    check([...r.letterKeys].sort().join() === [...keys].sort().join(), `${T.name}: ${l} sound keys match the letters in the game`);
+    check(r.unresolved.length === 0, `${T.name}: every ${l} sound key resolves in the game (${r.unresolved})`);
+    const srcOk = r.sounds.every((e) => (l === 'en' && !T.http) ? e.src.startsWith('data:audio/mpeg') : e.src === (T.http ? './audio/' : SITE) + e.key);
+    check(srcOk, `${T.name}: ${l} sound clips load from ${l === 'en' && !T.http ? 'embedded data' : (T.http ? './audio/sound/' : 'the website')}`);
+    if (l !== 'en') {
+      const em = explainManifest(root, l);
+      check(Object.keys(em).sort().join() === [...keys].sort().join(), `${T.name}: ${l} explain keys match sound keys`);
+      check(r.exUnresolved.length === 0, `${T.name}: every ${l} explain key resolves (${r.exUnresolved})`);
+      check(Object.keys(em).every((k) => r.exMeta[k] && r.exMeta[k].text === em[k].text && r.exMeta[k].file === em[k].file), `${T.name}: ${l} explain texts embedded unchanged`);
+      check(Object.keys(em).every((k) => fs.existsSync(join(root, 'audio', 'explain', l, em[k].file))), `${T.name}: every ${l} explain file exists`);
+    }
+    const loaded = await loadEntries(page, [...r.sounds, ...r.explains].map((e) => ({ key: e.key, src: e.src })));
+    const bad = loaded.filter((x) => !(x.ok && x.rs >= 2 && x.dur > 0.2));
+    check(bad.length === 0 && loaded.length === keys.length * (l === 'en' ? 1 : 2), `${T.name}: all ${loaded.length} ${l} sound/explain clips load (${JSON.stringify(bad.slice(0, 3))})`);
+  }
+
+  // 2. Letter tap = sound, sound, word; then each button plays the right clip, in every language.
+  for (const l of ALL_LANGS) {
+    await page.evaluate((l) => { window.__spoken.length = 0; window.LPW.setLang(l); window.LPW.goMode('letters'); }, l);
+    const n0 = await page.evaluate(() => window.CLIPS.log().length);
+    await page.locator('.lcard').nth(1).click();
+    const exp = await page.evaluate(() => {
+      const D = window.LPW_DATA[window.LPW.state().lang], L = D.letters[1], en = D.code === 'en', k = window.LPWLetters.soundKey(D, L);
+      return { sound: window.CLIPS.sound(D.code, k).key, name: en ? 'tile-' + k : window.CLIPS.native(D.code, L.name).key,
+        word: en ? window.LPWCore.wordKey(L.word) : window.CLIPS.native(D.code, L.word).key, explain: en ? null : window.CLIPS.explain(D.code, L.ch).key,
+        ipa: (window.CLIPS.soundMeta(D.code, k) || {}).ipa, parent: document.querySelector('#spot .ptxt').textContent };
+    });
+    await page.waitForFunction((n0) => window.CLIPS.log().length >= n0 + 3 && !window.LPW.audioState().playing, n0, { timeout: 9000 }).catch(() => {});
+    const seq = (await page.evaluate(() => window.CLIPS.log())).slice(n0);
+    check(seq.join('|') === [exp.sound, exp.sound, exp.word].join('|'), `${T.name}: ${l} letter tap plays sound, sound, word (${seq})`);
+    check(exp.ipa && exp.parent.includes('IPA') && exp.parent.includes('/' + exp.ipa + '/'), `${T.name}: ${l} Parent Info shows the IPA hint (${exp.parent.slice(0, 90)})`);
+    for (const [id, k] of [['btnSound', 'sound'], ['btnName', 'name'], ['btnWord', 'word'], ['btnExplain', 'explain']]) {
+      if (!exp[k]) { check(await page.locator('#' + id).count() === 0, `${l}: no #${id} in English`); continue; }
+      await page.click('#' + id);
+      await page.waitForTimeout(220);
+      const st = await page.evaluate(() => window.LPW.audioState());
+      check(st.key === exp[k] && st.playing, `${T.name}: ${l} ${id} plays ${exp[k]} (${st.key}, playing=${st.playing})`);
+      if (k === 'explain') check(/^This letter is /.test(st.text || ''), `${T.name}: ${l} explanation clip is the English one (${st.text})`);
+    }
+    if (l === 'he') { await page.screenshot({ path: join(shots, `${T.shot}sound-buttons-he.png`) }); shotCount++; }
+    check(await page.evaluate(() => window.__spoken.length) === 0, `${T.name}: ${l} buttons needed no device voice`);
+  }
+
+  // 3. Word Builder: tapping a letter tile plays its letter sound (Thai syllable tiles keep their syllable clips).
+  for (const l of ALL_LANGS) {
+    await page.evaluate((l) => { window.LPW.setLang(l); window.LPW.goMode('builder'); }, l);
+    const slots = await page.locator('#slots .slot').evaluateAll((els) => els.map((e) => e.dataset.t));
+    // A WRONG tile tap still boings, bounces back, and then plays that tile's own letter sound (one clip at a time).
+    if (l !== 'th') {
+      const wi = await page.locator('#tray .tile').evaluateAll((els, t) => els.findIndex((e) => e.dataset.t !== t), slots[0]);
+      if (wi < 0) check(false, `${T.name}: ${l} builder has no wrong tile to tap`);
+      else {
+        await page.evaluate(() => { window.__media.max = 0; });
+        await page.locator('#tray .tile').nth(wi).click({ force: true });
+        await page.waitForTimeout(700);
+        const r = await page.evaluate((wi) => {
+          const D = window.LPW_DATA[window.LPW.state().lang], tile = document.querySelectorAll('#tray .tile')[wi];
+          const slots = [...document.querySelectorAll('#slots .slot')].map((e) => e.dataset.t);
+          const W = D.words.find((w) => w.tiles.join('|') === slots.join('|'));
+          const sk = window.LPWBuilder.tileSoundKey(D, W, +tile.dataset.k), e = sk && window.CLIPS.sound(D.code, sk);
+          return { key: window.LPW.audioState().key, want: e ? e.key : null, filled: document.querySelectorAll('#slots .slot.filled').length, max: window.__media.max };
+        }, wi);
+        // Where no sound clip is available (e.g. standalone without the site), speakTile's old-tile fallback must still sound.
+        check(r.filled === 0 && r.max <= 1 && (r.want ? /^sound\//.test(r.key || '') && r.key === r.want : !!r.key),
+          `${T.name}: ${l} wrong tile tap plays its own audio/sound/ clip (${r.key} vs ${r.want}, filled=${r.filled}, max=${r.max})`);
+      }
+    }
+    const played = [], wanted = [];
+    for (let i = 0; i < slots.length; i++) {
+      const idx = await page.locator('#tray .tile').evaluateAll((els, t) => els.findIndex((e) => e.dataset.t === t && !e.classList.contains('used')), slots[i]);
+      await page.locator('#tray .tile').nth(idx).click({ force: true });
+      await page.waitForTimeout(120);
+      const r = await page.evaluate(({ slots, i }) => {
+        const D = window.LPW_DATA[window.LPW.state().lang], W = D.words.find((w) => w.tiles.join('|') === slots.join('|'));
+        const sk = window.LPWBuilder.tileSoundKey(D, W, i), e = sk && window.CLIPS.sound(D.code, sk);
+        return { key: window.LPW.audioState().key, want: e ? e.key : null };
+      }, { slots, i });
+      played.push(r.key); wanted.push(r.want);
+    }
+    const pairs = played.map((k, i) => [k, wanted[i]]).filter(([, w]) => w);
+    if (l === 'th') check(played.every((k) => /^th\/[0-9]+\.mp3$/.test(k || '')), `${T.name}: Thai tiles keep their syllable clips (${played})`);
+    else {
+      check(pairs.length > 0 && pairs.every(([k, w]) => k === w), `${T.name}: ${l} letter tiles play their letter sound clips (${played} vs ${wanted})`);
+      check(played.every((k) => k), `${T.name}: ${l} every tile made a sound (${played})`);
+    }
+    await page.waitForTimeout(800);
+    check(await page.locator('#builder[data-done="1"]').count() === 1, `${T.name}: ${l} builder still completes`);
+  }
+
+  // Audit regression: a used (hidden) tile can never be placed a second time (e.g. by keyboard) — "mom"/"dad" repeat a letter.
+  await page.evaluate(() => window.LPW.setLang('en'));
+  for (let i = 0; i < 25; i++) {
+    const w = await page.evaluate(() => { window.MODES.builder.next(); window.LPW.goMode('builder'); return [...document.querySelectorAll('#slots .slot')].map((e) => e.dataset.t).join(''); });
+    if (w === 'mom' || w === 'dad') {
+      for (const t of w.slice(0, 2)) await page.locator(`#tray .tile[data-t="${t}"]:not(.used)`).first().click({ force: true });
+      const r = await page.evaluate((t) => { const used = document.querySelector(`#tray .tile.used[data-t="${t}"]`);
+        used.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        return { filled: document.querySelectorAll('#slots .slot.filled').length, done: !!document.querySelector('#builder[data-done]') }; }, w[0]);
+      check(r.filled === 2 && !r.done, `${T.name}: a used tile cannot be placed twice (${w}: filled=${r.filled}, done=${r.done})`);
+      break;
+    }
+    if (i === 24) check(false, `${T.name}: could not reach a repeated-letter word for the used-tile test`);
+  }
+
+  // 4. approved.json fallback: a letter missing from the approved list uses the English explanation / old name + word.
+  await page.evaluate(() => { window.__appr = window.LPW_APPROVED.he.slice(); window.LPW_APPROVED.he.splice(window.LPW_APPROVED.he.indexOf('בּ'), 1); window.LPW.setLang('he'); window.LPW.goMode('letters'); });
+  await page.locator('.lcard').nth(1).click();
+  await page.waitForTimeout(200);
+  const fb = await page.evaluate(() => { const L = window.LPW_DATA.he.letters[1]; return { key: window.LPW.audioState().key, name: window.CLIPS.native('he', L.name).key, ex: window.CLIPS.explain('he', L.ch).key, note: document.querySelector('#spot .ptxt').textContent }; });
+  check(fb.key === fb.name, `${T.name}: unapproved letter tap falls back to name + word (${fb.key} vs ${fb.name})`);
+  check(/English explanation plays instead/.test(fb.note), `${T.name}: Parent Info notes the missing sound`);
+  await page.click('#btnSound'); await page.waitForTimeout(200);
+  check((await page.evaluate(() => window.LPW.audioState().key)) === fb.ex, `${T.name}: unapproved Sound button plays the English explanation (${fb.ex})`);
+  await page.evaluate(() => { window.LPW_APPROVED.he.length = 0; window.__appr.forEach((k) => window.LPW_APPROVED.he.push(k)); });
+
+  // 5. Overlap cancellation across the new buttons: rapid presses end on the last one, never two clips at once.
+  for (const l of ['en', 'el']) {
+    await page.evaluate((l) => { window.LPW.setLang(l); window.LPW.goMode('letters'); }, l);
+    await page.locator('.lcard').nth(3).click();
+    const ids = l === 'en' ? ['btnSound', 'btnWord', 'btnName', 'btnSound', 'btnWord', 'btnName'] : ['btnSound', 'btnExplain', 'btnName', 'btnWord', 'btnExplain', 'btnSound'];
+    for (const id of ids) await page.click('#' + id, { delay: 0 });
+    await page.waitForTimeout(300);
+    const st = await page.evaluate(() => { const D = window.LPW_DATA[window.LPW.state().lang], L = D.letters[3];
+      return { ...window.LPW.audioState(), want: window.CLIPS.sound(D.code, window.LPWLetters.soundKey(D, L)).key, want2: D.code === 'en' ? 'tile-' + window.LPWLetters.soundKey(D, L) : null,
+        now: window.__media.playingNow(), max: window.__media.max }; });
+    const last = ids[ids.length - 1] === 'btnSound' ? st.want : st.want2;
+    check(st.key === last && st.now <= 1 && st.max <= 1, `${T.name}: ${l} rapid button presses end on the last one, one clip at a time (${st.key} vs ${last}, now=${st.now}, max=${st.max})`);
+  }
+  await page.evaluate(() => { window.LPW.setLang('en'); window.LPW.goMode('home'); });
 }

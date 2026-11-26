@@ -22,6 +22,7 @@
       root.innerHTML = '<div class="screen-title"><span class="ico">' + ICON.mBubbles + '</span><h1>' + this.title + '</h1></div>';
       var box = C.el('div', { class: 'listen', id: 'listen' });
       box.innerHTML =
+        '<div class="instr" lang="en" dir="ltr" style="text-align:center">Listen and pop the matching bubble!</div>' +
         '<div class="ask"><button class="roundbtn speak" id="hear" aria-label="Hear the word">' + ICON.speaker + '</button>' +
         '<div><div class="say" ' + la + '>' + C.esc(target.w) + '</div>' + (D.code === 'en' ? '' : '<div style="font-weight:800;color:#7a6fb0;font-size:18px">' + C.esc(target.tr) + '</div>' + C.mean(D, target.en)) + '</div></div>' +
         '<div class="ptxt parent" style="text-align:center">Find: <b>' + C.esc(target.en) + '</b>. Wrong taps just giggle — after two, the right bubble glows.</div>' +

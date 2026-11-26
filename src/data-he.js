@@ -28,16 +28,18 @@ window.LPW_DATA.he = {
     { ch: 'ת', name: 'תָּו',   nameTr: 'tahv',    snd: 't',  word: 'תַּפּוּחַ',  tr: 'ta-POO-akh', en: 'apple',    pic: 'apple' }
   ],
   /* Word Builder: tiles are plain letters in reading order (first = rightmost on screen). */
+  /* sk = letter-SOUND clip key per tile (audio/sound/he); null = tile says its letter name instead
+     (ו/י as vowels, silent final א, word-final ב = v, final ף = f: no matching sound clip). */
   words: [
-    { w: 'סוּס',  tiles: ['ס', 'ו', 'ס'],      tr: 'soos',     en: 'horse',    pic: 'horse' },
-    { w: 'פִּיל',  tiles: ['פ', 'י', 'ל'],      tr: 'peel',     en: 'elephant', pic: 'elephant' },
-    { w: 'גָּמָל', tiles: ['ג', 'מ', 'ל'],      tr: 'ga-MAL',   en: 'camel',    pic: 'camel' },
-    { w: 'כֶּלֶב', tiles: ['כ', 'ל', 'ב'],      tr: 'KEH-lev',  en: 'dog',      pic: 'dog' },
-    { w: 'אִמָּא', tiles: ['א', 'מ', 'א'],      tr: 'EE-ma',    en: 'mom',      pic: 'mom' },
-    { w: 'אַבָּא', tiles: ['א', 'ב', 'א'],      tr: 'AH-ba',    en: 'dad',      pic: 'dad' },
-    { w: 'בַּיִת', tiles: ['ב', 'י', 'ת'],      tr: 'BA-yit',   en: 'house',    pic: 'house' },
-    { w: 'קוֹף',  tiles: ['ק', 'ו', 'ף'],      tr: 'kof',      en: 'monkey',   pic: 'monkey' },
-    { w: 'חָתוּל', tiles: ['ח', 'ת', 'ו', 'ל'], tr: 'kha-TOOL', en: 'cat',      pic: 'cat' }
+    { w: 'סוּס',  tiles: ['ס', 'ו', 'ס'],      sk: ['ס', null, 'ס'],       tr: 'soos',     en: 'horse',    pic: 'horse' },
+    { w: 'פִּיל',  tiles: ['פ', 'י', 'ל'],      sk: ['פּ', null, 'ל'],       tr: 'peel',     en: 'elephant', pic: 'elephant' },
+    { w: 'גָּמָל', tiles: ['ג', 'מ', 'ל'],      sk: ['ג', 'מ', 'ל'],        tr: 'ga-MAL',   en: 'camel',    pic: 'camel' },
+    { w: 'כֶּלֶב', tiles: ['כ', 'ל', 'ב'],      sk: ['כּ', 'ל', null],       tr: 'KEH-lev',  en: 'dog',      pic: 'dog' },
+    { w: 'אִמָּא', tiles: ['א', 'מ', 'א'],      sk: [null, 'מ', null],      tr: 'EE-ma',    en: 'mom',      pic: 'mom' },
+    { w: 'אַבָּא', tiles: ['א', 'ב', 'א'],      sk: ['א', 'בּ', null],       tr: 'AH-ba',    en: 'dad',      pic: 'dad' },
+    { w: 'בַּיִת', tiles: ['ב', 'י', 'ת'],      sk: ['בּ', 'י', 'ת'],        tr: 'BA-yit',   en: 'house',    pic: 'house' },
+    { w: 'קוֹף',  tiles: ['ק', 'ו', 'ף'],      sk: ['ק', null, null],      tr: 'kof',      en: 'monkey',   pic: 'monkey' },
+    { w: 'חָתוּל', tiles: ['ח', 'ת', 'ו', 'ל'], sk: ['ח', 'ת', null, 'ל'],  tr: 'kha-TOOL', en: 'cat',      pic: 'cat' }
   ],
   /* What each tile says when tapped (letter names; final forms say "final ..."). */
   tileSay: {

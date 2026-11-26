@@ -1,0 +1,170 @@
+{
+ "Αα": {
+  "file": "00.mp3",
+  "ipa": "a",
+  "class": "vowel",
+  "carrier": "αστέρι",
+  "source": "Wikimedia Commons \"Open front unrounded vowel.ogg\" (CC BY-SA 3.0; artist:No machine-readable author provided.  Denelson83 assumed (based on copyright cla uploader Yann)"
+ },
+ "Ββ": {
+  "file": "01.mp3",
+  "ipa": "v",
+  "class": "cont",
+  "carrier": "βάρκα",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Γγ": {
+  "file": "02.mp3",
+  "ipa": "ɣ",
+  "class": "cont",
+  "carrier": "γάτα",
+  "source": "Wikimedia Commons \"Voiced velar fricative.ogg\" (CC BY-SA 3.0;  uploader Adamsa123)"
+ },
+ "Δδ": {
+  "file": "03.mp3",
+  "ipa": "ð",
+  "class": "cont",
+  "carrier": "δέντρο",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Εε": {
+  "file": "04.mp3",
+  "ipa": "e",
+  "class": "vowel",
+  "carrier": "ελέφαντας",
+  "source": "Wikimedia Commons \"Mid front unrounded vowel.ogg\" (CC BY-SA 3.0; artist:TFighterPilot uploader トレインファン)"
+ },
+ "Ζζ": {
+  "file": "05.mp3",
+  "ipa": "z",
+  "class": "cont",
+  "carrier": "ζέβρα",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Ηη": {
+  "file": "06.mp3",
+  "ipa": "i",
+  "class": "vowel",
+  "carrier": "ήλιος",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Θθ": {
+  "file": "07.mp3",
+  "ipa": "θ",
+  "class": "fric",
+  "carrier": "θάλασσα",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Ιι": {
+  "file": "08.mp3",
+  "ipa": "i",
+  "class": "vowel",
+  "carrier": "ιππόκαμπος",
+  "source": "Wikimedia Commons \"Close front unrounded vowel.ogg\" (CC BY-SA 3.0; artist:No machine-readable author provided. Denelson83 assumed (based on copyright clai uploader Denelson83)"
+ },
+ "Κκ": {
+  "file": "09.mp3",
+  "ipa": "k",
+  "class": "stop",
+  "carrier": "κότα",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Λλ": {
+  "file": "10.mp3",
+  "ipa": "l",
+  "class": "cont",
+  "carrier": "λουλούδι",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Μμ": {
+  "file": "11.mp3",
+  "ipa": "m",
+  "class": "cont",
+  "carrier": "μήλο",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Νν": {
+  "file": "12.mp3",
+  "ipa": "n",
+  "class": "cont",
+  "carrier": "νερό",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Ξξ": {
+  "file": "13.mp3",
+  "ipa": "ks",
+  "class": "affr",
+  "carrier": "ξύλο",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Οο": {
+  "file": "14.mp3",
+  "ipa": "o",
+  "class": "vowel",
+  "carrier": "ομπρέλα",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Ππ": {
+  "file": "15.mp3",
+  "ipa": "p",
+  "class": "stop",
+  "carrier": "πάπια",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Ρρ": {
+  "file": "16.mp3",
+  "ipa": "r",
+  "class": "cont",
+  "carrier": "ρολόι",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Σσς": {
+  "file": "17.mp3",
+  "ipa": "s",
+  "class": "fric",
+  "carrier": "σκύλος",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Ττ": {
+  "file": "18.mp3",
+  "ipa": "t",
+  "class": "stop",
+  "carrier": "τυρί",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Υυ": {
+  "file": "19.mp3",
+  "ipa": "i",
+  "class": "vowel",
+  "carrier": "υποβρύχιο",
+  "source": "Wikimedia Commons \"Close front unrounded vowel.ogg\" (CC BY-SA 3.0; artist:No machine-readable author provided. Denelson83 assumed (based on copyright clai uploader Denelson83)"
+ },
+ "Φφ": {
+  "file": "20.mp3",
+  "ipa": "f",
+  "class": "fric",
+  "carrier": "φεγγάρι",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Χχ": {
+  "file": "21.mp3",
+  "ipa": "x",
+  "class": "fric",
+  "carrier": "χελώνα",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Ψψ": {
+  "file": "22.mp3",
+  "ipa": "ps",
+  "class": "affr",
+  "carrier": "ψάρι",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ },
+ "Ωω": {
+  "file": "23.mp3",
+  "ipa": "o",
+  "class": "vowel",
+  "carrier": "ωκεανός",
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural"
+ }
+}

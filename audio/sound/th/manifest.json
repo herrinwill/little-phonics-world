@@ -1,0 +1,149 @@
+{
+ "ก": {
+  "file": "00.mp3",
+  "ipa": "k",
+  "class": "stop",
+  "carrier": "ไก่",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ข": {
+  "file": "01.mp3",
+  "ipa": "kʰ",
+  "class": "asp",
+  "carrier": "ไข่",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ค": {
+  "file": "02.mp3",
+  "ipa": "kʰ",
+  "class": "asp",
+  "carrier": "ควาย",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ง": {
+  "file": "03.mp3",
+  "ipa": "ŋ",
+  "class": "cont",
+  "carrier": "งู",
+  "source": "Wikimedia Commons \"Velar nasal.ogg\" (CC BY-SA 3.0;  uploader Karmosin~commonswiki)"
+ },
+ "จ": {
+  "file": "04.mp3",
+  "ipa": "tɕ",
+  "class": "affr",
+  "carrier": "จาน",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ช": {
+  "file": "05.mp3",
+  "ipa": "tɕʰ",
+  "class": "affr",
+  "carrier": "ช้าง",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ด": {
+  "file": "06.mp3",
+  "ipa": "d",
+  "class": "stop",
+  "carrier": "เด็ก",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ต": {
+  "file": "07.mp3",
+  "ipa": "t",
+  "class": "stop",
+  "carrier": "เต่า",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "น": {
+  "file": "08.mp3",
+  "ipa": "n",
+  "class": "cont",
+  "carrier": "หนู",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "บ": {
+  "file": "09.mp3",
+  "ipa": "b",
+  "class": "stop",
+  "carrier": "ใบไม้",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ป": {
+  "file": "10.mp3",
+  "ipa": "p",
+  "class": "stop",
+  "carrier": "ปลา",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "พ": {
+  "file": "11.mp3",
+  "ipa": "pʰ",
+  "class": "asp",
+  "carrier": "พาน",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ฟ": {
+  "file": "12.mp3",
+  "ipa": "f",
+  "class": "fric",
+  "carrier": "ฟัน",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ม": {
+  "file": "13.mp3",
+  "ipa": "m",
+  "class": "cont",
+  "carrier": "ม้า",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ย": {
+  "file": "14.mp3",
+  "ipa": "j",
+  "class": "cont",
+  "carrier": "ยักษ์",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ร": {
+  "file": "15.mp3",
+  "ipa": "r",
+  "class": "cont",
+  "carrier": "เรือ",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ล": {
+  "file": "16.mp3",
+  "ipa": "l",
+  "class": "cont",
+  "carrier": "ลิง",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ว": {
+  "file": "17.mp3",
+  "ipa": "w",
+  "class": "cont",
+  "carrier": "แหวน",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ส": {
+  "file": "18.mp3",
+  "ipa": "s",
+  "class": "fric",
+  "carrier": "เสือ",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "ห": {
+  "file": "19.mp3",
+  "ipa": "h",
+  "class": "fric",
+  "carrier": "หีบ",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ },
+ "อ": {
+  "file": "20.mp3",
+  "ipa": "ʔa",
+  "class": "vowel",
+  "carrier": "อ่าง",
+  "source": "Microsoft Edge neural voice th-TH-PremwadeeNeural"
+ }
+}
