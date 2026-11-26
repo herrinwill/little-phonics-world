@@ -37,7 +37,7 @@
             try { SFX.xylo(i); } catch (e) { /* ignore */ }
             C.restart(b, 'hit');
             setTimeout(function () { b.classList.remove('hit'); }, 160);
-            C.say([{ text: n.w, tr: n.tr }], { quiet: true });
+            C.say([{ text: n.w, tr: n.tr }], { quiet: true, clip: C.wordKey(n.w) });
             var dots = '<div class="dots">';
             for (var k = 0; k <= i; k++) dots += '<span style="animation-delay:' + (k * 0.05) + 's;display:block">' + ICON.star + '</span>';
             show((D.digits ? D.digits[i] + ' · ' : (i + 1) + ' · ') + n.w, n.tr, (i + 1) + ' · ' + EN_NUM[i], dots + '</div>');
@@ -53,7 +53,7 @@
           b.addEventListener('click', function () {
             try { SFX.xylo(i + 2); } catch (e) { /* ignore */ }
             C.restart(b, 'dance');
-            C.say([{ text: c.w, tr: c.tr }], { quiet: true });
+            C.say([{ text: c.w, tr: c.tr }], { quiet: true, clip: C.wordKey(c.w) });
             show(c.w, c.tr, c.en);
             out.querySelector('.w').style.color = c.hex;
             count();
@@ -68,7 +68,7 @@
           b.addEventListener('click', function () {
             try { SFX.animal(); } catch (e) { /* ignore */ }
             C.restart(b, 'dance');
-            C.say([{ text: a.w, tr: a.tr }], { quiet: true });
+            C.say([{ text: a.w, tr: a.tr }], { quiet: true, clip: C.wordKey(a.w) });
             show(a.w, a.tr, a.en);
             count();
           });

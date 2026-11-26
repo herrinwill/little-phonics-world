@@ -29,7 +29,7 @@
     if (greet) {
       try { SFX.chime(); } catch (e) { /* ignore */ }
       var D = LPW_DATA[code];
-      C.say([{ text: D.hello, tr: D.helloTr }], { quiet: true });
+      C.say([{ text: D.hello, tr: D.helloTr }], { quiet: true, clip: 'hello' });
     }
     return true;
   }
@@ -63,7 +63,7 @@
   function go(name) {
     if (name !== 'home' && !MODES[name]) name = 'home';
     mode = name;
-    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+    try { SPEECH.stop(); } catch (e) { /* ignore */ }
     screen.innerHTML = '';
     screen.setAttribute('data-mode', name);
     try {
@@ -100,6 +100,7 @@
       return { lang: ST.lang, mode: mode, stars: ST.stars, parent: ST.parent, stickers: Object.keys(ST.stickers),
         voice: SPEECH.voiceName(ST.lang) || null };
     },
+    audioState: function () { return window.CLIPS ? CLIPS.state() : { playing: false, key: null }; },
     langs: LANGS.slice(),
     modes: ['home', 'letters', 'builder', 'bubbles', 'stage', 'stickers']
   };

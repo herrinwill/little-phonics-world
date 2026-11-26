@@ -35,9 +35,9 @@
         b.addEventListener('click', function () { choose(b, o); });
         bb.appendChild(b);
       });
-      function sayTarget() { C.say([{ text: target.w, tr: target.tr }]); }
+      function sayTarget() { C.say([{ text: target.w, tr: target.tr }], { clip: C.wordKey(target.w) }); }
       box.querySelector('#hear').addEventListener('click', sayTarget);
-      setTimeout(function () { if (document.body.contains(box)) sayTarget(); }, 400);
+      C.later(function () { if (document.body.contains(box)) sayTarget(); }, 400);
 
       function choose(b, o) {
         if (solved) return;
@@ -46,15 +46,15 @@
           try { SFX.pop(); } catch (e) { /* ignore */ }
           var c = C.center(b); C.burst(c.x, c.y);
           C.addStar(b);
-          C.cheer(b);
+          var cheerKey = C.cheer(b);
           b.classList.add('popped');
           C.confetti(50);
-          C.say([{ text: target.w, tr: target.tr }], { quiet: true });
+          C.say([{ text: target.w, tr: target.tr }], { quiet: true, clip: [C.wordKey(target.w), cheerKey] });
           C.progress('bubbles');
           box.setAttribute('data-solved', '1');
           setTimeout(function () {
             if (document.body.contains(box)) window.LPWApp.go('bubbles');
-          }, 1700);
+          }, 2300);
           return;
         }
         wrong++;
@@ -64,7 +64,8 @@
         setTimeout(function () { g.remove(); }, 700);
         if (wrong >= 2) {
           var ok = bb.querySelector('[data-ok]');
-          setTimeout(function () {
+          setTimeout(function () { /* visual hint always happens; only the audio is cancellable */
+            if (!document.body.contains(box) || solved) return;
             sayTarget();
             if (ok) { ok.classList.add('hint'); setTimeout(function () { ok.classList.remove('hint'); }, 2200); }
           }, 500);

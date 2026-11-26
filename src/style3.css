@@ -39,3 +39,24 @@
   .swatch .mean,.zoo button .mean{font-size:11px}
 }
 .hello .sub{font-size:clamp(18px,2.6vw,24px);font-weight:900;color:#5a4f8a;margin-top:6px}
+
+/* ---- Home fits on short desktop/laptop screens (e.g. 1280x800): Sticker Book fully visible ---- */
+@media (min-width:641px) and (max-height:920px) and (min-height:501px){
+  #screen[data-mode="home"]{padding-top:10px;padding-bottom:20px}
+  #screen[data-mode="home"] .hello{margin-bottom:10px}
+  #screen[data-mode="home"] .hello .big{font-size:clamp(30px,6vh,50px)}
+  #screen[data-mode="home"] .hello .sub{margin-top:2px;font-size:clamp(17px,2.6vh,22px)}
+  .mode-btn{min-height:clamp(140px,22vh,200px);padding:8px}
+  .mode-btn svg{width:clamp(80px,15vh,135px)}
+  .home-grid{gap:clamp(12px,2vh,20px)}
+  .sticker-btn{min-height:78px;padding:6px 26px;margin-top:clamp(12px,2vh,20px)}
+  .sticker-btn svg{width:62px;height:62px}
+  .sticker-btn svg:last-child{width:38px!important;height:62px!important}
+}
+.sticker-btn span{white-space:nowrap}
+@media (max-width:640px){
+  .mode-btn{min-height:clamp(150px,23vh,210px)}
+  .sticker-btn{min-height:82px;padding:6px 20px;margin-top:14px}
+  .sticker-btn svg{width:64px;height:64px}
+  .sticker-btn svg:last-child{width:38px!important;height:62px!important}
+}

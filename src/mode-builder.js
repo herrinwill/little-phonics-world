@@ -48,10 +48,10 @@
       });
       markNext();
       box.querySelector('#bSay').addEventListener('click', function () { sayWord(); });
-      setTimeout(function () { if (document.body.contains(box)) sayWord(); }, 350);
+      C.later(function () { if (document.body.contains(box)) sayWord(); }, 350);
 
-      function sayWord() { C.say([{ text: W.w, tr: W.tr }]); }
-      function speakTile(k) { C.say([{ text: tileSay(D, W, k), tr: tileTr(D, W.tiles[k]) }], { quiet: true }); }
+      function sayWord() { C.say([{ text: W.w, tr: W.tr }], { clip: C.wordKey(W.w) }); }
+      function speakTile(k) { C.say([{ text: tileSay(D, W, k), tr: tileTr(D, W.tiles[k]) }], { quiet: true, clip: 'tile-' + W.tiles[k] }); }
       function nextSlot() { return slotsEl.querySelector('.slot:not(.filled)'); }
       function markNext() {
         slotsEl.querySelectorAll('.slot').forEach(function (s) { s.classList.remove('next'); });
@@ -80,12 +80,13 @@
         var items = [];
         if (W.syl && W.syl.length > 1) items.push({ text: W.syl.join(', '), tr: W.sylTr || W.syl.join(' - ') });
         items.push({ text: W.w, tr: W.tr });
-        setTimeout(function () { C.say(items, { quiet: true }); }, 450);
         try { SFX.win(); } catch (e) { /* ignore */ }
         C.confetti(80);
         C.restart(box.querySelector('#bPic'), 'win');
         C.addStar(box.querySelector('#bPic'), 2);
-        C.cheer(box.querySelector('#bPic'));
+        var cheerKey = C.cheer(box.querySelector('#bPic'));
+        /* English: "C, A, T... Cat!" then the cheer that is on screen. */
+        C.later(function () { if (document.body.contains(box)) C.say(items, { quiet: true, clip: ['spell-' + W.w, cheerKey] }); }, 450);
         C.progress('builder');
         box.setAttribute('data-done', '1');
         var nb = C.el('button', { class: 'roundbtn go', id: 'nextWord', 'aria-label': 'Next word' }, ICON.next);

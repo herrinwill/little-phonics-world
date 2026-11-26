@@ -101,12 +101,13 @@ body.parent-on span.parent{display:inline}
 
 /* ---- sound-out badge ---- */
 .badge{
-  position:fixed;left:50%;bottom:24px;transform:translate(-50%,160%);z-index:60;pointer-events:none;
+  position:fixed;left:50%;bottom:24px;transform:translate(-50%,calc(100% + 80px));z-index:60;pointer-events:none;
+  visibility:hidden;opacity:0;
   background:#fff;border-radius:40px;padding:12px 26px 12px 14px;display:flex;align-items:center;gap:12px;
   box-shadow:0 0 0 6px var(--yellow),var(--shadow);font-weight:900;font-size:clamp(22px,4vw,34px);
-  transition:transform .35s cubic-bezier(.3,1.6,.5,1);max-width:94vw;
+  transition:transform .35s cubic-bezier(.3,1.6,.5,1),opacity .25s,visibility 0s linear .35s;max-width:94vw;
 }
-.badge.show{transform:translate(-50%,0);animation:badgeBounce .9s ease-in-out infinite alternate}
+.badge.show{transform:translate(-50%,0);visibility:visible;opacity:1;transition:transform .35s cubic-bezier(.3,1.6,.5,1),opacity .2s,visibility 0s;animation:badgeBounce .9s ease-in-out infinite alternate}
 .badge svg{width:54px;height:54px;flex:none}
 .badge .bw{display:flex;flex-direction:column;line-height:1.1;min-width:0}
 .badge .bw small{font-size:.55em;color:#7a6fb0}

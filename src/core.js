@@ -125,7 +125,9 @@
     t.style.left = Math.max(90, Math.min(innerWidth - 90, c.x)) + 'px'; t.style.top = Math.max(60, c.y - 40) + 'px';
     fx.appendChild(t);
     setTimeout(function () { t.remove(); }, 1500);
+    return 'cheer-' + slugify(t.textContent);
   }
+  function slugify(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
 
   window.LPWCore = {
     ST: ST, save: save, el: el, esc: esc, shuffle: shuffle, restart: restart, reduced: reduced,
@@ -137,7 +139,10 @@
       if (!en || !D || D.code === 'en') return '';
       return '<span class="mean' + (cls ? ' ' + cls : '') + '" lang="en" dir="ltr">' + esc(en) + '</span>';
     },
-    cheer: cheer,
+    cheer: cheer, CHEERS: CHEERS,
+    /* English clip keys (ignored in other languages, which use the device voice). */
+    wordKey: function (w) { return 'word-' + slugify(w); },
+    later: function (fn, ms) { return window.CLIPS ? CLIPS.later(fn, ms) : setTimeout(fn, ms); },
     /* say a native word (+ transliteration fallback) in the current language */
     say: function (items, opts) { return SPEECH.say(ST.lang, items, opts); }
   };

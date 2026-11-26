@@ -48,9 +48,9 @@
       '<button class="roundbtn speak" id="replayLetter" aria-label="Hear again">' + ICON.speaker + '</button>';
     var speakIt = function () {
       var items = [{ text: L.name, tr: L.nameTr }, { text: L.word, tr: L.tr }];
-      if (D.code === 'en' && D.tileSay) items.splice(1, 0, { text: D.tileSay[L.name.toLowerCase()] || L.name, tr: L.snd.split(' ')[0] });
       if (L.syl && D.code === 'es') items.splice(1, 0, { text: L.syl.split('-').join(', '), tr: L.syl });
-      C.say(items);
+      /* English: one natural clip, e.g. "B! B is for bear." */
+      C.say(items, { clip: 'letter-' + String(L.name).toLowerCase() });
     };
     document.getElementById('replayLetter').addEventListener('click', function (e) { e.stopPropagation(); speakIt(); });
     speakIt();

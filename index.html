@@ -111,12 +111,13 @@ body.parent-on span.parent{display:inline}
 
 /* ---- sound-out badge ---- */
 .badge{
-  position:fixed;left:50%;bottom:24px;transform:translate(-50%,160%);z-index:60;pointer-events:none;
+  position:fixed;left:50%;bottom:24px;transform:translate(-50%,calc(100% + 80px));z-index:60;pointer-events:none;
+  visibility:hidden;opacity:0;
   background:#fff;border-radius:40px;padding:12px 26px 12px 14px;display:flex;align-items:center;gap:12px;
   box-shadow:0 0 0 6px var(--yellow),var(--shadow);font-weight:900;font-size:clamp(22px,4vw,34px);
-  transition:transform .35s cubic-bezier(.3,1.6,.5,1);max-width:94vw;
+  transition:transform .35s cubic-bezier(.3,1.6,.5,1),opacity .25s,visibility 0s linear .35s;max-width:94vw;
 }
-.badge.show{transform:translate(-50%,0);animation:badgeBounce .9s ease-in-out infinite alternate}
+.badge.show{transform:translate(-50%,0);visibility:visible;opacity:1;transition:transform .35s cubic-bezier(.3,1.6,.5,1),opacity .2s,visibility 0s;animation:badgeBounce .9s ease-in-out infinite alternate}
 .badge svg{width:54px;height:54px;flex:none}
 .badge .bw{display:flex;flex-direction:column;line-height:1.1;min-width:0}
 .badge .bw small{font-size:.55em;color:#7a6fb0}
@@ -362,6 +363,27 @@ body.parent-on span.parent{display:inline}
 }
 .hello .sub{font-size:clamp(18px,2.6vw,24px);font-weight:900;color:#5a4f8a;margin-top:6px}
 
+/* ---- Home fits on short desktop/laptop screens (e.g. 1280x800): Sticker Book fully visible ---- */
+@media (min-width:641px) and (max-height:920px) and (min-height:501px){
+  #screen[data-mode="home"]{padding-top:10px;padding-bottom:20px}
+  #screen[data-mode="home"] .hello{margin-bottom:10px}
+  #screen[data-mode="home"] .hello .big{font-size:clamp(30px,6vh,50px)}
+  #screen[data-mode="home"] .hello .sub{margin-top:2px;font-size:clamp(17px,2.6vh,22px)}
+  .mode-btn{min-height:clamp(140px,22vh,200px);padding:8px}
+  .mode-btn svg{width:clamp(80px,15vh,135px)}
+  .home-grid{gap:clamp(12px,2vh,20px)}
+  .sticker-btn{min-height:78px;padding:6px 26px;margin-top:clamp(12px,2vh,20px)}
+  .sticker-btn svg{width:62px;height:62px}
+  .sticker-btn svg:last-child{width:38px!important;height:62px!important}
+}
+.sticker-btn span{white-space:nowrap}
+@media (max-width:640px){
+  .mode-btn{min-height:clamp(150px,23vh,210px)}
+  .sticker-btn{min-height:82px;padding:6px 20px;margin-top:14px}
+  .sticker-btn svg{width:64px;height:64px}
+  .sticker-btn svg:last-child{width:38px!important;height:62px!important}
+}
+
 </style>
 </head>
 <body>
@@ -376,6 +398,9 @@ body.parent-on span.parent{display:inline}
 <div id="fx" aria-hidden="true"></div>
 <script>
 "use strict";
+window.LPW_NATIVE = {"he":{"שָׁלוֹם":"000.mp3","אָלֶף":"001.mp3","אַרְיֵה":"002.mp3","בֵּית":"003.mp3","בַּיִת":"004.mp3","גִּימֶל":"005.mp3","גָּמָל":"006.mp3","דָּלֶת":"007.mp3","דָּג":"008.mp3","הֵא":"009.mp3","הַר":"010.mp3","וָו":"011.mp3","וֶרֶד":"012.mp3","זַיִן":"013.mp3","זֶבְּרָה":"014.mp3","חֵית":"015.mp3","חָתוּל":"016.mp3","טֵית":"017.mp3","טַוָּס":"018.mp3","יוֹד":"019.mp3","יָרֵחַ":"020.mp3","כַּף":"021.mp3","כַּדּוּר":"022.mp3","לָמֶד":"023.mp3","לֵב":"024.mp3","מֵם":"025.mp3","מְכוֹנִית":"026.mp3","נוּן":"027.mp3","נָחָשׁ":"028.mp3","סָמֶךְ":"029.mp3","סוּס":"030.mp3","עַיִן":"031.mp3","עֵץ":"032.mp3","פֵּא":"033.mp3","פִּיל":"034.mp3","צָדִי":"035.mp3","צָב":"036.mp3","קוֹף":"037.mp3","רֵישׁ":"038.mp3","רַכֶּבֶת":"039.mp3","שִׁין":"040.mp3","שֶׁמֶשׁ":"041.mp3","תָּו":"042.mp3","תַּפּוּחַ":"043.mp3","כֶּלֶב":"044.mp3","אִמָּא":"045.mp3","אַבָּא":"046.mp3","פֵּא סוֹפִית":"047.mp3","כַּף סוֹפִית":"048.mp3","מֵם סוֹפִית":"049.mp3","נוּן סוֹפִית":"050.mp3","צָדִי סוֹפִית":"051.mp3","אַחַת":"052.mp3","שְׁתַּיִם":"053.mp3","שָׁלוֹשׁ":"054.mp3","אַרְבַּע":"055.mp3","חָמֵשׁ":"056.mp3","שֵׁשׁ":"057.mp3","שֶׁבַע":"058.mp3","שְׁמוֹנֶה":"059.mp3","תֵּשַׁע":"060.mp3","עֶשֶׂר":"061.mp3","אָדֹם":"062.mp3","כָּתֹם":"063.mp3","צָהֹב":"064.mp3","יָרֹק":"065.mp3","כָּחֹל":"066.mp3","סָגֹל":"067.mp3","וָרֹד":"068.mp3","פָּרָה":"069.mp3","צִפּוֹר":"070.mp3","אַרְנָב":"071.mp3"},"el":{"Γεια σου":"000.mp3","άλφα":"001.mp3","αστέρι":"002.mp3","βήτα":"003.mp3","βάρκα":"004.mp3","γάμμα":"005.mp3","γάτα":"006.mp3","δέλτα":"007.mp3","δέντρο":"008.mp3","έψιλον":"009.mp3","ελέφαντας":"010.mp3","ζήτα":"011.mp3","ζέβρα":"012.mp3","ήτα":"013.mp3","ήλιος":"014.mp3","θήτα":"015.mp3","θάλασσα":"016.mp3","γιώτα":"017.mp3","ιππόκαμπος":"018.mp3","κάπα":"019.mp3","κότα":"020.mp3","λάμδα":"021.mp3","λουλούδι":"022.mp3","μι":"023.mp3","μήλο":"024.mp3","νι":"025.mp3","νερό":"026.mp3","ξι":"027.mp3","ξύλο":"028.mp3","όμικρον":"029.mp3","ομπρέλα":"030.mp3","πι":"031.mp3","πάπια":"032.mp3","ρο":"033.mp3","ρολόι":"034.mp3","σίγμα":"035.mp3","σκύλος":"036.mp3","ταυ":"037.mp3","τυρί":"038.mp3","ύψιλον":"039.mp3","υποβρύχιο":"040.mp3","φι":"041.mp3","φεγγάρι":"042.mp3","χι":"043.mp3","χελώνα":"044.mp3","ψι":"045.mp3","ψάρι":"046.mp3","ωμέγα":"047.mp3","ωκεανός":"048.mp3","μαμά":"049.mp3","αυγό":"050.mp3","ένα":"051.mp3","δύο":"052.mp3","τρία":"053.mp3","τέσσερα":"054.mp3","πέντε":"055.mp3","έξι":"056.mp3","επτά":"057.mp3","οκτώ":"058.mp3","εννέα":"059.mp3","δέκα":"060.mp3","κόκκινο":"061.mp3","πορτοκαλί":"062.mp3","κίτρινο":"063.mp3","πράσινο":"064.mp3","μπλε":"065.mp3","μωβ":"066.mp3","ροζ":"067.mp3","αγελάδα":"068.mp3","πουλί":"069.mp3","λιοντάρι":"070.mp3","κουνέλι":"071.mp3"},"th":{"สวัสดี":"000.mp3","กอ ไก่":"001.mp3","ไก่":"002.mp3","ขอ ไข่":"003.mp3","ไข่":"004.mp3","คอ ควาย":"005.mp3","ควาย":"006.mp3","งอ งู":"007.mp3","งู":"008.mp3","จอ จาน":"009.mp3","จาน":"010.mp3","ชอ ช้าง":"011.mp3","ช้าง":"012.mp3","ดอ เด็ก":"013.mp3","เด็ก":"014.mp3","ตอ เต่า":"015.mp3","เต่า":"016.mp3","นอ หนู":"017.mp3","หนู":"018.mp3","บอ ใบไม้":"019.mp3","ใบไม้":"020.mp3","ปอ ปลา":"021.mp3","ปลา":"022.mp3","พอ พาน":"023.mp3","พาน":"024.mp3","ฟอ ฟัน":"025.mp3","ฟัน":"026.mp3","มอ ม้า":"027.mp3","ม้า":"028.mp3","ยอ ยักษ์":"029.mp3","ยักษ์":"030.mp3","รอ เรือ":"031.mp3","เรือ":"032.mp3","ลอ ลิง":"033.mp3","ลิง":"034.mp3","วอ แหวน":"035.mp3","แหวน":"036.mp3","สอ เสือ":"037.mp3","เสือ":"038.mp3","หอ หีบ":"039.mp3","หีบ":"040.mp3","ออ อ่าง":"041.mp3","อ่าง":"042.mp3","ปอ":"043.mp3","ลา":"044.mp3","ป":"045.mp3","แมว":"046.mp3","แม":"047.mp3","วอ":"048.mp3","ว":"049.mp3","ลิ":"050.mp3","งอ":"051.mp3","ง":"052.mp3","ช้า":"053.mp3","กระต่าย":"054.mp3","กระ":"055.mp3","ต่าย":"056.mp3","ผีเสื้อ":"057.mp3","ผี":"058.mp3","เสื้อ":"059.mp3","มะม่วง":"060.mp3","มะ":"061.mp3","ม่วง":"062.mp3","แตงโม":"063.mp3","แตง":"064.mp3","โม":"065.mp3","นาฬิกา":"066.mp3","นา":"067.mp3","กา":"068.mp3","ฬิ":"069.mp3","หนึ่ง":"070.mp3","สอง":"071.mp3","สาม":"072.mp3","สี่":"073.mp3","ห้า":"074.mp3","หก":"075.mp3","เจ็ด":"076.mp3","แปด":"077.mp3","เก้า":"078.mp3","สิบ":"079.mp3","สีแดง":"080.mp3","สีส้ม":"081.mp3","สีเหลือง":"082.mp3","สีเขียว":"083.mp3","สีฟ้า":"084.mp3","สีม่วง":"085.mp3","สีชมพู":"086.mp3","หมา":"087.mp3","วัว":"088.mp3","นก":"089.mp3","สิงโต":"090.mp3"},"es":{"¡Hola!":"000.mp3","a":"001.mp3","árbol":"002.mp3","ár, bol":"003.mp3","be":"004.mp3","barco":"005.mp3","bar, co":"006.mp3","ce":"007.mp3","casa":"008.mp3","ca, sa":"009.mp3","de":"010.mp3","delfín":"011.mp3","del, fín":"012.mp3","e":"013.mp3","elefante":"014.mp3","e, le, fan, te":"015.mp3","efe":"016.mp3","flor":"017.mp3","ge":"018.mp3","gato":"019.mp3","ga, to":"020.mp3","i":"021.mp3","iguana":"022.mp3","i, gua, na":"023.mp3","jota":"024.mp3","jirafa":"025.mp3","ji, ra, fa":"026.mp3","ele":"027.mp3","luna":"028.mp3","lu, na":"029.mp3","eme":"030.mp3","mamá":"031.mp3","ma, má":"032.mp3","ene":"033.mp3","nube":"034.mp3","nu, be":"035.mp3","eñe":"036.mp3","ñandú":"037.mp3","ñan, dú":"038.mp3","o":"039.mp3","oso":"040.mp3","o, so":"041.mp3","pe":"042.mp3","perro":"043.mp3","pe, rro":"044.mp3","erre":"045.mp3","ratón":"046.mp3","ra, tón":"047.mp3","ese":"048.mp3","sol":"049.mp3","te":"050.mp3","tortuga":"051.mp3","tor, tu, ga":"052.mp3","u":"053.mp3","uva":"054.mp3","u, va":"055.mp3","uve":"056.mp3","vaca":"057.mp3","va, ca":"058.mp3","zeta":"059.mp3","zapato":"060.mp3","za, pa, to":"061.mp3","papá":"062.mp3","pa, pá":"063.mp3","pato":"064.mp3","pa, to":"065.mp3","uno":"066.mp3","dos":"067.mp3","tres":"068.mp3","cuatro":"069.mp3","cinco":"070.mp3","seis":"071.mp3","siete":"072.mp3","ocho":"073.mp3","nueve":"074.mp3","diez":"075.mp3","rojo":"076.mp3","naranja":"077.mp3","amarillo":"078.mp3","verde":"079.mp3","azul":"080.mp3","morado":"081.mp3","rosa":"082.mp3","pez":"083.mp3","pájaro":"084.mp3","león":"085.mp3","conejo":"086.mp3"}};
+window.LPW_CLIP_TEXT = {"cheer-awesome":"Awesome!","cheer-great-job":"Great job!","cheer-super":"Super!","cheer-way-to-go":"Way to go!","cheer-yay-you":"Yay, you!","cheer-you-did-it":"You did it!","hello":"Hi there! Let's play with letters and sounds!","letter-a":"A! A is for apple.","letter-b":"B! B is for bear.","letter-c":"C! C is for cat.","letter-d":"D! D is for dog.","letter-e":"E! E is for elephant.","letter-f":"F! F is for fish.","letter-g":"G! G is for goat.","letter-h":"H! H is for hat.","letter-i":"I! I is for igloo.","letter-j":"J! J is for jam.","letter-k":"K! K is for kite.","letter-l":"L! L is for lion.","letter-m":"M! M is for moon.","letter-n":"N! N is for nest.","letter-o":"O! O is for octopus.","letter-p":"P! P is for pig.","letter-q":"Q! Q is for queen.","letter-r":"R! R is for rabbit.","letter-s":"S! S is for sun.","letter-t":"T! T is for turtle.","letter-u":"U! U is for... umbrella.","letter-v":"V! V is for van.","letter-w":"W! W is for whale.","letter-x":"X! X is at the end of fox.","letter-y":"Y. Y is for yo yo.","letter-z":"Z! Z is for zebra.","spell-bus":"B, U, S... Bus!","spell-cat":"C, A, T... Cat!","spell-dad":"D, A, D... Dad!","spell-dog":"D, O, G... Dog!","spell-fox":"F, O, X... Fox!","spell-frog":"F, R, O, G... Frog!","spell-hat":"H, A, T... Hat!","spell-mom":"M, O, M... Mom!","spell-pig":"P, I, G... Pig!","spell-sun":"S, U, N... Sun!","tile-a":"A.","tile-b":"B.","tile-c":"C.","tile-d":"D.","tile-e":"Eee!","tile-f":"F.","tile-g":"G.","tile-h":"H.","tile-i":"I.","tile-j":"J.","tile-k":"K.","tile-l":"L.","tile-m":"M.","tile-n":"N.","tile-o":"O.","tile-p":"P.","tile-q":"Q.","tile-r":"R.","tile-s":"S.","tile-t":"T.","tile-u":"U.","tile-v":"V.","tile-w":"W.","tile-x":"X.","tile-y":"Y.","tile-z":"Z.","word-apple":"Apple!","word-bear":"Bear!","word-blue":"Blue!","word-bus":"Bus!","word-cat":"Cat!","word-cow":"Cow!","word-dad":"Dad!","word-dog":"Dog!","word-duck":"Duck!","word-eight":"Eight!","word-elephant":"Elephant!","word-fish":"Fish!","word-five":"Five!","word-four":"Four!","word-fox":"Fox!","word-frog":"Frog!","word-goat":"Goat!","word-green":"Green!","word-hat":"Hat!","word-horse":"Horse!","word-igloo":"Igloo!","word-jam":"Jam!","word-kite":"Kite!","word-lion":"Lion!","word-mom":"Mom!","word-moon":"Moon!","word-nest":"Nest!","word-nine":"Nine!","word-octopus":"Octopus!","word-one":"One!","word-orange":"Orange!","word-pig":"Pig!","word-pink":"Pink!","word-purple":"Purple!","word-queen":"Queen!","word-rabbit":"Rabbit!","word-red":"Red!","word-seven":"Seven!","word-six":"Six!","word-sun":"Sun!","word-ten":"Ten!","word-three":"Three!","word-turtle":"Turtle!","word-two":"Two!","word-umbrella":"Umbrella!","word-van":"Van!","word-whale":"Whale!","word-yellow":"Yellow!","word-yo-yo":"Yo yo!","word-zebra":"Zebra!"};
+window.LPW_CLIPS = null;
 /* ---- data-en.js ---- */
 /* American English — the default language. Short-vowel phonics, A–Z with a picture word each. */
 window.LPW_DATA = window.LPW_DATA || {};
@@ -1162,6 +1187,132 @@ window.ART = window.ART || {};
   I.modeIcon = { letters: I.mLetters, builder: I.mBuilder, bubbles: I.mBubbles, stage: I.mStage };
 })(window.ART);
 
+/* ---- clips.js ---- */
+/* Natural pre-recorded voice clips with strict overlap cancellation (one shared Audio element).
+   English: window.LPW_CLIP_TEXT = {key: spoken text}; window.LPW_CLIPS = null (load ./audio/en/<key>.mp3)
+            or {key: 'data:audio/mpeg;base64,...'} (standalone file).
+   Hebrew / Greek / Thai / Spanish: window.LPW_NATIVE = {lang: {"exact spoken text": "NNN.mp3"}} (always embedded);
+            the MP3s load from ./audio/<lang>/ over http(s), or from the game's website when opened from file://. */
+(function () {
+  var TEXT = window.LPW_CLIP_TEXT || {};
+  var EMBED = window.LPW_CLIPS || null;
+  var NATIVE = window.LPW_NATIVE || {};
+  var SITE = 'https://herrinwill.github.io/little-phonics-world/audio/';
+  var proto = (window.location && window.location.protocol) || '';
+  var REMOTE = !/^https?:$/.test(proto);
+  var BASE = REMOTE ? SITE : './audio/';
+  var remoteDown = false; /* offline file:// copy: after one failed remote clip, go straight to the fallback */
+  try { window.addEventListener('online', function () { remoteDown = false; }); } catch (e) { /* ignore */ }
+  var audio = null, token = 0, cur = null, timers = [], log = [], missing = [];
+
+  function has(key) { return !!key && Object.prototype.hasOwnProperty.call(TEXT, key) && (!EMBED || !!EMBED[key]); }
+  function src(key) { return EMBED ? EMBED[key] : './audio/en/' + key + '.mp3'; }
+  function slug(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+
+  /* Native clip file for an exact spoken text (also tries NFC-normalized text), or null. */
+  function nativeFile(lang, text) {
+    var m = NATIVE[lang]; if (!m || text == null) return null;
+    var t = String(text), own = Object.prototype.hasOwnProperty;
+    if (own.call(m, t)) return m[t];
+    try { var n = t.normalize('NFC'); if (own.call(m, n)) return m[n]; } catch (e) { /* ignore */ }
+    return null;
+  }
+  /* {key, src, lang, text} entry for a native clip, or null when it has no clip / the site is unreachable. */
+  function native(lang, text) {
+    /* Offline (or the site already failed once): no request at all, so nothing is logged; fall back at once. */
+    if (REMOTE && (remoteDown || (window.navigator && navigator.onLine === false))) return null;
+    var f = nativeFile(lang, text);
+    return f ? { key: lang + '/' + f, src: BASE + lang + '/' + f, lang: lang, text: String(text) } : null;
+  }
+
+  function el() {
+    if (audio) return audio;
+    try { audio = new Audio(); } catch (e) { audio = null; return null; }
+    audio.preload = 'auto';
+    return audio;
+  }
+
+  /* Stop everything: current clip, queued clips, pending delayed speech, and Web Speech. */
+  function stopAll() {
+    token++;
+    timers.forEach(clearTimeout); timers = [];
+    cur = null;
+    if (audio) {
+      try { audio.pause(); } catch (e) { /* ignore */ }
+      try { audio.currentTime = 0; } catch (e) { /* ignore */ }
+    }
+    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+  }
+
+  /* Run fn after ms unless something else starts or the screen changes first. */
+  function later(fn, ms) {
+    var t = setTimeout(function () { timers = timers.filter(function (x) { return x !== t; }); fn(); }, ms);
+    timers.push(t);
+    return t;
+  }
+
+  /* Play entries [{key, src, lang}] in order through the shared element.
+     onFail(i) if entry i cannot play (error / rejected); onDone() after the last one ends. Errors are handled quietly. */
+  function run(entries, onFail, onDone) {
+    stopAll();
+    var my = token, a = el();
+    if (!a) { if (onFail) onFail(0); return false; }
+    var i = 0, failed = false;
+    function fail() {
+      if (my !== token || failed) return;
+      failed = true; cur = null;
+      if (REMOTE && entries[i] && entries[i].lang !== 'en') remoteDown = true;
+      try { a.pause(); } catch (e) { /* ignore */ }
+      if (onFail) onFail(i);
+    }
+    function step() {
+      if (my !== token) return;
+      if (i >= entries.length) { cur = null; if (onDone) onDone(); return; }
+      var e = entries[i];
+      cur = e; log.push(e.key); if (log.length > 300) log.shift();
+      a.onended = function () { if (my !== token) return; i++; step(); };
+      a.onerror = function () { fail(); };
+      try {
+        a.src = e.src;
+        var p = a.play();
+        if (p && p.catch) p.catch(function (err) {
+          if (my !== token) return; /* interrupted by a newer clip: silent */
+          var n = err && err.name;
+          if (n === 'AbortError') return;
+          if (n === 'NotAllowedError') { cur = null; return; } /* autoplay blocked: stay silent */
+          fail();
+        });
+      } catch (x) { fail(); }
+    }
+    step();
+    return true;
+  }
+
+  /* English: play keys in order. onFail(remainingKeys) if a clip is missing or cannot play. */
+  function play(keys, onFail) {
+    if (!Array.isArray(keys)) keys = [keys];
+    var bad = keys.filter(function (k) { return !has(k); });
+    bad.forEach(function (k) { if (missing.indexOf(k) < 0) missing.push(k); });
+    if (bad.length || !el()) { stopAll(); if (onFail) onFail(keys); return false; }
+    return run(keys.map(function (k) { return { key: k, src: src(k), lang: 'en' }; }), function (i) { if (onFail) onFail(keys.slice(i)); });
+  }
+
+  window.CLIPS = {
+    has: has, src: src, text: function (k) { return TEXT[k] || ''; }, slug: slug, embedded: !!EMBED,
+    play: play, run: run, stop: stopAll, later: later,
+    native: native, nativeFile: nativeFile, nativeBase: function () { return BASE; }, remote: REMOTE,
+    nativeLangs: function () { return Object.keys(NATIVE); },
+    state: function () {
+      return { playing: !!(audio && cur && !audio.paused && !audio.ended), key: cur ? cur.key : null,
+        lang: cur ? cur.lang : null, text: cur ? (cur.text || TEXT[cur.key] || '') : null };
+    },
+    log: function () { return log.slice(); },
+    missing: function () { return missing.slice(); },
+    keys: function () { return Object.keys(TEXT); },
+    element: function () { return el(); }
+  };
+})();
+
 /* ---- audio.js ---- */
 /* Sound effects (Web Audio synth) + speech (Web Speech API) with a no-voice fallback badge. */
 (function () {
@@ -1226,9 +1377,23 @@ window.ART = window.ART || {};
 
   var PREFER = { en: ['en-US'], he: ['he-IL', 'iw-IL'], el: ['el-GR'], th: ['th-TH'], es: ['es-ES', 'es-MX', 'es-US'] };
   function norm(l) { return String(l || '').replace('_', '-').toLowerCase(); }
+  /* English: prefer warm natural/neural voices, avoid old robotic ones. */
+  var NICE = /natural|neural|online|google|samantha|ava|jenny|aria|emma|allison|karen|moira/i;
+  var ROBOT = /david|zira|mark|espeak|robot|fred|albert/i;
+  function englishVoice() {
+    var best = null, bestScore = -1e9;
+    voices.forEach(function (v, idx) {
+      var l = norm(v.lang);
+      if (l !== 'en' && l.indexOf('en-') !== 0) return;
+      var s = (l === 'en-us' ? 40 : 0) + (NICE.test(v.name || '') ? 30 : 0) - (ROBOT.test(v.name || '') ? 60 : 0) - idx * 0.01;
+      if (s > bestScore) { bestScore = s; best = v; }
+    });
+    return best;
+  }
   function findVoice(code) {
     if (!voices.length) loadVoices();
     var D = (window.LPW_DATA || {})[code]; if (!D) return null;
+    if (code === 'en') return englishVoice();
     var prefs = (PREFER[code] || []).map(norm), i, v;
     for (i = 0; i < prefs.length; i++) {
       for (var j = 0; j < voices.length; j++) if (norm(voices[j].lang) === prefs[i]) return voices[j];
@@ -1260,6 +1425,33 @@ window.ART = window.ART || {};
     say: function (code, items, opts) {
       opts = opts || {};
       if (!Array.isArray(items)) items = [items];
+      var C = window.CLIPS;
+      /* English: natural pre-recorded clips; Web Speech only as a fallback for a clip that cannot play. */
+      if (code === 'en' && opts.clip && C) {
+        var o2 = {}; Object.keys(opts).forEach(function (k) { if (k !== 'clip') o2[k] = opts[k]; });
+        var D0 = (window.LPW_DATA || {}).en || {};
+        if (document.body.classList.contains('parent-on')) showBadge(items.map(function (it) { return it.text; }).join(' · '), items.map(function (it) { return it.tr || it.text; }).join(' · '), D0.dir);
+        return C.play(opts.clip, function (rest) {
+          var txt = rest.map(function (k) { return { text: C.text(k) || '', tr: C.text(k) }; }).filter(function (it) { return it.text; });
+          Speech.say(code, txt.length ? txt : items, o2);
+        });
+      }
+      /* Hebrew / Greek / Thai / Spanish: native neural-voice clips in order; any item without a clip,
+         or a clip that fails (e.g. offline), falls back to the device voice / sound-out badge from there on. */
+      if (code !== 'en' && C && C.native && !opts.noNative) {
+        var ents = [], j;
+        for (j = 0; j < items.length; j++) { var en = C.native(code, items[j].text); if (!en) break; ents.push(en); }
+        if (ents.length) {
+          var D1 = (window.LPW_DATA || {})[code] || {};
+          var o3 = {}; Object.keys(opts).forEach(function (k) { if (k !== 'clip') o3[k] = opts[k]; });
+          o3.noNative = true;
+          showBadge(items.map(function (it) { return it.text; }).join(' · '), items.map(function (it) { return it.tr || it.text; }).join(' · '), D1.dir);
+          var rest = items.slice(ents.length);
+          return C.run(ents, function (i) { Speech.say(code, items.slice(i), o3); },
+            rest.length ? function () { Speech.say(code, rest, o3); } : null);
+        }
+      }
+      if (!opts.queue && C) C.stop();
       var D = (window.LPW_DATA || {})[code] || {};
       var v = findVoice(code);
       var trs = items.map(function (it) { return it.tr || it.text; }).join(' · ');
@@ -1284,7 +1476,8 @@ window.ART = window.ART || {};
         return false;
       }
     },
-    badge: showBadge
+    badge: showBadge,
+    stop: function () { if (window.CLIPS) CLIPS.stop(); else try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ } }
   };
 })();
 
@@ -1416,7 +1609,9 @@ window.ART = window.ART || {};
     t.style.left = Math.max(90, Math.min(innerWidth - 90, c.x)) + 'px'; t.style.top = Math.max(60, c.y - 40) + 'px';
     fx.appendChild(t);
     setTimeout(function () { t.remove(); }, 1500);
+    return 'cheer-' + slugify(t.textContent);
   }
+  function slugify(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
 
   window.LPWCore = {
     ST: ST, save: save, el: el, esc: esc, shuffle: shuffle, restart: restart, reduced: reduced,
@@ -1428,7 +1623,10 @@ window.ART = window.ART || {};
       if (!en || !D || D.code === 'en') return '';
       return '<span class="mean' + (cls ? ' ' + cls : '') + '" lang="en" dir="ltr">' + esc(en) + '</span>';
     },
-    cheer: cheer,
+    cheer: cheer, CHEERS: CHEERS,
+    /* English clip keys (ignored in other languages, which use the device voice). */
+    wordKey: function (w) { return 'word-' + slugify(w); },
+    later: function (fn, ms) { return window.CLIPS ? CLIPS.later(fn, ms) : setTimeout(fn, ms); },
     /* say a native word (+ transliteration fallback) in the current language */
     say: function (items, opts) { return SPEECH.say(ST.lang, items, opts); }
   };
@@ -1486,9 +1684,9 @@ window.ART = window.ART || {};
       '<button class="roundbtn speak" id="replayLetter" aria-label="Hear again">' + ICON.speaker + '</button>';
     var speakIt = function () {
       var items = [{ text: L.name, tr: L.nameTr }, { text: L.word, tr: L.tr }];
-      if (D.code === 'en' && D.tileSay) items.splice(1, 0, { text: D.tileSay[L.name.toLowerCase()] || L.name, tr: L.snd.split(' ')[0] });
       if (L.syl && D.code === 'es') items.splice(1, 0, { text: L.syl.split('-').join(', '), tr: L.syl });
-      C.say(items);
+      /* English: one natural clip, e.g. "B! B is for bear." */
+      C.say(items, { clip: 'letter-' + String(L.name).toLowerCase() });
     };
     document.getElementById('replayLetter').addEventListener('click', function (e) { e.stopPropagation(); speakIt(); });
     speakIt();
@@ -1551,10 +1749,10 @@ window.ART = window.ART || {};
       });
       markNext();
       box.querySelector('#bSay').addEventListener('click', function () { sayWord(); });
-      setTimeout(function () { if (document.body.contains(box)) sayWord(); }, 350);
+      C.later(function () { if (document.body.contains(box)) sayWord(); }, 350);
 
-      function sayWord() { C.say([{ text: W.w, tr: W.tr }]); }
-      function speakTile(k) { C.say([{ text: tileSay(D, W, k), tr: tileTr(D, W.tiles[k]) }], { quiet: true }); }
+      function sayWord() { C.say([{ text: W.w, tr: W.tr }], { clip: C.wordKey(W.w) }); }
+      function speakTile(k) { C.say([{ text: tileSay(D, W, k), tr: tileTr(D, W.tiles[k]) }], { quiet: true, clip: 'tile-' + W.tiles[k] }); }
       function nextSlot() { return slotsEl.querySelector('.slot:not(.filled)'); }
       function markNext() {
         slotsEl.querySelectorAll('.slot').forEach(function (s) { s.classList.remove('next'); });
@@ -1583,12 +1781,13 @@ window.ART = window.ART || {};
         var items = [];
         if (W.syl && W.syl.length > 1) items.push({ text: W.syl.join(', '), tr: W.sylTr || W.syl.join(' - ') });
         items.push({ text: W.w, tr: W.tr });
-        setTimeout(function () { C.say(items, { quiet: true }); }, 450);
         try { SFX.win(); } catch (e) { /* ignore */ }
         C.confetti(80);
         C.restart(box.querySelector('#bPic'), 'win');
         C.addStar(box.querySelector('#bPic'), 2);
-        C.cheer(box.querySelector('#bPic'));
+        var cheerKey = C.cheer(box.querySelector('#bPic'));
+        /* English: "C, A, T... Cat!" then the cheer that is on screen. */
+        C.later(function () { if (document.body.contains(box)) C.say(items, { quiet: true, clip: ['spell-' + W.w, cheerKey] }); }, 450);
         C.progress('builder');
         box.setAttribute('data-done', '1');
         var nb = C.el('button', { class: 'roundbtn go', id: 'nextWord', 'aria-label': 'Next word' }, ICON.next);
@@ -1680,9 +1879,9 @@ window.ART = window.ART || {};
         b.addEventListener('click', function () { choose(b, o); });
         bb.appendChild(b);
       });
-      function sayTarget() { C.say([{ text: target.w, tr: target.tr }]); }
+      function sayTarget() { C.say([{ text: target.w, tr: target.tr }], { clip: C.wordKey(target.w) }); }
       box.querySelector('#hear').addEventListener('click', sayTarget);
-      setTimeout(function () { if (document.body.contains(box)) sayTarget(); }, 400);
+      C.later(function () { if (document.body.contains(box)) sayTarget(); }, 400);
 
       function choose(b, o) {
         if (solved) return;
@@ -1691,15 +1890,15 @@ window.ART = window.ART || {};
           try { SFX.pop(); } catch (e) { /* ignore */ }
           var c = C.center(b); C.burst(c.x, c.y);
           C.addStar(b);
-          C.cheer(b);
+          var cheerKey = C.cheer(b);
           b.classList.add('popped');
           C.confetti(50);
-          C.say([{ text: target.w, tr: target.tr }], { quiet: true });
+          C.say([{ text: target.w, tr: target.tr }], { quiet: true, clip: [C.wordKey(target.w), cheerKey] });
           C.progress('bubbles');
           box.setAttribute('data-solved', '1');
           setTimeout(function () {
             if (document.body.contains(box)) window.LPWApp.go('bubbles');
-          }, 1700);
+          }, 2300);
           return;
         }
         wrong++;
@@ -1709,7 +1908,8 @@ window.ART = window.ART || {};
         setTimeout(function () { g.remove(); }, 700);
         if (wrong >= 2) {
           var ok = bb.querySelector('[data-ok]');
-          setTimeout(function () {
+          setTimeout(function () { /* visual hint always happens; only the audio is cancellable */
+            if (!document.body.contains(box) || solved) return;
             sayTarget();
             if (ok) { ok.classList.add('hint'); setTimeout(function () { ok.classList.remove('hint'); }, 2200); }
           }, 500);
@@ -1759,7 +1959,7 @@ window.ART = window.ART || {};
             try { SFX.xylo(i); } catch (e) { /* ignore */ }
             C.restart(b, 'hit');
             setTimeout(function () { b.classList.remove('hit'); }, 160);
-            C.say([{ text: n.w, tr: n.tr }], { quiet: true });
+            C.say([{ text: n.w, tr: n.tr }], { quiet: true, clip: C.wordKey(n.w) });
             var dots = '<div class="dots">';
             for (var k = 0; k <= i; k++) dots += '<span style="animation-delay:' + (k * 0.05) + 's;display:block">' + ICON.star + '</span>';
             show((D.digits ? D.digits[i] + ' · ' : (i + 1) + ' · ') + n.w, n.tr, (i + 1) + ' · ' + EN_NUM[i], dots + '</div>');
@@ -1775,7 +1975,7 @@ window.ART = window.ART || {};
           b.addEventListener('click', function () {
             try { SFX.xylo(i + 2); } catch (e) { /* ignore */ }
             C.restart(b, 'dance');
-            C.say([{ text: c.w, tr: c.tr }], { quiet: true });
+            C.say([{ text: c.w, tr: c.tr }], { quiet: true, clip: C.wordKey(c.w) });
             show(c.w, c.tr, c.en);
             out.querySelector('.w').style.color = c.hex;
             count();
@@ -1790,7 +1990,7 @@ window.ART = window.ART || {};
           b.addEventListener('click', function () {
             try { SFX.animal(); } catch (e) { /* ignore */ }
             C.restart(b, 'dance');
-            C.say([{ text: a.w, tr: a.tr }], { quiet: true });
+            C.say([{ text: a.w, tr: a.tr }], { quiet: true, clip: C.wordKey(a.w) });
             show(a.w, a.tr, a.en);
             count();
           });
@@ -1865,7 +2065,7 @@ window.ART = window.ART || {};
     if (greet) {
       try { SFX.chime(); } catch (e) { /* ignore */ }
       var D = LPW_DATA[code];
-      C.say([{ text: D.hello, tr: D.helloTr }], { quiet: true });
+      C.say([{ text: D.hello, tr: D.helloTr }], { quiet: true, clip: 'hello' });
     }
     return true;
   }
@@ -1899,7 +2099,7 @@ window.ART = window.ART || {};
   function go(name) {
     if (name !== 'home' && !MODES[name]) name = 'home';
     mode = name;
-    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+    try { SPEECH.stop(); } catch (e) { /* ignore */ }
     screen.innerHTML = '';
     screen.setAttribute('data-mode', name);
     try {
@@ -1936,6 +2136,7 @@ window.ART = window.ART || {};
       return { lang: ST.lang, mode: mode, stars: ST.stars, parent: ST.parent, stickers: Object.keys(ST.stickers),
         voice: SPEECH.voiceName(ST.lang) || null };
     },
+    audioState: function () { return window.CLIPS ? CLIPS.state() : { playing: false, key: null }; },
     langs: LANGS.slice(),
     modes: ['home', 'letters', 'builder', 'bubbles', 'stage', 'stickers']
   };

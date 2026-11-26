@@ -61,9 +61,23 @@
 
   var PREFER = { en: ['en-US'], he: ['he-IL', 'iw-IL'], el: ['el-GR'], th: ['th-TH'], es: ['es-ES', 'es-MX', 'es-US'] };
   function norm(l) { return String(l || '').replace('_', '-').toLowerCase(); }
+  /* English: prefer warm natural/neural voices, avoid old robotic ones. */
+  var NICE = /natural|neural|online|google|samantha|ava|jenny|aria|emma|allison|karen|moira/i;
+  var ROBOT = /david|zira|mark|espeak|robot|fred|albert/i;
+  function englishVoice() {
+    var best = null, bestScore = -1e9;
+    voices.forEach(function (v, idx) {
+      var l = norm(v.lang);
+      if (l !== 'en' && l.indexOf('en-') !== 0) return;
+      var s = (l === 'en-us' ? 40 : 0) + (NICE.test(v.name || '') ? 30 : 0) - (ROBOT.test(v.name || '') ? 60 : 0) - idx * 0.01;
+      if (s > bestScore) { bestScore = s; best = v; }
+    });
+    return best;
+  }
   function findVoice(code) {
     if (!voices.length) loadVoices();
     var D = (window.LPW_DATA || {})[code]; if (!D) return null;
+    if (code === 'en') return englishVoice();
     var prefs = (PREFER[code] || []).map(norm), i, v;
     for (i = 0; i < prefs.length; i++) {
       for (var j = 0; j < voices.length; j++) if (norm(voices[j].lang) === prefs[i]) return voices[j];
@@ -95,6 +109,33 @@
     say: function (code, items, opts) {
       opts = opts || {};
       if (!Array.isArray(items)) items = [items];
+      var C = window.CLIPS;
+      /* English: natural pre-recorded clips; Web Speech only as a fallback for a clip that cannot play. */
+      if (code === 'en' && opts.clip && C) {
+        var o2 = {}; Object.keys(opts).forEach(function (k) { if (k !== 'clip') o2[k] = opts[k]; });
+        var D0 = (window.LPW_DATA || {}).en || {};
+        if (document.body.classList.contains('parent-on')) showBadge(items.map(function (it) { return it.text; }).join(' · '), items.map(function (it) { return it.tr || it.text; }).join(' · '), D0.dir);
+        return C.play(opts.clip, function (rest) {
+          var txt = rest.map(function (k) { return { text: C.text(k) || '', tr: C.text(k) }; }).filter(function (it) { return it.text; });
+          Speech.say(code, txt.length ? txt : items, o2);
+        });
+      }
+      /* Hebrew / Greek / Thai / Spanish: native neural-voice clips in order; any item without a clip,
+         or a clip that fails (e.g. offline), falls back to the device voice / sound-out badge from there on. */
+      if (code !== 'en' && C && C.native && !opts.noNative) {
+        var ents = [], j;
+        for (j = 0; j < items.length; j++) { var en = C.native(code, items[j].text); if (!en) break; ents.push(en); }
+        if (ents.length) {
+          var D1 = (window.LPW_DATA || {})[code] || {};
+          var o3 = {}; Object.keys(opts).forEach(function (k) { if (k !== 'clip') o3[k] = opts[k]; });
+          o3.noNative = true;
+          showBadge(items.map(function (it) { return it.text; }).join(' · '), items.map(function (it) { return it.tr || it.text; }).join(' · '), D1.dir);
+          var rest = items.slice(ents.length);
+          return C.run(ents, function (i) { Speech.say(code, items.slice(i), o3); },
+            rest.length ? function () { Speech.say(code, rest, o3); } : null);
+        }
+      }
+      if (!opts.queue && C) C.stop();
       var D = (window.LPW_DATA || {})[code] || {};
       var v = findVoice(code);
       var trs = items.map(function (it) { return it.tr || it.text; }).join(' · ');
@@ -119,6 +160,7 @@
         return false;
       }
     },
-    badge: showBadge
+    badge: showBadge,
+    stop: function () { if (window.CLIPS) CLIPS.stop(); else try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ } }
   };
 })();
