@@ -3,6 +3,7 @@
   var C = window.LPWCore;
   var RAINBOW = ['#ff4d4d', '#ff7a1c', '#ff9f1c', '#ffd23f', '#a8e05f', '#3ddc84', '#2ec4b6', '#4d96ff', '#7b6cff', '#c86bff'];
   var tabNow = 'numbers';
+  var EN_NUM = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
   MODES.stage = {
     title: 'Rainbow Sound Stage',
@@ -20,8 +21,8 @@
       var area = C.el('div', { id: 'stageArea' }), out = C.el('div', { class: 'stage-out', id: 'stageOut' });
 
       function show(word, tr, en, extra) {
-        out.innerHTML = '<div class="w" ' + la + '>' + C.esc(word) + '</div>' + (extra || '') +
-          '<div class="ptxt parent" style="display:inline-block">' + C.esc(tr) + (en ? ' — “' + C.esc(en) + '”' : '') + '</div>';
+        out.innerHTML = '<div class="w" ' + la + '>' + C.esc(word) + '</div>' + C.mean(D, en, 'block') + (extra || '') +
+          '<div class="ptxt parent" style="display:inline-block">' + (D.code === 'en' ? 'Say it together: “' + C.esc(tr) + '”' : C.esc(tr) + (en ? ' — “' + C.esc(en) + '”' : '')) + '</div>';
         if (document.body.classList.contains('parent-on')) out.querySelector('.parent').style.display = 'inline-block';
       }
       function count() { C.progress('stage'); var s = C.ST.prog[D.code].stage; if (s % 10 === 0) C.addStar(out); }
@@ -30,7 +31,7 @@
         var x = C.el('div', { class: 'xylo', id: 'xylo' });
         D.numbers.forEach(function (n, i) {
           var b = C.el('button', { class: 'bar', 'data-n': i + 1, style: '--c:' + RAINBOW[i] + ';--h:' + (100 - i * 5.5) + '%;--hp:' + (150 - i * 7) + 'px', 'aria-label': String(i + 1) },
-            '<i></i><span>' + (i + 1) + (D.digits ? '<br><small>' + D.digits[i] + '</small>' : '') + '</span><i></i>');
+            '<i></i><span>' + (i + 1) + (D.digits ? '<br><small>' + D.digits[i] + '</small>' : '') + '</span><i></i>' + C.mean(D, EN_NUM[i]));
           b.addEventListener('pointerdown', function () { C.restart(b, 'hit'); });
           b.addEventListener('click', function () {
             try { SFX.xylo(i); } catch (e) { /* ignore */ }
@@ -39,7 +40,7 @@
             C.say([{ text: n.w, tr: n.tr }], { quiet: true });
             var dots = '<div class="dots">';
             for (var k = 0; k <= i; k++) dots += '<span style="animation-delay:' + (k * 0.05) + 's;display:block">' + ICON.star + '</span>';
-            show((D.digits ? D.digits[i] + ' · ' : (i + 1) + ' · ') + n.w, n.tr, String(i + 1), dots + '</div>');
+            show((D.digits ? D.digits[i] + ' · ' : (i + 1) + ' · ') + n.w, n.tr, (i + 1) + ' · ' + EN_NUM[i], dots + '</div>');
             count();
           });
           x.appendChild(b);
@@ -48,7 +49,7 @@
       } else if (tabNow === 'colors') {
         var sw = C.el('div', { class: 'swatches' });
         D.colors.forEach(function (c, i) {
-          var b = C.el('button', { class: 'swatch', style: '--c:' + c.hex, 'aria-label': c.en }, svg(ART._h.face(50, 44, 12)));
+          var b = C.el('button', { class: 'swatch', style: '--c:' + c.hex, 'aria-label': c.en }, svg(ART._h.face(50, 44, 12)) + C.mean(D, c.en));
           b.addEventListener('click', function () {
             try { SFX.xylo(i + 2); } catch (e) { /* ignore */ }
             C.restart(b, 'dance');
@@ -63,7 +64,7 @@
       } else {
         var zoo = C.el('div', { class: 'zoo' });
         D.animals.forEach(function (a) {
-          var b = C.el('button', { 'aria-label': a.en, 'data-pic': a.pic }, pic(a.pic, ''));
+          var b = C.el('button', { 'aria-label': a.en, 'data-pic': a.pic }, pic(a.pic, '') + C.mean(D, a.en));
           b.addEventListener('click', function () {
             try { SFX.animal(); } catch (e) { /* ignore */ }
             C.restart(b, 'dance');
@@ -89,7 +90,7 @@
       var right = C.el('div');
       var head = '<div class="stk-head">' + C.MODES_LIST.map(function (m) { return '<div>' + ICON.modeIcon[m] + '</div>'; }).join('') + '</div>';
       var grid = '<div class="stickers" id="stickerGrid">';
-      ['he', 'el', 'th', 'es'].forEach(function (L) {
+      ['en', 'he', 'el', 'th', 'es'].forEach(function (L) {
         var D = LPW_DATA[L];
         C.MODES_LIST.forEach(function (m, j) {
           var got = !!ST.stickers[L + '-' + m];

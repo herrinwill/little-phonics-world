@@ -5,7 +5,7 @@
   var NEED = { letters: 5, builder: 1, bubbles: 3, stage: 10 }; /* actions to unlock a sticker */
   var memory = null;
 
-  function fresh() { return { stars: 0, lang: 'he', parent: false, prog: {}, stickers: {} }; }
+  function fresh() { return { stars: 0, lang: 'en', parent: false, prog: {}, stickers: {} }; }
   function load() {
     var s = null;
     try { var raw = window.localStorage && window.localStorage.getItem(KEY); if (raw) s = JSON.parse(raw); } catch (e) { s = null; }
@@ -118,11 +118,26 @@
     setTimeout(function () { t.remove(); }, 2300);
   }
 
+  var CHEERS = ['Great job!', 'You did it!', 'Awesome!', 'Way to go!', 'Super!', 'Yay, you!'];
+  function cheer(node) {
+    var fx = document.getElementById('fx'); if (!fx) return;
+    var c = center(node), t = el('div', { class: 'cheer', lang: 'en' }, esc(CHEERS[Math.floor(Math.random() * CHEERS.length)]));
+    t.style.left = Math.max(90, Math.min(innerWidth - 90, c.x)) + 'px'; t.style.top = Math.max(60, c.y - 40) + 'px';
+    fx.appendChild(t);
+    setTimeout(function () { t.remove(); }, 1500);
+  }
+
   window.LPWCore = {
     ST: ST, save: save, el: el, esc: esc, shuffle: shuffle, restart: restart, reduced: reduced,
     confetti: confetti, burst: burst, center: center, addStar: addStar, renderStars: renderStars,
     progress: progress, MODES_LIST: MODES_LIST, NEED: NEED, COLORS: COLORS,
-    D: function () { return window.LPW_DATA[ST.lang]; },
+    D: function () { return window.LPW_DATA[ST.lang] || window.LPW_DATA.en; },
+    /* Always-visible English meaning caption for non-English words (empty in English). */
+    mean: function (D, en, cls) {
+      if (!en || !D || D.code === 'en') return '';
+      return '<span class="mean' + (cls ? ' ' + cls : '') + '" lang="en" dir="ltr">' + esc(en) + '</span>';
+    },
+    cheer: cheer,
     /* say a native word (+ transliteration fallback) in the current language */
     say: function (items, opts) { return SPEECH.say(ST.lang, items, opts); }
   };

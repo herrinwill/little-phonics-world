@@ -23,14 +23,14 @@
       var box = C.el('div', { class: 'listen', id: 'listen' });
       box.innerHTML =
         '<div class="ask"><button class="roundbtn speak" id="hear" aria-label="Hear the word">' + ICON.speaker + '</button>' +
-        '<div><div class="say" ' + la + '>' + C.esc(target.w) + '</div><div style="font-weight:800;color:#7a6fb0;font-size:18px">' + C.esc(target.tr) + '</div></div></div>' +
+        '<div><div class="say" ' + la + '>' + C.esc(target.w) + '</div>' + (D.code === 'en' ? '' : '<div style="font-weight:800;color:#7a6fb0;font-size:18px">' + C.esc(target.tr) + '</div>' + C.mean(D, target.en)) + '</div></div>' +
         '<div class="ptxt parent" style="text-align:center">Find: <b>' + C.esc(target.en) + '</b>. Wrong taps just giggle — after two, the right bubble glows.</div>' +
         '<div class="bubbles" id="bubbleBox" style="--n:' + opts.length + '"></div>';
       root.appendChild(box);
       var bb = box.querySelector('#bubbleBox');
       opts.forEach(function (o) {
         var b = C.el('button', { class: 'bubble', 'data-pic': o.pic, 'aria-label': o.en }, pic(o.pic, '') +
-          '<span class="cap parent ptxt" ' + la + '>' + C.esc(o.w) + '</span>');
+          '<span class="cap parent ptxt" ' + la + '>' + C.esc(o.w) + '</span>' + C.mean(D, o.en));
         if (o === target) b.setAttribute('data-ok', '1');
         b.addEventListener('click', function () { choose(b, o); });
         bb.appendChild(b);
@@ -46,6 +46,7 @@
           try { SFX.pop(); } catch (e) { /* ignore */ }
           var c = C.center(b); C.burst(c.x, c.y);
           C.addStar(b);
+          C.cheer(b);
           b.classList.add('popped');
           C.confetti(50);
           C.say([{ text: target.w, tr: target.tr }], { quiet: true });

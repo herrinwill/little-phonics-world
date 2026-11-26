@@ -59,7 +59,7 @@
     }
   } catch (e) { /* ignore */ }
 
-  var PREFER = { he: ['he-IL', 'iw-IL'], el: ['el-GR'], th: ['th-TH'], es: ['es-ES', 'es-MX', 'es-US'] };
+  var PREFER = { en: ['en-US'], he: ['he-IL', 'iw-IL'], el: ['el-GR'], th: ['th-TH'], es: ['es-ES', 'es-MX', 'es-US'] };
   function norm(l) { return String(l || '').replace('_', '-').toLowerCase(); }
   function findVoice(code) {
     if (!voices.length) loadVoices();
@@ -70,7 +70,7 @@
     }
     for (i = 0; i < voices.length; i++) {
       v = norm(voices[i].lang);
-      for (var k = 0; k < D.speech.length; k++) if (v === D.speech[k] || v.indexOf(D.speech[k] + '-') === 0) return voices[i];
+      for (var k = 0; k < D.speech.length; k++) { var sp = norm(D.speech[k]); if (v === sp || v.indexOf(sp + '-') === 0) return voices[i]; }
     }
     return null;
   }

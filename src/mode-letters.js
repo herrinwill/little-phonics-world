@@ -13,7 +13,7 @@
       var spot = C.el('div', { class: 'spot', id: 'spot', style: '--c:' + D.color });
       spot.innerHTML = '<div class="hint">' + ICON.mLetters + '</div>' +
         '<div class="bigch" ' + la(D) + '>' + C.esc(D.letters[0].ch) + '</div>' +
-        '<div class="ptxt parent">Tap any letter friend: it says its name and a word that starts with it.</div>';
+        '<div class="ptxt parent">Tap any letter friend: it says its name and a word that starts with its sound.</div>';
       var seen = ((C.ST.prog[D.code] || {}).letters) || [];
       D.letters.forEach(function (L, i) {
         var col = C.COLORS[i % C.COLORS.length];
@@ -41,12 +41,14 @@
     spot.innerHTML =
       '<div class="row"><div class="bigch" ' + la(D) + '>' + C.esc(L.ch) + '</div>' + pic(L.pic, 'pic') + '</div>' +
       '<div class="word" ' + la(D) + '>' + C.esc(L.word) + '</div>' +
-      (L.syl ? '<div class="syl">' + C.esc(L.syl) + '</div>' : '') +
+      (L.syl ? '<div class="syl">' + C.esc(L.syl) + '</div>' : '') + C.mean(D, L.en, 'block') +
       '<div class="ptxt parent"><b>' + C.esc(L.nameTr) + '</b> · sound: <b>' + C.esc(L.snd) + '</b><br>' +
-      C.esc(L.word) + ' = <i>' + C.esc(L.tr) + '</i> — “' + C.esc(L.en) + '”</div>' +
+      (D.code === 'en' ? 'Say it together: “' + C.esc(L.name) + ' says ' + C.esc(L.snd.split(' ')[0]) + ', ' + C.esc(L.word) + '!”' :
+        C.esc(L.word) + ' = <i>' + C.esc(L.tr) + '</i> — “' + C.esc(L.en) + '”') + '</div>' +
       '<button class="roundbtn speak" id="replayLetter" aria-label="Hear again">' + ICON.speaker + '</button>';
     var speakIt = function () {
       var items = [{ text: L.name, tr: L.nameTr }, { text: L.word, tr: L.tr }];
+      if (D.code === 'en' && D.tileSay) items.splice(1, 0, { text: D.tileSay[L.name.toLowerCase()] || L.name, tr: L.snd.split(' ')[0] });
       if (L.syl && D.code === 'es') items.splice(1, 0, { text: L.syl.split('-').join(', '), tr: L.syl });
       C.say(items);
     };

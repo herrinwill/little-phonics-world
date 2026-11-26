@@ -26,7 +26,9 @@
       box.innerHTML =
         '<div class="target"><div class="pic" id="bPic">' + pic(W.pic, '') + '</div>' +
         '<button class="roundbtn speak" id="bSay" aria-label="Hear the word">' + ICON.speaker + '</button></div>' +
-        '<div class="ptxt parent" style="text-align:center"><span ' + la + '>' + C.esc(W.w) + '</span> = <i>' + C.esc(W.tr) + '</i> — “' + C.esc(W.en) + '”' +
+        (D.code === 'en' ? '' : '<div style="text-align:center">' + C.mean(D, W.en) + '</div>') +
+        '<div class="ptxt parent" style="text-align:center">' + (D.code === 'en' ? 'Sound it out together: <b>' + C.esc(W.sylTr || W.w) + '</b> … <b>' + C.esc(W.w) + '</b>. Each tile says its sound.' :
+          '<span ' + la + '>' + C.esc(W.w) + '</span> = <i>' + C.esc(W.tr) + '</i> — “' + C.esc(W.en) + '”') +
         (D.dir === 'rtl' ? ' · Hebrew reads right → left: the first letter goes in the right-most slot.' : '') + '</div>' +
         '<div class="slots" id="slots" ' + la + '></div><div class="tray" id="tray" ' + la + '></div>' +
         '<div class="row" id="bNext" style="min-height:96px"></div>';
@@ -76,13 +78,14 @@
       function complete() {
         done = true;
         var items = [];
-        if (W.syl && W.syl.length > 1) items.push({ text: W.syl.join(', '), tr: W.syl.join(' - ') });
+        if (W.syl && W.syl.length > 1) items.push({ text: W.syl.join(', '), tr: W.sylTr || W.syl.join(' - ') });
         items.push({ text: W.w, tr: W.tr });
         setTimeout(function () { C.say(items, { quiet: true }); }, 450);
         try { SFX.win(); } catch (e) { /* ignore */ }
         C.confetti(80);
         C.restart(box.querySelector('#bPic'), 'win');
         C.addStar(box.querySelector('#bPic'), 2);
+        C.cheer(box.querySelector('#bPic'));
         C.progress('builder');
         box.setAttribute('data-done', '1');
         var nb = C.el('button', { class: 'roundbtn go', id: 'nextWord', 'aria-label': 'Next word' }, ICON.next);

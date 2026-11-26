@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Little Phonics World</title>
-<meta name="description" content="A joyful picture-first phonics game for little learners: Hebrew, Greek, Thai and Spanish.">
+<meta name="description" content="A joyful picture-first phonics game for little learners: American English, Hebrew, Greek, Thai and Spanish.">
 <meta name="theme-color" content="#7c5cff">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 6l13 28 30 3-23 20 7 30-27-16-27 16 7-30-23-20 30-3z' fill='%23ffc928'/%3E%3C/svg%3E">
 <style>
@@ -320,6 +320,48 @@ body.parent-on span.parent{display:inline}
   .bubbles{--n:4!important;max-width:620px}
 }
 
+/* ---- English meaning captions (always visible in non-English languages) ---- */
+.mean{
+  display:inline-block;font-family:inherit;font-size:16px;font-weight:800;color:#3b2f7a;background:#e9e3ff;
+  border-radius:999px;padding:2px 12px;margin-top:4px;line-height:1.35;letter-spacing:.2px;white-space:nowrap;
+}
+.mean::before{content:"= ";opacity:.55}
+.mean.block{display:table;margin:6px auto 0}
+.spot .mean{font-size:18px}
+.lcard .mean{
+  position:absolute;left:50%;bottom:4px;transform:translateX(-50%);font-size:11px;padding:0 6px;margin:0;
+  max-width:94%;overflow:hidden;text-overflow:ellipsis;background:rgba(255,255,255,.88);color:#3b2f7a
+}
+.lcard .mean::before{content:""}
+.bubble .mean{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);font-size:14px;z-index:2;box-shadow:0 2px 6px rgba(43,35,80,.15)}
+.bubble .cap{bottom:auto;top:-10px}
+.slots + .mean, .target .mean{font-size:18px}
+.swatch,.zoo button,.bar{position:relative}
+.swatch .mean,.zoo button .mean{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:13px;padding:0 8px}
+.swatch .mean::before,.zoo button .mean::before{content:""}
+.bar .mean{
+  position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:10px;padding:0 4px;margin:0;
+  background:rgba(255,255,255,.9);max-width:96%;overflow:hidden;text-overflow:clip
+}
+.bar .mean::before{content:""}
+.pill .glyph.two{font-size:24px;letter-spacing:-1px}
+
+/* ---- Celebration words ---- */
+.cheer{
+  position:absolute;transform:translate(-50%,-50%);font-size:clamp(26px,4vw,40px);font-weight:900;color:#ff5a8a;
+  background:#fff;border-radius:999px;padding:6px 20px;box-shadow:0 8px 20px rgba(43,35,80,.2);white-space:nowrap;
+  animation:cheer 1.5s ease-out forwards
+}
+@keyframes cheer{0%{opacity:0;transform:translate(-50%,-30%) scale(.4)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}
+  80%{opacity:1;transform:translate(-50%,-70%) scale(1)}100%{opacity:0;transform:translate(-50%,-90%) scale(.9)}}
+@media (prefers-reduced-motion: reduce){.cheer{animation:none}}
+@media (max-width:600px){
+  .lcard .mean{font-size:10px;bottom:2px}
+  .bar .mean{display:none}
+  .swatch .mean,.zoo button .mean{font-size:11px}
+}
+.hello .sub{font-size:clamp(18px,2.6vw,24px);font-weight:900;color:#5a4f8a;margin-top:6px}
+
 </style>
 </head>
 <body>
@@ -334,6 +376,87 @@ body.parent-on span.parent{display:inline}
 <div id="fx" aria-hidden="true"></div>
 <script>
 "use strict";
+/* ---- data-en.js ---- */
+/* American English — the default language. Short-vowel phonics, A–Z with a picture word each. */
+window.LPW_DATA = window.LPW_DATA || {};
+window.LPW_DATA.en = {
+  code: 'en', name: 'English', en: 'English', glyph: 'Aa', color: '#7c5cff', dir: 'ltr',
+  speech: ['en-US', 'en'], hello: 'Hi there!', helloTr: 'Hi there!',
+  letters: [
+    { ch: 'Aa', name: 'A', nameTr: 'A (ay)', snd: '/a/ as in apple',      word: 'apple',    tr: 'AP-ul',     en: 'apple',    pic: 'apple' },
+    { ch: 'Bb', name: 'B', nameTr: 'B (bee)', snd: '/b/ as in bear',      word: 'bear',     tr: 'bair',      en: 'bear',     pic: 'bear' },
+    { ch: 'Cc', name: 'C', nameTr: 'C (see)', snd: '/k/ as in cat',       word: 'cat',      tr: 'kat',       en: 'cat',      pic: 'cat' },
+    { ch: 'Dd', name: 'D', nameTr: 'D (dee)', snd: '/d/ as in dog',       word: 'dog',      tr: 'dawg',      en: 'dog',      pic: 'dog' },
+    { ch: 'Ee', name: 'E', nameTr: 'E (ee)', snd: '/e/ as in elephant',   word: 'elephant', tr: 'EL-uh-funt', en: 'elephant', pic: 'elephant' },
+    { ch: 'Ff', name: 'F', nameTr: 'F (eff)', snd: '/f/ as in fish',      word: 'fish',     tr: 'fish',      en: 'fish',     pic: 'fish' },
+    { ch: 'Gg', name: 'G', nameTr: 'G (jee)', snd: '/g/ as in goat',      word: 'goat',     tr: 'goht',      en: 'goat',     pic: 'goat' },
+    { ch: 'Hh', name: 'H', nameTr: 'H (aych)', snd: '/h/ as in hat',      word: 'hat',      tr: 'hat',       en: 'hat',      pic: 'hat' },
+    { ch: 'Ii', name: 'I', nameTr: 'I (eye)', snd: '/i/ as in igloo',     word: 'igloo',    tr: 'IG-loo',    en: 'igloo',    pic: 'igloo' },
+    { ch: 'Jj', name: 'J', nameTr: 'J (jay)', snd: '/j/ as in jam',       word: 'jam',      tr: 'jam',       en: 'jam',      pic: 'jam' },
+    { ch: 'Kk', name: 'K', nameTr: 'K (kay)', snd: '/k/ as in kite',      word: 'kite',     tr: 'kyte',      en: 'kite',     pic: 'kite' },
+    { ch: 'Ll', name: 'L', nameTr: 'L (ell)', snd: '/l/ as in lion',      word: 'lion',     tr: 'LY-un',     en: 'lion',     pic: 'lion' },
+    { ch: 'Mm', name: 'M', nameTr: 'M (em)', snd: '/m/ as in moon',       word: 'moon',     tr: 'moon',      en: 'moon',     pic: 'moon' },
+    { ch: 'Nn', name: 'N', nameTr: 'N (en)', snd: '/n/ as in nest',       word: 'nest',     tr: 'nest',      en: 'nest',     pic: 'nest' },
+    { ch: 'Oo', name: 'O', nameTr: 'O (oh)', snd: '/o/ as in octopus',    word: 'octopus',  tr: 'OK-tuh-pus', en: 'octopus', pic: 'octopus' },
+    { ch: 'Pp', name: 'P', nameTr: 'P (pee)', snd: '/p/ as in pig',       word: 'pig',      tr: 'pig',       en: 'pig',      pic: 'pig' },
+    { ch: 'Qq', name: 'Q', nameTr: 'Q (kyoo)', snd: '/kw/ as in queen',   word: 'queen',    tr: 'kween',     en: 'queen',    pic: 'queen' },
+    { ch: 'Rr', name: 'R', nameTr: 'R (ar)', snd: '/r/ as in rabbit',     word: 'rabbit',   tr: 'RAB-it',    en: 'rabbit',   pic: 'rabbit' },
+    { ch: 'Ss', name: 'S', nameTr: 'S (ess)', snd: '/s/ as in sun',       word: 'sun',      tr: 'sun',       en: 'sun',      pic: 'sun' },
+    { ch: 'Tt', name: 'T', nameTr: 'T (tee)', snd: '/t/ as in turtle',    word: 'turtle',   tr: 'TUR-tul',   en: 'turtle',   pic: 'turtle' },
+    { ch: 'Uu', name: 'U', nameTr: 'U (yoo)', snd: '/u/ as in umbrella',  word: 'umbrella', tr: 'um-BREL-uh', en: 'umbrella', pic: 'umbrella' },
+    { ch: 'Vv', name: 'V', nameTr: 'V (vee)', snd: '/v/ as in van',       word: 'van',      tr: 'van',       en: 'van',      pic: 'van' },
+    { ch: 'Ww', name: 'W', nameTr: 'W (DUB-ul-yoo)', snd: '/w/ as in whale', word: 'whale', tr: 'wayl',      en: 'whale',    pic: 'whale' },
+    { ch: 'Xx', name: 'X', nameTr: 'X (ex)', snd: '/ks/ as in fox',       word: 'fox',      tr: 'foks',      en: 'fox',      pic: 'fox' },
+    { ch: 'Yy', name: 'Y', nameTr: 'Y (why)', snd: '/y/ as in yo-yo',     word: 'yo-yo',    tr: 'YOH-yoh',   en: 'yo-yo',    pic: 'yoyo' },
+    { ch: 'Zz', name: 'Z', nameTr: 'Z (zee)', snd: '/z/ as in zebra',     word: 'zebra',    tr: 'ZEE-bruh',  en: 'zebra',    pic: 'zebra' }
+  ],
+  /* syl = the sounds spoken when the word is finished (c-a-t … cat). */
+  words: [
+    { w: 'cat',  tiles: ['c', 'a', 't'],      syl: ['kuh', 'aah', 'tuh'],        sylTr: 'c - a - t',     tr: 'cat',  en: 'cat',  pic: 'cat' },
+    { w: 'dog',  tiles: ['d', 'o', 'g'],      syl: ['duh', 'aw', 'guh'],         sylTr: 'd - o - g',     tr: 'dog',  en: 'dog',  pic: 'dog' },
+    { w: 'sun',  tiles: ['s', 'u', 'n'],      syl: ['sss', 'uh', 'nnn'],         sylTr: 's - u - n',     tr: 'sun',  en: 'sun',  pic: 'sun' },
+    { w: 'pig',  tiles: ['p', 'i', 'g'],      syl: ['puh', 'ih', 'guh'],         sylTr: 'p - i - g',     tr: 'pig',  en: 'pig',  pic: 'pig' },
+    { w: 'hat',  tiles: ['h', 'a', 't'],      syl: ['huh', 'aah', 'tuh'],        sylTr: 'h - a - t',     tr: 'hat',  en: 'hat',  pic: 'hat' },
+    { w: 'bus',  tiles: ['b', 'u', 's'],      syl: ['buh', 'uh', 'sss'],         sylTr: 'b - u - s',     tr: 'bus',  en: 'bus',  pic: 'bus' },
+    { w: 'fox',  tiles: ['f', 'o', 'x'],      syl: ['fff', 'aw', 'ks'],          sylTr: 'f - o - x',     tr: 'fox',  en: 'fox',  pic: 'fox' },
+    { w: 'mom',  tiles: ['m', 'o', 'm'],      syl: ['mmm', 'aw', 'mmm'],         sylTr: 'm - o - m',     tr: 'mom',  en: 'mom',  pic: 'mom' },
+    { w: 'dad',  tiles: ['d', 'a', 'd'],      syl: ['duh', 'aah', 'duh'],        sylTr: 'd - a - d',     tr: 'dad',  en: 'dad',  pic: 'dad' },
+    { w: 'frog', tiles: ['f', 'r', 'o', 'g'], syl: ['fff', 'rrr', 'aw', 'guh'],  sylTr: 'f - r - o - g', tr: 'frog', en: 'frog', pic: 'frog' }
+  ],
+  /* Tiles say a sound-friendly name (the letter's sound), not the alphabet name. */
+  tileSay: {
+    a: 'aah', b: 'buh', c: 'kuh', d: 'duh', e: 'eh', f: 'fff', g: 'guh', h: 'huh', i: 'ih', j: 'juh', k: 'kuh', l: 'lll', m: 'mmm',
+    n: 'nnn', o: 'aw', p: 'puh', q: 'kwuh', r: 'rrr', s: 'sss', t: 'tuh', u: 'uh', v: 'vvv', w: 'wuh', x: 'ks', y: 'yuh', z: 'zzz'
+  },
+  tileTr: {
+    a: '/a/', b: '/b/', c: '/k/', d: '/d/', e: '/e/', f: '/f/', g: '/g/', h: '/h/', i: '/i/', j: '/j/', k: '/k/', l: '/l/', m: '/m/',
+    n: '/n/', o: '/o/', p: '/p/', q: '/kw/', r: '/r/', s: '/s/', t: '/t/', u: '/u/', v: '/v/', w: '/w/', x: '/ks/', y: '/y/', z: '/z/'
+  },
+  numbers: [
+    { w: 'one', tr: 'one' }, { w: 'two', tr: 'two' }, { w: 'three', tr: 'three' }, { w: 'four', tr: 'four' }, { w: 'five', tr: 'five' },
+    { w: 'six', tr: 'six' }, { w: 'seven', tr: 'seven' }, { w: 'eight', tr: 'eight' }, { w: 'nine', tr: 'nine' }, { w: 'ten', tr: 'ten' }
+  ],
+  colors: [
+    { w: 'red', tr: 'red', en: 'red', hex: '#ff4d4d' },
+    { w: 'orange', tr: 'orange', en: 'orange', hex: '#ff9f1c' },
+    { w: 'yellow', tr: 'yellow', en: 'yellow', hex: '#ffd23f' },
+    { w: 'green', tr: 'green', en: 'green', hex: '#3ddc84' },
+    { w: 'blue', tr: 'blue', en: 'blue', hex: '#4d96ff' },
+    { w: 'purple', tr: 'purple', en: 'purple', hex: '#9b5de5' },
+    { w: 'pink', tr: 'pink', en: 'pink', hex: '#ff7eb6' }
+  ],
+  animals: [
+    { w: 'dog', tr: 'dog', en: 'dog', pic: 'dog' },
+    { w: 'cat', tr: 'cat', en: 'cat', pic: 'cat' },
+    { w: 'cow', tr: 'cow', en: 'cow', pic: 'cow' },
+    { w: 'pig', tr: 'pig', en: 'pig', pic: 'pig' },
+    { w: 'duck', tr: 'duck', en: 'duck', pic: 'duck' },
+    { w: 'horse', tr: 'horse', en: 'horse', pic: 'horse' },
+    { w: 'frog', tr: 'frog', en: 'frog', pic: 'frog' },
+    { w: 'whale', tr: 'whale', en: 'whale', pic: 'whale' }
+  ]
+};
+
 /* ---- data-he.js ---- */
 /* Hebrew — עברית. All words carry nikud; displayed with dir="rtl". */
 window.LPW_DATA = window.LPW_DATA || {};
@@ -880,6 +1003,93 @@ window.ART = window.ART || {};
     '<path d="M38 40l8 8M44 36l8 8M50 34l8 8" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="22" cy="50" r="5" fill="#ffd23f"/>';
 })(window.ART);
 
+/* ---- art4.js ---- */
+/* Inline SVG art — part 4: English alphabet pictures (goat, hat, igloo, jam, kite, nest, octopus, pig). */
+(function (A) {
+  var h = A._h, INK = h.INK, eyes = h.eyes, smile = h.smile, face = h.face, cheeks = h.cheeks;
+
+  A.goat = '<path d="M34 24q-10-16-22-14 8 6 14 18zM66 24q10-16 22-14-8 6-14 18z" fill="#c9c3ef"/>' +
+    '<ellipse cx="20" cy="44" rx="12" ry="6" fill="#f2efff" transform="rotate(-20 20 44)"/><ellipse cx="80" cy="44" rx="12" ry="6" fill="#f2efff" transform="rotate(20 80 44)"/>' +
+    '<path d="M28 34q22-14 44 0v30q-22 20-44 0z" fill="#ffffff" stroke="#e0dcf5" stroke-width="3"/>' + eyes(50, 46, 10, 4.5) +
+    '<ellipse cx="50" cy="62" rx="10" ry="7" fill="#ffd1dc"/><circle cx="46" cy="61" r="1.8" fill="' + INK + '"/><circle cx="54" cy="61" r="1.8" fill="' + INK + '"/>' +
+    '<path d="M44 80q6 14 12 0" fill="#f2efff" stroke="#e0dcf5" stroke-width="2"/>' + cheeks(50, 54, 17);
+
+  A.hat = '<ellipse cx="50" cy="74" rx="44" ry="12" fill="#4d96ff"/><path d="M26 72V36q0-16 24-16t24 16v36z" fill="#4d96ff"/>' +
+    '<path d="M26 58h48v12H26z" fill="#ff5a8a"/><circle cx="64" cy="64" r="5" fill="#ffd23f"/><ellipse cx="38" cy="36" rx="5" ry="9" fill="#fff" opacity=".35"/>';
+
+  A.igloo = '<path d="M8 84a42 42 0 0 1 84 0z" fill="#eaf6ff" stroke="#9fd8ff" stroke-width="3"/>' +
+    '<path d="M16 66h68M12 76h76M30 48h40M22 56h56M50 42v14M36 56v10M64 56v10M28 66v10M50 66v10M72 66v10" stroke="#9fd8ff" stroke-width="2.5"/>' +
+    '<path d="M36 84v-10a14 14 0 0 1 28 0v10z" fill="#4d96ff"/><path d="M0 84h100v12H0z" fill="#fff" stroke="#cfefff" stroke-width="2"/>' +
+    '<path d="M82 14l2 5 5 1-5 2-2 5-2-5-5-2 5-1z" fill="#ffd23f"/>';
+
+  A.jam = '<rect x="26" y="20" width="48" height="14" rx="5" fill="#ff9f1c"/><path d="M24 34h52v-6H24z" fill="#ffd23f"/>' +
+    '<path d="M24 34q-6 0-6 10v36q0 12 12 12h40q12 0 12-12V44q0-10-6-10z" fill="#ff4d6d"/>' +
+    '<rect x="30" y="50" width="40" height="26" rx="8" fill="#fff"/><path d="M50 72s-12-7-12-14a6 6 0 0 1 12-2 6 6 0 0 1 12 2c0 7-12 14-12 14z" fill="#ff4d6d"/>' +
+    '<ellipse cx="28" cy="52" rx="3" ry="10" fill="#fff" opacity=".45"/>';
+
+  A.kite = '<path d="M50 6L82 40 50 74 18 40z" fill="#ff5a8a"/><path d="M50 6v68M18 40h64" stroke="#fff" stroke-width="3"/>' +
+    '<path d="M50 6L82 40H50z" fill="#ffd23f"/><path d="M50 74L18 40h32z" fill="#4d96ff"/>' + eyes(50, 34, 9, 3.5) + smile(50, 46, 5) +
+    '<path d="M50 74q-8 8 0 14t-4 12" stroke="#7a6fb0" stroke-width="2.5" fill="none"/>' +
+    '<path d="M44 82l6 4-6 4zM56 90l-6 4 6 4z" fill="#3ddc84"/>';
+
+  A.nest = '<ellipse cx="38" cy="56" rx="10" ry="12" fill="#cfefff"/><ellipse cx="62" cy="56" rx="10" ry="12" fill="#9fd8ff"/><ellipse cx="50" cy="52" rx="10" ry="12" fill="#e8f7ff"/>' +
+    '<path d="M10 58q40 12 80 0-4 30-40 30T10 58z" fill="#e8a33d"/>' +
+    '<path d="M14 64q36 10 72 0M18 72q32 9 64 0M26 80q24 6 48 0" stroke="#f7c873" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<path d="M12 58l-6-6M88 58l6-6M20 62l-8 2M80 62l8 2" stroke="#e8a33d" stroke-width="3" stroke-linecap="round"/>';
+
+  A.octopus = [18, 32, 46, 60, 74].map(function (x, i) {
+    return '<path d="M' + (x + 4) + ' 60q-6 18 ' + (i % 2 ? 6 : -6) + ' 30" stroke="#9b5de5" stroke-width="9" fill="none" stroke-linecap="round"/>';
+  }).join('') +
+    '<ellipse cx="50" cy="42" rx="32" ry="30" fill="#b388ff"/><ellipse cx="38" cy="26" rx="6" ry="9" fill="#fff" opacity=".35"/>' + face(50, 46, 11);
+
+  A.pig = '<path d="M24 32L18 12l20 12zM76 32l6-20-20 12z" fill="#ff8fab"/>' +
+    '<circle cx="50" cy="52" r="34" fill="#ffb3c7"/>' + eyes(50, 42, 13, 4.5) +
+    '<ellipse cx="50" cy="60" rx="14" ry="10" fill="#ff8fab"/><ellipse cx="45" cy="60" rx="3" ry="4" fill="#d9486f"/><ellipse cx="55" cy="60" rx="3" ry="4" fill="#d9486f"/>' +
+    smile(50, 74, 6) + cheeks(50, 56, 24);
+})(window.ART);
+
+/* ---- art5.js ---- */
+/* Inline SVG art — part 5: English pictures (queen, van, whale, fox, yo-yo, bus, frog). */
+(function (A) {
+  var h = A._h, INK = h.INK, eyes = h.eyes, smile = h.smile, face = h.face, cheeks = h.cheeks;
+
+  A.queen = '<path d="M20 60q-4-34 30-36 34 2 30 36l4 30H16z" fill="#ff9f1c"/>' +
+    '<circle cx="50" cy="56" r="25" fill="#ffd9b8"/>' + face(50, 54, 10) +
+    '<path d="M26 34l4-24 10 14 10-18 10 18 10-14 4 24z" fill="#ffd23f" stroke="#ff9f1c" stroke-width="2" stroke-linejoin="round"/>' +
+    '<circle cx="50" cy="26" r="4" fill="#ff4d6d"/><circle cx="36" cy="28" r="3" fill="#4d96ff"/><circle cx="64" cy="28" r="3" fill="#3ddc84"/>' +
+    '<path d="M30 84q20 12 40 0v12H30z" fill="#9b5de5"/>';
+
+  A.van = '<path d="M8 72V34q0-8 8-8h46q8 0 14 8l14 18q4 4 4 10v10z" fill="#3ddc84"/>' +
+    '<path d="M64 32h8l12 18H64z" fill="#cfefff"/><rect x="16" y="32" width="18" height="16" rx="3" fill="#cfefff"/><rect x="40" y="32" width="18" height="16" rx="3" fill="#cfefff"/>' +
+    '<path d="M8 58h86" stroke="#fff" stroke-width="4"/><circle cx="90" cy="64" r="3" fill="#ffd23f"/>' +
+    '<circle cx="28" cy="74" r="11" fill="' + INK + '"/><circle cx="28" cy="74" r="4.5" fill="#e0dcf5"/><circle cx="72" cy="74" r="11" fill="' + INK + '"/><circle cx="72" cy="74" r="4.5" fill="#e0dcf5"/>';
+
+  A.whale = '<path d="M50 22q-2-12-8-14M50 22q2-12 10-12M50 22v-14" stroke="#4dc3ff" stroke-width="4" stroke-linecap="round" fill="none"/>' +
+    '<path d="M8 58q0-30 40-30 36 0 40 26l8-14q4 18-6 26 2 4-4 4-10 22-46 20Q8 88 8 58z" fill="#4d96ff"/>' +
+    '<path d="M14 66q30 16 70 0-8 18-36 18-26 0-34-18z" fill="#cfe3ff"/>' + h.eye(28, 52, 4.5) + smile(30, 62, 6) +
+    '<circle cx="20" cy="60" r="4" fill="#ff8fab" opacity=".7"/>';
+
+  A.fox = '<path d="M16 46L20 8l26 24zM84 46L80 8 54 32z" fill="#ff7a1c"/><path d="M22 36l2-18 12 12zM78 36l-2-18-12 12z" fill="#fff"/>' +
+    '<path d="M14 40q36-20 72 0-4 26-36 46Q18 66 14 40z" fill="#ff8c1a"/>' +
+    '<path d="M26 56q12 6 24 30 12-24 24-30-10-4-24 0-14-4-24 0z" fill="#fff"/>' + eyes(50, 46, 14, 4.5) +
+    '<ellipse cx="50" cy="76" rx="5" ry="4" fill="' + INK + '"/>' + cheeks(50, 58, 24);
+
+  A.yoyo = '<path d="M50 4v30" stroke="#7a6fb0" stroke-width="3"/><circle cx="50" cy="6" r="4" fill="none" stroke="#7a6fb0" stroke-width="3"/>' +
+    '<circle cx="50" cy="62" r="34" fill="#ff5a8a"/><circle cx="50" cy="62" r="24" fill="#ffd23f"/>' +
+    '<path d="M34 50a20 20 0 0 1 10-10" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/>' + eyes(50, 56, 9, 3) + smile(50, 70, 5);
+
+  A.bus = '<rect x="8" y="16" width="84" height="62" rx="12" fill="#ffd23f"/><rect x="8" y="16" width="84" height="10" rx="5" fill="#ff9f1c"/>' +
+    [16, 36, 56].map(function (x) { return '<rect x="' + x + '" y="32" width="16" height="16" rx="3" fill="#cfefff"/>'; }).join('') +
+    '<rect x="76" y="32" width="12" height="34" rx="3" fill="#9fd8ff"/><path d="M8 56h66" stroke="' + INK + '" stroke-width="3"/>' +
+    '<circle cx="14" cy="66" r="3" fill="#fff"/><circle cx="26" cy="80" r="10" fill="' + INK + '"/><circle cx="26" cy="80" r="4" fill="#e0dcf5"/>' +
+    '<circle cx="72" cy="80" r="10" fill="' + INK + '"/><circle cx="72" cy="80" r="4" fill="#e0dcf5"/>';
+
+  A.frog = '<circle cx="30" cy="30" r="14" fill="#3ddc84"/><circle cx="70" cy="30" r="14" fill="#3ddc84"/>' +
+    '<ellipse cx="50" cy="60" rx="40" ry="30" fill="#3ddc84"/><ellipse cx="50" cy="70" rx="26" ry="16" fill="#b8f5cf"/>' +
+    '<circle cx="30" cy="30" r="8" fill="#fff"/><circle cx="70" cy="30" r="8" fill="#fff"/>' + h.eye(30, 31, 4.5) + h.eye(70, 31, 4.5) +
+    '<path d="M30 56q20 16 40 0" stroke="' + INK + '" stroke-width="3" fill="none" stroke-linecap="round"/>' + cheeks(50, 52, 26);
+})(window.ART);
+
 /* ---- icons.js ---- */
 /* UI icons, mode illustrations, stickers and the pic() helper. */
 (function (A) {
@@ -934,9 +1144,10 @@ window.ART = window.ART || {};
       '<path d="M24 34v100" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"/></svg>';
   };
 
-  /* Stickers: 4 modes × 4 languages. Each is a framed character. */
+  /* Stickers: 4 modes × 5 languages. Each is a framed character. */
   var frames = { letters: '#ff7eb6', builder: '#4d96ff', bubbles: '#3ddc84', stage: '#9b5de5' };
   var stickerPics = {
+    en: { letters: 'apple', builder: 'frog', bubbles: 'whale', stage: 'kite' },
     he: { letters: 'lion', builder: 'camel', bubbles: 'fish', stage: 'peacock' },
     el: { letters: 'star', builder: 'dolphin', bubbles: 'seahorse', stage: 'butterfly' },
     th: { letters: 'elephant', builder: 'turtle', bubbles: 'giant', stage: 'tiger' },
@@ -1013,7 +1224,7 @@ window.ART = window.ART || {};
     }
   } catch (e) { /* ignore */ }
 
-  var PREFER = { he: ['he-IL', 'iw-IL'], el: ['el-GR'], th: ['th-TH'], es: ['es-ES', 'es-MX', 'es-US'] };
+  var PREFER = { en: ['en-US'], he: ['he-IL', 'iw-IL'], el: ['el-GR'], th: ['th-TH'], es: ['es-ES', 'es-MX', 'es-US'] };
   function norm(l) { return String(l || '').replace('_', '-').toLowerCase(); }
   function findVoice(code) {
     if (!voices.length) loadVoices();
@@ -1024,7 +1235,7 @@ window.ART = window.ART || {};
     }
     for (i = 0; i < voices.length; i++) {
       v = norm(voices[i].lang);
-      for (var k = 0; k < D.speech.length; k++) if (v === D.speech[k] || v.indexOf(D.speech[k] + '-') === 0) return voices[i];
+      for (var k = 0; k < D.speech.length; k++) { var sp = norm(D.speech[k]); if (v === sp || v.indexOf(sp + '-') === 0) return voices[i]; }
     }
     return null;
   }
@@ -1085,7 +1296,7 @@ window.ART = window.ART || {};
   var NEED = { letters: 5, builder: 1, bubbles: 3, stage: 10 }; /* actions to unlock a sticker */
   var memory = null;
 
-  function fresh() { return { stars: 0, lang: 'he', parent: false, prog: {}, stickers: {} }; }
+  function fresh() { return { stars: 0, lang: 'en', parent: false, prog: {}, stickers: {} }; }
   function load() {
     var s = null;
     try { var raw = window.localStorage && window.localStorage.getItem(KEY); if (raw) s = JSON.parse(raw); } catch (e) { s = null; }
@@ -1198,11 +1409,26 @@ window.ART = window.ART || {};
     setTimeout(function () { t.remove(); }, 2300);
   }
 
+  var CHEERS = ['Great job!', 'You did it!', 'Awesome!', 'Way to go!', 'Super!', 'Yay, you!'];
+  function cheer(node) {
+    var fx = document.getElementById('fx'); if (!fx) return;
+    var c = center(node), t = el('div', { class: 'cheer', lang: 'en' }, esc(CHEERS[Math.floor(Math.random() * CHEERS.length)]));
+    t.style.left = Math.max(90, Math.min(innerWidth - 90, c.x)) + 'px'; t.style.top = Math.max(60, c.y - 40) + 'px';
+    fx.appendChild(t);
+    setTimeout(function () { t.remove(); }, 1500);
+  }
+
   window.LPWCore = {
     ST: ST, save: save, el: el, esc: esc, shuffle: shuffle, restart: restart, reduced: reduced,
     confetti: confetti, burst: burst, center: center, addStar: addStar, renderStars: renderStars,
     progress: progress, MODES_LIST: MODES_LIST, NEED: NEED, COLORS: COLORS,
-    D: function () { return window.LPW_DATA[ST.lang]; },
+    D: function () { return window.LPW_DATA[ST.lang] || window.LPW_DATA.en; },
+    /* Always-visible English meaning caption for non-English words (empty in English). */
+    mean: function (D, en, cls) {
+      if (!en || !D || D.code === 'en') return '';
+      return '<span class="mean' + (cls ? ' ' + cls : '') + '" lang="en" dir="ltr">' + esc(en) + '</span>';
+    },
+    cheer: cheer,
     /* say a native word (+ transliteration fallback) in the current language */
     say: function (items, opts) { return SPEECH.say(ST.lang, items, opts); }
   };
@@ -1225,7 +1451,7 @@ window.ART = window.ART || {};
       var spot = C.el('div', { class: 'spot', id: 'spot', style: '--c:' + D.color });
       spot.innerHTML = '<div class="hint">' + ICON.mLetters + '</div>' +
         '<div class="bigch" ' + la(D) + '>' + C.esc(D.letters[0].ch) + '</div>' +
-        '<div class="ptxt parent">Tap any letter friend: it says its name and a word that starts with it.</div>';
+        '<div class="ptxt parent">Tap any letter friend: it says its name and a word that starts with its sound.</div>';
       var seen = ((C.ST.prog[D.code] || {}).letters) || [];
       D.letters.forEach(function (L, i) {
         var col = C.COLORS[i % C.COLORS.length];
@@ -1253,12 +1479,14 @@ window.ART = window.ART || {};
     spot.innerHTML =
       '<div class="row"><div class="bigch" ' + la(D) + '>' + C.esc(L.ch) + '</div>' + pic(L.pic, 'pic') + '</div>' +
       '<div class="word" ' + la(D) + '>' + C.esc(L.word) + '</div>' +
-      (L.syl ? '<div class="syl">' + C.esc(L.syl) + '</div>' : '') +
+      (L.syl ? '<div class="syl">' + C.esc(L.syl) + '</div>' : '') + C.mean(D, L.en, 'block') +
       '<div class="ptxt parent"><b>' + C.esc(L.nameTr) + '</b> · sound: <b>' + C.esc(L.snd) + '</b><br>' +
-      C.esc(L.word) + ' = <i>' + C.esc(L.tr) + '</i> — “' + C.esc(L.en) + '”</div>' +
+      (D.code === 'en' ? 'Say it together: “' + C.esc(L.name) + ' says ' + C.esc(L.snd.split(' ')[0]) + ', ' + C.esc(L.word) + '!”' :
+        C.esc(L.word) + ' = <i>' + C.esc(L.tr) + '</i> — “' + C.esc(L.en) + '”') + '</div>' +
       '<button class="roundbtn speak" id="replayLetter" aria-label="Hear again">' + ICON.speaker + '</button>';
     var speakIt = function () {
       var items = [{ text: L.name, tr: L.nameTr }, { text: L.word, tr: L.tr }];
+      if (D.code === 'en' && D.tileSay) items.splice(1, 0, { text: D.tileSay[L.name.toLowerCase()] || L.name, tr: L.snd.split(' ')[0] });
       if (L.syl && D.code === 'es') items.splice(1, 0, { text: L.syl.split('-').join(', '), tr: L.syl });
       C.say(items);
     };
@@ -1301,7 +1529,9 @@ window.ART = window.ART || {};
       box.innerHTML =
         '<div class="target"><div class="pic" id="bPic">' + pic(W.pic, '') + '</div>' +
         '<button class="roundbtn speak" id="bSay" aria-label="Hear the word">' + ICON.speaker + '</button></div>' +
-        '<div class="ptxt parent" style="text-align:center"><span ' + la + '>' + C.esc(W.w) + '</span> = <i>' + C.esc(W.tr) + '</i> — “' + C.esc(W.en) + '”' +
+        (D.code === 'en' ? '' : '<div style="text-align:center">' + C.mean(D, W.en) + '</div>') +
+        '<div class="ptxt parent" style="text-align:center">' + (D.code === 'en' ? 'Sound it out together: <b>' + C.esc(W.sylTr || W.w) + '</b> … <b>' + C.esc(W.w) + '</b>. Each tile says its sound.' :
+          '<span ' + la + '>' + C.esc(W.w) + '</span> = <i>' + C.esc(W.tr) + '</i> — “' + C.esc(W.en) + '”') +
         (D.dir === 'rtl' ? ' · Hebrew reads right → left: the first letter goes in the right-most slot.' : '') + '</div>' +
         '<div class="slots" id="slots" ' + la + '></div><div class="tray" id="tray" ' + la + '></div>' +
         '<div class="row" id="bNext" style="min-height:96px"></div>';
@@ -1351,13 +1581,14 @@ window.ART = window.ART || {};
       function complete() {
         done = true;
         var items = [];
-        if (W.syl && W.syl.length > 1) items.push({ text: W.syl.join(', '), tr: W.syl.join(' - ') });
+        if (W.syl && W.syl.length > 1) items.push({ text: W.syl.join(', '), tr: W.sylTr || W.syl.join(' - ') });
         items.push({ text: W.w, tr: W.tr });
         setTimeout(function () { C.say(items, { quiet: true }); }, 450);
         try { SFX.win(); } catch (e) { /* ignore */ }
         C.confetti(80);
         C.restart(box.querySelector('#bPic'), 'win');
         C.addStar(box.querySelector('#bPic'), 2);
+        C.cheer(box.querySelector('#bPic'));
         C.progress('builder');
         box.setAttribute('data-done', '1');
         var nb = C.el('button', { class: 'roundbtn go', id: 'nextWord', 'aria-label': 'Next word' }, ICON.next);
@@ -1437,14 +1668,14 @@ window.ART = window.ART || {};
       var box = C.el('div', { class: 'listen', id: 'listen' });
       box.innerHTML =
         '<div class="ask"><button class="roundbtn speak" id="hear" aria-label="Hear the word">' + ICON.speaker + '</button>' +
-        '<div><div class="say" ' + la + '>' + C.esc(target.w) + '</div><div style="font-weight:800;color:#7a6fb0;font-size:18px">' + C.esc(target.tr) + '</div></div></div>' +
+        '<div><div class="say" ' + la + '>' + C.esc(target.w) + '</div>' + (D.code === 'en' ? '' : '<div style="font-weight:800;color:#7a6fb0;font-size:18px">' + C.esc(target.tr) + '</div>' + C.mean(D, target.en)) + '</div></div>' +
         '<div class="ptxt parent" style="text-align:center">Find: <b>' + C.esc(target.en) + '</b>. Wrong taps just giggle — after two, the right bubble glows.</div>' +
         '<div class="bubbles" id="bubbleBox" style="--n:' + opts.length + '"></div>';
       root.appendChild(box);
       var bb = box.querySelector('#bubbleBox');
       opts.forEach(function (o) {
         var b = C.el('button', { class: 'bubble', 'data-pic': o.pic, 'aria-label': o.en }, pic(o.pic, '') +
-          '<span class="cap parent ptxt" ' + la + '>' + C.esc(o.w) + '</span>');
+          '<span class="cap parent ptxt" ' + la + '>' + C.esc(o.w) + '</span>' + C.mean(D, o.en));
         if (o === target) b.setAttribute('data-ok', '1');
         b.addEventListener('click', function () { choose(b, o); });
         bb.appendChild(b);
@@ -1460,6 +1691,7 @@ window.ART = window.ART || {};
           try { SFX.pop(); } catch (e) { /* ignore */ }
           var c = C.center(b); C.burst(c.x, c.y);
           C.addStar(b);
+          C.cheer(b);
           b.classList.add('popped');
           C.confetti(50);
           C.say([{ text: target.w, tr: target.tr }], { quiet: true });
@@ -1493,6 +1725,7 @@ window.ART = window.ART || {};
   var C = window.LPWCore;
   var RAINBOW = ['#ff4d4d', '#ff7a1c', '#ff9f1c', '#ffd23f', '#a8e05f', '#3ddc84', '#2ec4b6', '#4d96ff', '#7b6cff', '#c86bff'];
   var tabNow = 'numbers';
+  var EN_NUM = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
   MODES.stage = {
     title: 'Rainbow Sound Stage',
@@ -1510,8 +1743,8 @@ window.ART = window.ART || {};
       var area = C.el('div', { id: 'stageArea' }), out = C.el('div', { class: 'stage-out', id: 'stageOut' });
 
       function show(word, tr, en, extra) {
-        out.innerHTML = '<div class="w" ' + la + '>' + C.esc(word) + '</div>' + (extra || '') +
-          '<div class="ptxt parent" style="display:inline-block">' + C.esc(tr) + (en ? ' — “' + C.esc(en) + '”' : '') + '</div>';
+        out.innerHTML = '<div class="w" ' + la + '>' + C.esc(word) + '</div>' + C.mean(D, en, 'block') + (extra || '') +
+          '<div class="ptxt parent" style="display:inline-block">' + (D.code === 'en' ? 'Say it together: “' + C.esc(tr) + '”' : C.esc(tr) + (en ? ' — “' + C.esc(en) + '”' : '')) + '</div>';
         if (document.body.classList.contains('parent-on')) out.querySelector('.parent').style.display = 'inline-block';
       }
       function count() { C.progress('stage'); var s = C.ST.prog[D.code].stage; if (s % 10 === 0) C.addStar(out); }
@@ -1520,7 +1753,7 @@ window.ART = window.ART || {};
         var x = C.el('div', { class: 'xylo', id: 'xylo' });
         D.numbers.forEach(function (n, i) {
           var b = C.el('button', { class: 'bar', 'data-n': i + 1, style: '--c:' + RAINBOW[i] + ';--h:' + (100 - i * 5.5) + '%;--hp:' + (150 - i * 7) + 'px', 'aria-label': String(i + 1) },
-            '<i></i><span>' + (i + 1) + (D.digits ? '<br><small>' + D.digits[i] + '</small>' : '') + '</span><i></i>');
+            '<i></i><span>' + (i + 1) + (D.digits ? '<br><small>' + D.digits[i] + '</small>' : '') + '</span><i></i>' + C.mean(D, EN_NUM[i]));
           b.addEventListener('pointerdown', function () { C.restart(b, 'hit'); });
           b.addEventListener('click', function () {
             try { SFX.xylo(i); } catch (e) { /* ignore */ }
@@ -1529,7 +1762,7 @@ window.ART = window.ART || {};
             C.say([{ text: n.w, tr: n.tr }], { quiet: true });
             var dots = '<div class="dots">';
             for (var k = 0; k <= i; k++) dots += '<span style="animation-delay:' + (k * 0.05) + 's;display:block">' + ICON.star + '</span>';
-            show((D.digits ? D.digits[i] + ' · ' : (i + 1) + ' · ') + n.w, n.tr, String(i + 1), dots + '</div>');
+            show((D.digits ? D.digits[i] + ' · ' : (i + 1) + ' · ') + n.w, n.tr, (i + 1) + ' · ' + EN_NUM[i], dots + '</div>');
             count();
           });
           x.appendChild(b);
@@ -1538,7 +1771,7 @@ window.ART = window.ART || {};
       } else if (tabNow === 'colors') {
         var sw = C.el('div', { class: 'swatches' });
         D.colors.forEach(function (c, i) {
-          var b = C.el('button', { class: 'swatch', style: '--c:' + c.hex, 'aria-label': c.en }, svg(ART._h.face(50, 44, 12)));
+          var b = C.el('button', { class: 'swatch', style: '--c:' + c.hex, 'aria-label': c.en }, svg(ART._h.face(50, 44, 12)) + C.mean(D, c.en));
           b.addEventListener('click', function () {
             try { SFX.xylo(i + 2); } catch (e) { /* ignore */ }
             C.restart(b, 'dance');
@@ -1553,7 +1786,7 @@ window.ART = window.ART || {};
       } else {
         var zoo = C.el('div', { class: 'zoo' });
         D.animals.forEach(function (a) {
-          var b = C.el('button', { 'aria-label': a.en, 'data-pic': a.pic }, pic(a.pic, ''));
+          var b = C.el('button', { 'aria-label': a.en, 'data-pic': a.pic }, pic(a.pic, '') + C.mean(D, a.en));
           b.addEventListener('click', function () {
             try { SFX.animal(); } catch (e) { /* ignore */ }
             C.restart(b, 'dance');
@@ -1579,7 +1812,7 @@ window.ART = window.ART || {};
       var right = C.el('div');
       var head = '<div class="stk-head">' + C.MODES_LIST.map(function (m) { return '<div>' + ICON.modeIcon[m] + '</div>'; }).join('') + '</div>';
       var grid = '<div class="stickers" id="stickerGrid">';
-      ['he', 'el', 'th', 'es'].forEach(function (L) {
+      ['en', 'he', 'el', 'th', 'es'].forEach(function (L) {
         var D = LPW_DATA[L];
         C.MODES_LIST.forEach(function (m, j) {
           var got = !!ST.stickers[L + '-' + m];
@@ -1604,7 +1837,7 @@ window.ART = window.ART || {};
 /* App shell: top bar, language switcher, parent toggle, home screen, navigation, test hook. */
 (function () {
   var C = window.LPWCore, ST = C.ST;
-  var LANGS = ['he', 'el', 'th', 'es'];
+  var LANGS = ['en', 'he', 'el', 'th', 'es'];
   var screen = document.getElementById('screen');
   var mode = 'home';
 
@@ -1616,7 +1849,7 @@ window.ART = window.ART || {};
       var b = C.el('button', {
         class: 'pill' + (ST.lang === code ? ' on' : ''), 'data-lang': code, style: '--c:' + D.color,
         'aria-label': D.en + ' — ' + D.name, 'aria-pressed': String(ST.lang === code), title: D.en
-      }, '<span class="glyph" style="background:' + D.color + '" lang="' + code + '"' + (D.dir === 'rtl' ? ' dir="rtl"' : '') + '>' + D.glyph + '</span>' +
+      }, '<span class="glyph' + (D.glyph.length > 1 ? ' two' : '') + '" style="background:' + D.color + '" lang="' + code + '"' + (D.dir === 'rtl' ? ' dir="rtl"' : '') + '>' + D.glyph + '</span>' +
         '<span class="nm" lang="' + code + '"' + (D.dir === 'rtl' ? ' dir="rtl"' : '') + '>' + D.name + '</span>');
       b.addEventListener('click', function () { setLang(code, true); });
       bar.appendChild(b);
@@ -1647,7 +1880,9 @@ window.ART = window.ART || {};
     var D = C.D();
     root.innerHTML =
       '<div class="hello"><div class="big" lang="' + D.code + '" dir="' + D.dir + '">' + C.esc(D.hello) + '</div>' +
-      '<div class="ptxt parent" style="display:inline-block">' + C.esc(D.helloTr) + ' = “hello” in ' + D.en + '. Pick a game — every button is a picture, no reading needed.</div></div>';
+      (D.code === 'en' ? '<div class="sub" lang="en">Let\'s play with letters and sounds!</div>' : C.mean(D, 'Hello!', 'block')) +
+      '<div class="ptxt parent" style="display:inline-block">' + (D.code === 'en' ? 'Welcome! ' : C.esc(D.helloTr) + ' = “hello” in ' + D.en + '. ') +
+      'Pick a game — every button is a picture, no reading needed.</div></div>';
     var grid = C.el('div', { class: 'home-grid' });
     [['letters', 'm-letters'], ['builder', 'm-builder'], ['bubbles', 'm-bubbles'], ['stage', 'm-stage']].forEach(function (m) {
       var b = C.el('button', { class: 'mode-btn ' + m[1], 'data-mode': m[0], 'aria-label': MODES[m[0]].title },
@@ -1684,7 +1919,7 @@ window.ART = window.ART || {};
   document.getElementById('homeBtn').addEventListener('click', function () { try { SFX.tap(); } catch (e) { /* ignore */ } go('home'); });
   document.getElementById('parentBtn').innerHTML = ICON.parent;
   document.getElementById('parentBtn').addEventListener('click', function () { setParent(!ST.parent); try { SFX.tap(); } catch (e) { /* ignore */ } });
-  if (!LPW_DATA[ST.lang]) ST.lang = 'he';
+  if (typeof ST.lang !== 'string' || !LPW_DATA[ST.lang]) { ST.lang = 'en'; C.save(); }
   setParent(ST.parent);
   C.renderStars();
   renderLangbar();

@@ -1,7 +1,7 @@
 /* App shell: top bar, language switcher, parent toggle, home screen, navigation, test hook. */
 (function () {
   var C = window.LPWCore, ST = C.ST;
-  var LANGS = ['he', 'el', 'th', 'es'];
+  var LANGS = ['en', 'he', 'el', 'th', 'es'];
   var screen = document.getElementById('screen');
   var mode = 'home';
 
@@ -13,7 +13,7 @@
       var b = C.el('button', {
         class: 'pill' + (ST.lang === code ? ' on' : ''), 'data-lang': code, style: '--c:' + D.color,
         'aria-label': D.en + ' — ' + D.name, 'aria-pressed': String(ST.lang === code), title: D.en
-      }, '<span class="glyph" style="background:' + D.color + '" lang="' + code + '"' + (D.dir === 'rtl' ? ' dir="rtl"' : '') + '>' + D.glyph + '</span>' +
+      }, '<span class="glyph' + (D.glyph.length > 1 ? ' two' : '') + '" style="background:' + D.color + '" lang="' + code + '"' + (D.dir === 'rtl' ? ' dir="rtl"' : '') + '>' + D.glyph + '</span>' +
         '<span class="nm" lang="' + code + '"' + (D.dir === 'rtl' ? ' dir="rtl"' : '') + '>' + D.name + '</span>');
       b.addEventListener('click', function () { setLang(code, true); });
       bar.appendChild(b);
@@ -44,7 +44,9 @@
     var D = C.D();
     root.innerHTML =
       '<div class="hello"><div class="big" lang="' + D.code + '" dir="' + D.dir + '">' + C.esc(D.hello) + '</div>' +
-      '<div class="ptxt parent" style="display:inline-block">' + C.esc(D.helloTr) + ' = “hello” in ' + D.en + '. Pick a game — every button is a picture, no reading needed.</div></div>';
+      (D.code === 'en' ? '<div class="sub" lang="en">Let\'s play with letters and sounds!</div>' : C.mean(D, 'Hello!', 'block')) +
+      '<div class="ptxt parent" style="display:inline-block">' + (D.code === 'en' ? 'Welcome! ' : C.esc(D.helloTr) + ' = “hello” in ' + D.en + '. ') +
+      'Pick a game — every button is a picture, no reading needed.</div></div>';
     var grid = C.el('div', { class: 'home-grid' });
     [['letters', 'm-letters'], ['builder', 'm-builder'], ['bubbles', 'm-bubbles'], ['stage', 'm-stage']].forEach(function (m) {
       var b = C.el('button', { class: 'mode-btn ' + m[1], 'data-mode': m[0], 'aria-label': MODES[m[0]].title },
@@ -81,7 +83,7 @@
   document.getElementById('homeBtn').addEventListener('click', function () { try { SFX.tap(); } catch (e) { /* ignore */ } go('home'); });
   document.getElementById('parentBtn').innerHTML = ICON.parent;
   document.getElementById('parentBtn').addEventListener('click', function () { setParent(!ST.parent); try { SFX.tap(); } catch (e) { /* ignore */ } });
-  if (!LPW_DATA[ST.lang]) ST.lang = 'he';
+  if (typeof ST.lang !== 'string' || !LPW_DATA[ST.lang]) { ST.lang = 'en'; C.save(); }
   setParent(ST.parent);
   C.renderStars();
   renderLangbar();

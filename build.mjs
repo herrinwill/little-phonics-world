@@ -6,10 +6,10 @@ import { fileURLToPath } from 'node:url';
 const root = dirname(fileURLToPath(import.meta.url));
 const src = (f) => readFileSync(join(root, 'src', f), 'utf8');
 
-const css = ['style.css', 'style2.css'].map(src).join('\n');
+const css = ['style.css', 'style2.css', 'style3.css'].map(src).join('\n');
 const js = [
-  'data-he.js', 'data-el.js', 'data-th.js', 'data-es.js',
-  'art1.js', 'art2.js', 'art3.js', 'icons.js',
+  'data-en.js', 'data-he.js', 'data-el.js', 'data-th.js', 'data-es.js',
+  'art1.js', 'art2.js', 'art3.js', 'art4.js', 'art5.js', 'icons.js',
   'audio.js', 'core.js',
   'mode-letters.js', 'mode-builder.js', 'mode-bubbles.js', 'mode-stage.js',
   'app.js'

@@ -51,9 +51,10 @@
       '<path d="M24 34v100" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"/></svg>';
   };
 
-  /* Stickers: 4 modes × 4 languages. Each is a framed character. */
+  /* Stickers: 4 modes × 5 languages. Each is a framed character. */
   var frames = { letters: '#ff7eb6', builder: '#4d96ff', bubbles: '#3ddc84', stage: '#9b5de5' };
   var stickerPics = {
+    en: { letters: 'apple', builder: 'frog', bubbles: 'whale', stage: 'kite' },
     he: { letters: 'lion', builder: 'camel', bubbles: 'fish', stage: 'peacock' },
     el: { letters: 'star', builder: 'dolphin', bubbles: 'seahorse', stage: 'butterfly' },
     th: { letters: 'elephant', builder: 'turtle', bubbles: 'giant', stage: 'tiger' },
