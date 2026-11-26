@@ -1,0 +1,1711 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Little Phonics World</title>
+<meta name="description" content="A joyful picture-first phonics game for little learners: Hebrew, Greek, Thai and Spanish.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 6l13 28 30 3-23 20 7 30-27-16-27 16 7-30-23-20 30-3z' fill='%23ffc928'/%3E%3C/svg%3E">
+<style>
+/* ===== Little Phonics World — base & shell ===== */
+:root{
+  --sky1:#bfe9ff; --sky2:#ffe6fa; --ink:#2b2350; --card:#ffffff;
+  --red:#ff5a5f; --orange:#ff9f1c; --yellow:#ffd23f; --green:#3ddc84;
+  --teal:#2ec4b6; --blue:#4d96ff; --purple:#9b5de5; --pink:#ff7eb6;
+  --shadow:0 6px 0 rgba(43,35,80,.18), 0 10px 24px rgba(43,35,80,.12);
+  --radius:26px; --tap:64px;
+  --font:"Nunito","Noto Sans","Noto Sans Hebrew","Noto Sans Thai","Noto Sans Greek","Segoe UI","Leelawadee UI","Leelawadee","Thonburi","Arial Hebrew",Tahoma,Arial,"Helvetica Neue",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden}
+body{
+  font-family:var(--font); color:var(--ink); min-height:100vh; min-height:100dvh;
+  background:linear-gradient(180deg,var(--sky1) 0%,#dff6ff 45%,var(--sky2) 100%) fixed;
+  -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none;
+  touch-action:manipulation;
+}
+button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+button:focus-visible{outline:5px solid var(--purple);outline-offset:3px}
+svg{display:block}
+[dir=rtl]{unicode-bidi:isolate}
+
+/* ---- top bar ---- */
+#topbar{
+  position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;
+  padding:10px max(12px,env(safe-area-inset-left));
+  background:rgba(255,255,255,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  box-shadow:0 3px 14px rgba(43,35,80,.12);flex-wrap:nowrap;
+}
+.iconbtn{
+  width:var(--tap);height:var(--tap);min-width:var(--tap);border-radius:22px;background:#fff;
+  box-shadow:var(--shadow);display:grid;place-items:center;transition:transform .15s;
+}
+.iconbtn:active{transform:translateY(3px) scale(.96)}
+.iconbtn svg{width:44px;height:44px}
+#homeBtn{background:var(--yellow)}
+#parentBtn[aria-pressed=true]{background:var(--green)}
+#langbar{flex:1;display:flex;gap:8px;justify-content:center;min-width:0}
+.pill{
+  min-height:var(--tap);min-width:var(--tap);padding:6px 14px 6px 6px;border-radius:40px;background:#fff;
+  display:flex;align-items:center;gap:8px;box-shadow:var(--shadow);transition:transform .15s,background .2s;
+  font-weight:800;font-size:18px;white-space:nowrap;
+}
+.pill .glyph{
+  width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:30px;font-weight:900;
+  color:#fff;flex:none;text-shadow:0 2px 0 rgba(0,0,0,.18);
+}
+.pill.on{transform:scale(1.06);box-shadow:0 0 0 5px #fff,0 0 0 9px var(--c,#9b5de5),var(--shadow)}
+.pill:active{transform:scale(.95)}
+.starcount{
+  min-height:var(--tap);padding:0 14px 0 8px;border-radius:40px;background:#fff;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:4px;font-weight:900;font-size:26px;flex:none;
+}
+.starcount svg{width:44px;height:44px}
+.starcount.bump{animation:bump .5s}
+
+/* ---- screens ---- */
+#screen{padding:16px max(14px,env(safe-area-inset-left)) 40px;max-width:1200px;margin:0 auto}
+.screen-title{display:flex;align-items:center;justify-content:center;gap:12px;margin:4px 0 14px}
+.screen-title .ico{width:64px;height:64px}
+.screen-title h1{margin:0;font-size:clamp(20px,3.2vw,30px);font-weight:900;letter-spacing:.5px}
+.parent{display:none}
+body.parent-on .parent{display:block}
+body.parent-on span.parent{display:inline}
+.ptxt{font-size:15px;font-weight:700;color:#5a4f8a;background:#fff8d6;border-radius:12px;padding:3px 9px;margin-top:4px}
+
+/* ---- home ---- */
+.home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,2.4vw,24px)}
+.mode-btn{
+  position:relative;border-radius:34px;min-height:clamp(150px,26vh,240px);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:12px;
+  overflow:hidden;transition:transform .15s;color:#fff;
+}
+.mode-btn:active{transform:scale(.97)}
+.mode-btn svg{width:clamp(96px,16vw,170px);height:auto;filter:drop-shadow(0 6px 0 rgba(0,0,0,.12));animation:floaty 3.2s ease-in-out infinite}
+.mode-btn:nth-child(2) svg{animation-delay:-.8s}.mode-btn:nth-child(3) svg{animation-delay:-1.6s}.mode-btn:nth-child(4) svg{animation-delay:-2.4s}
+.mode-btn .lbl{font-size:clamp(14px,2vw,20px);font-weight:900;text-shadow:0 2px 0 rgba(0,0,0,.2);text-align:center}
+.mode-btn::after{content:"";position:absolute;inset:auto -30% -60% -30%;height:70%;background:rgba(255,255,255,.18);border-radius:50%}
+.m-letters{background:linear-gradient(160deg,#ff8a5b,#ff5a8a)}
+.m-builder{background:linear-gradient(160deg,#5ad1ff,#4d6bff)}
+.m-bubbles{background:linear-gradient(160deg,#3ddc84,#16a7a0)}
+.m-stage{background:linear-gradient(160deg,#b06bff,#ff6bd6)}
+.sticker-btn{
+  margin:clamp(12px,2.4vw,24px) auto 0;display:flex;align-items:center;gap:14px;justify-content:center;
+  min-height:96px;padding:10px 26px;border-radius:50px;background:var(--yellow);box-shadow:var(--shadow);
+  font-weight:900;font-size:clamp(16px,2.2vw,22px);width:min(560px,100%);
+}
+.sticker-btn svg{width:78px;height:78px}
+.hello{text-align:center;margin:0 0 14px}
+.hello .big{font-size:clamp(30px,6vw,56px);font-weight:900;line-height:1.1;color:#fff;text-shadow:0 4px 0 var(--purple),0 8px 14px rgba(43,35,80,.25)}
+
+/* ---- big round action buttons ---- */
+.roundbtn{
+  width:clamp(72px,12vw,96px);height:clamp(72px,12vw,96px);border-radius:50%;background:#fff;box-shadow:var(--shadow);
+  display:grid;place-items:center;transition:transform .15s;flex:none;
+}
+.roundbtn svg{width:62%;height:62%}
+.roundbtn:active{transform:scale(.92)}
+.roundbtn.go{background:var(--green)}
+.roundbtn.speak{background:var(--yellow)}
+
+/* ---- sound-out badge ---- */
+.badge{
+  position:fixed;left:50%;bottom:24px;transform:translate(-50%,160%);z-index:60;pointer-events:none;
+  background:#fff;border-radius:40px;padding:12px 26px 12px 14px;display:flex;align-items:center;gap:12px;
+  box-shadow:0 0 0 6px var(--yellow),var(--shadow);font-weight:900;font-size:clamp(22px,4vw,34px);
+  transition:transform .35s cubic-bezier(.3,1.6,.5,1);max-width:94vw;
+}
+.badge.show{transform:translate(-50%,0);animation:badgeBounce .9s ease-in-out infinite alternate}
+.badge svg{width:54px;height:54px;flex:none}
+.badge .bw{display:flex;flex-direction:column;line-height:1.1;min-width:0}
+.badge .bw small{font-size:.55em;color:#7a6fb0}
+
+/* ---- fx ---- */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
+.confetti{position:absolute;top:-20px;width:12px;height:18px;border-radius:3px;animation:fall 1.9s cubic-bezier(.3,.6,.6,1) forwards}
+.flystar{position:absolute;width:56px;height:56px;animation:flystar .9s ease-in forwards}
+.burst{position:absolute;width:12px;height:12px;border-radius:50%;animation:burst .7s ease-out forwards}
+
+@keyframes fall{to{transform:translate(var(--dx,0),105vh) rotate(var(--rot,540deg));opacity:.9}}
+@keyframes flystar{0%{transform:scale(.4)}30%{transform:scale(1.4)}100%{transform:translate(var(--tx),var(--ty)) scale(.4);opacity:.6}}
+@keyframes burst{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+@keyframes bump{0%,100%{transform:scale(1)}40%{transform:scale(1.25)}}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+@keyframes badgeBounce{from{margin-bottom:0}to{margin-bottom:12px}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-12deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(6deg)}}
+@keyframes dance{0%{transform:translateY(0) scale(1)}20%{transform:translateY(-22px) scale(1.08,.95) rotate(-8deg)}40%{transform:translateY(0) scale(1.1,.9)}60%{transform:translateY(-14px) rotate(8deg)}80%{transform:translateY(0) scale(.95,1.05)}100%{transform:none}}
+@keyframes pop{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 4px #fff,0 0 0 9px rgba(255,210,63,.9)}50%{box-shadow:0 0 0 4px #fff,0 0 0 15px rgba(255,210,63,.35)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes drift{0%,100%{transform:translate(0,0)}25%{transform:translate(6px,-12px)}50%{transform:translate(-4px,-20px)}75%{transform:translate(-8px,-8px)}}
+
+@media (max-width:1020px){
+  .pill{padding:6px;justify-content:center}
+  .pill .nm{display:none}
+}
+@media (max-width:640px){
+  #topbar{flex-wrap:wrap;gap:8px;padding:8px 10px}
+  #langbar{order:5;flex-basis:100%;gap:6px}
+  #starCount{margin-left:auto}
+  .pill{padding:4px 8px 4px 4px;font-size:13px;gap:4px;flex:1;justify-content:center;min-width:0}
+  .pill .glyph{width:48px;height:48px;font-size:26px}
+  .pill .nm{display:none}
+  #screen{padding:12px 10px 30px}
+}
+
+@media (max-height:500px) and (orientation:landscape){
+  #topbar{padding:6px 10px}
+  .mode-btn{min-height:130px}
+  .mode-btn svg{width:84px}
+  .home-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .hello .big{font-size:28px}
+  .badge{font-size:20px;padding:6px 18px 6px 8px;bottom:10px}
+  .badge svg{width:36px;height:36px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .confetti,.burst{display:none}
+}
+
+/* ===== Little Phonics World — game modes ===== */
+
+/* ---- Letter & Sound Factory ---- */
+.factory{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,36%);gap:18px;align-items:start}
+.letter-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:14px}
+.lcard{
+  position:relative;aspect-ratio:1/1.08;min-height:var(--tap);border-radius:28px;background:var(--c,#ff7eb6);
+  box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;
+  transition:transform .15s;
+}
+.lcard:active{transform:scale(.94)}
+.lcard .face{display:flex;gap:6px;align-items:flex-start;margin-bottom:2px}
+.lcard .eye{width:18px;height:20px;background:#fff;border-radius:50%;position:relative;animation:blink 4s infinite;transform-origin:center}
+.lcard .eye::after{content:"";position:absolute;width:9px;height:10px;border-radius:50%;background:#2b2350;left:5px;top:6px}
+.lcard:nth-child(3n) .eye{animation-delay:-1.3s}.lcard:nth-child(3n+1) .eye{animation-delay:-2.6s}
+.lcard .ch{font-size:clamp(46px,6vw,62px);font-weight:900;line-height:1;text-shadow:0 4px 0 rgba(0,0,0,.18)}
+.lcard .mouth{width:16px;height:8px;border-radius:0 0 16px 16px;background:#fff;opacity:.95;margin-top:16px}
+.lcard .horn{position:absolute;top:-8px;width:16px;height:22px;background:var(--yellow);border-radius:50% 50% 30% 30%;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.lcard .horn.l{left:20%;transform:rotate(-18deg)}.lcard .horn.r{right:20%;transform:rotate(18deg)}
+.lcard.dance{animation:dance .9s ease-in-out}
+.lcard.seen::before{content:"";position:absolute;right:8px;bottom:8px;width:16px;height:16px;border-radius:50%;background:var(--yellow);box-shadow:0 0 0 3px #fff}
+.spot{
+  position:sticky;top:96px;background:#fff;border-radius:34px;box-shadow:var(--shadow);padding:18px;text-align:center;
+  min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+}
+.spot .pic{width:min(220px,60vw);height:auto;animation:pop .55s cubic-bezier(.3,1.5,.5,1)}
+.spot .bigch{font-size:clamp(64px,9vw,96px);font-weight:900;line-height:1;color:var(--c,#9b5de5);text-shadow:0 5px 0 rgba(43,35,80,.12)}
+.spot .word{font-size:clamp(30px,4.4vw,46px);font-weight:900;line-height:1.25}
+.spot .syl{font-size:24px;font-weight:900;color:#ff5a8a;letter-spacing:2px}
+.spot .hint{width:120px;opacity:.9;animation:bob 2s ease-in-out infinite}
+.row{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+
+/* ---- Word Builder Monsters ---- */
+.builder{display:flex;flex-direction:column;align-items:center;gap:16px}
+.target{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap}
+.target .pic{width:clamp(130px,22vw,200px);height:auto;background:#fff;border-radius:30px;box-shadow:var(--shadow);padding:10px}
+.target .pic.win{animation:dance 1s ease-in-out 2}
+.slots{display:flex;gap:clamp(8px,1.6vw,16px);justify-content:center;padding:14px;border-radius:30px;background:rgba(255,255,255,.6)}
+.slot{
+  width:clamp(70px,13vw,108px);height:clamp(80px,14vw,118px);border-radius:24px;border:5px dashed #b9b0e6;
+  display:grid;place-items:center;font-size:clamp(38px,6.4vw,62px);font-weight:900;color:rgba(43,35,80,.16);background:#fff;
+}
+.slot.next{border-color:var(--yellow);animation:glow 1.3s ease-in-out infinite}
+.slot.filled{border-style:solid;border-color:transparent;color:#fff;background:var(--c,#4d96ff);animation:pop .4s}
+.slot.hover{transform:scale(1.08);border-color:var(--green)}
+.tray{display:flex;flex-wrap:wrap;gap:clamp(10px,2vw,20px);justify-content:center;min-height:120px;padding:8px}
+.tile{
+  position:relative;width:clamp(76px,13vw,104px);height:clamp(86px,14vw,114px);border-radius:26px;background:var(--c,#ff9f1c);
+  color:#fff;font-size:clamp(36px,6vw,58px);font-weight:900;box-shadow:var(--shadow);display:grid;place-items:center;
+  touch-action:none;animation:bob 1.6s ease-in-out infinite;text-shadow:0 3px 0 rgba(0,0,0,.18);
+}
+.tile:nth-child(2n){animation-delay:-.5s}.tile:nth-child(3n){animation-delay:-1s}
+.tile .ant{position:absolute;top:-16px;width:6px;height:18px;background:var(--c,#ff9f1c);border-radius:4px}
+.tile .ant::after{content:"";position:absolute;top:-8px;left:-5px;width:16px;height:16px;border-radius:50%;background:var(--yellow)}
+.tile .ant.l{left:26%;transform:rotate(-14deg)}.tile .ant.r{right:26%;transform:rotate(14deg)}
+.tile .te{position:absolute;bottom:8px;display:flex;gap:16px}
+.tile .te i{width:9px;height:9px;border-radius:50%;background:#fff;display:block}
+.tile .tch{margin-top:-14px}
+.tile.drag{animation:none;z-index:50;transform:scale(1.15);box-shadow:0 18px 30px rgba(43,35,80,.3)}
+.tile.no{animation:wiggle .5s}
+.tile.used{visibility:hidden}
+.th .tile,.th .slot{font-size:clamp(28px,4.6vw,44px);width:clamp(84px,15vw,120px)}
+
+/* ---- Listen & Pop ---- */
+.listen{display:flex;flex-direction:column;align-items:center;gap:14px}
+.ask{display:flex;align-items:center;gap:14px;background:#fff;border-radius:50px;padding:10px 24px 10px 10px;box-shadow:var(--shadow)}
+.ask .say{font-size:clamp(26px,4vw,40px);font-weight:900}
+.ask .roundbtn{box-shadow:none;animation:bob 1.8s infinite}
+.bubbles{display:grid;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));gap:clamp(10px,3vw,30px);width:100%;max-width:980px;padding:10px}
+.bubble{
+  position:relative;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;min-width:var(--tap);
+  background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.95) 0 9%,rgba(255,255,255,.35) 10% 30%,rgba(190,230,255,.45) 60%,rgba(120,190,255,.6) 100%);
+  box-shadow:inset 0 0 0 4px rgba(255,255,255,.85),0 10px 24px rgba(43,35,80,.15);animation:drift 6s ease-in-out infinite;
+}
+.bubble:nth-child(2){animation-delay:-1.5s}.bubble:nth-child(3){animation-delay:-3s}.bubble:nth-child(4){animation-delay:-4.5s}
+.bubble svg{width:68%;height:68%}
+.bubble.no{animation:wiggle .6s}
+.bubble.hint{box-shadow:inset 0 0 0 4px #fff,0 0 0 10px var(--yellow),0 10px 24px rgba(43,35,80,.15)}
+.bubble.popped{animation:pop .2s reverse forwards;pointer-events:none}
+.bubble .cap{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);white-space:nowrap}
+.giggle{position:absolute;top:-10px;right:-6px;font-size:30px;font-weight:900;color:#ff5a8a;animation:pop .4s}
+
+/* ---- Rainbow Sound Stage ---- */
+.tabs{display:flex;gap:12px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.tab{min-width:96px;min-height:var(--tap);border-radius:24px;background:#fff;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;padding:6px 16px;font-weight:900;font-size:18px}
+.tab svg{width:46px;height:46px}
+.tab.on{background:var(--yellow);transform:translateY(-3px)}
+.xylo{display:flex;align-items:center;height:clamp(190px,48vh,340px);justify-content:center;gap:clamp(4px,1vw,12px);padding:16px 8px;background:rgba(255,255,255,.55);border-radius:34px}
+.bar{
+  flex:1;height:var(--h,100%);max-width:92px;min-width:28px;border-radius:20px;background:var(--c);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 0;color:#fff;
+  font-weight:900;font-size:clamp(20px,3.4vw,36px);transition:transform .1s;text-shadow:0 2px 0 rgba(0,0,0,.2);
+}
+.bar i{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.75);display:block}
+.bar.hit{transform:scale(.94) translateY(6px);filter:brightness(1.2)}
+.bar small{font-size:.6em;opacity:.95}
+.stage-out{min-height:84px;text-align:center;margin-top:14px}
+.stage-out .w{font-size:clamp(28px,4.4vw,44px);font-weight:900;display:inline-block;animation:pop .4s}
+.dots{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:6px}
+.dots svg{width:30px;height:30px;animation:pop .3s backwards}
+.swatches,.zoo{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px}
+.swatch{aspect-ratio:1;border-radius:50% 50% 46% 54%;background:var(--c);box-shadow:var(--shadow);display:grid;place-items:center;transition:transform .15s}
+.swatch svg{width:60%;height:60%}
+.zoo button{aspect-ratio:1;background:#fff;border-radius:30px;box-shadow:var(--shadow);padding:10px;display:grid;place-items:center}
+.zoo button svg{width:90%;height:90%}
+.swatch.dance,.zoo button.dance{animation:dance .8s}
+
+/* ---- Sticker Book ---- */
+.book{display:grid;grid-template-columns:minmax(220px,32%) minmax(0,1fr);gap:20px;align-items:start}
+.jar{background:#fff;border-radius:34px;box-shadow:var(--shadow);padding:16px;text-align:center}
+.jar svg{width:100%;max-width:260px;margin:0 auto}
+.jar .n{font-size:42px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:6px}
+.jar .n svg{width:44px;margin:0}
+.stickers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.stk{aspect-ratio:1;border-radius:26px;background:#fff;box-shadow:var(--shadow);display:grid;place-items:center;padding:8px;position:relative}
+.stk svg{width:88%;height:88%}
+.stk.locked svg{filter:grayscale(1) brightness(1.4);opacity:.35}
+.stk.locked::after{content:"?";position:absolute;font-size:44px;font-weight:900;color:#c9c2ee}
+.stk:not(.locked){animation:pop .5s backwards}
+.stk .lg{position:absolute;top:6px;left:8px;font-weight:900;font-size:18px;color:#fff;background:var(--c);border-radius:12px;padding:0 7px}
+.stk-head{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:8px}
+.stk-head div{display:grid;place-items:center}
+.stk-head svg{width:52px;height:52px}
+
+/* ---- responsive ---- */
+@media (max-width:900px){
+  .factory{grid-template-columns:1fr}
+  .spot{position:relative;top:0;min-height:0;order:-1}
+  .spot .pic{width:min(170px,44vw)}
+  .book{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .letter-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:10px}
+  .lcard{border-radius:22px}
+  .lcard .eye{width:14px;height:16px}.lcard .eye::after{width:7px;height:8px;left:4px;top:5px}
+  .bubbles{--n:2!important;max-width:420px}
+  .stickers,.stk-head{gap:8px}
+  .swatches,.zoo{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .bar{min-width:0;font-size:18px;border-radius:14px}
+  .xylo{padding:10px 6px;gap:8px 6px;flex-wrap:wrap;height:auto;align-items:flex-end}
+  .bar{flex:0 0 calc(20% - 6px);max-width:none;height:var(--hp,120px)}
+  .slot{width:clamp(60px,19vw,90px);height:clamp(70px,21vw,100px)}
+  .tile{width:clamp(66px,19vw,92px);height:clamp(76px,21vw,100px)}
+  .th .tile,.th .slot{width:clamp(72px,22vw,110px)}
+}
+@media (max-height:500px) and (orientation:landscape){
+  .factory{grid-template-columns:minmax(0,1fr) 34%}
+  .spot{position:sticky;top:80px;order:0}
+  .bubbles{--n:4!important;max-width:620px}
+}
+
+</style>
+</head>
+<body>
+<header id="topbar">
+  <button id="homeBtn" class="iconbtn" aria-label="Home" title="Home"></button>
+  <nav id="langbar" aria-label="Language"></nav>
+  <div id="starCount" class="starcount" aria-label="Stars" title="Stars"></div>
+  <button id="parentBtn" class="iconbtn" aria-label="Parent info" title="Parent info: show transliterations and meanings" aria-pressed="false"></button>
+</header>
+<main id="screen" aria-live="polite"></main>
+<div id="badge" class="badge" aria-hidden="true"></div>
+<div id="fx" aria-hidden="true"></div>
+<script>
+"use strict";
+/* ---- data-he.js ---- */
+/* Hebrew — עברית. All words carry nikud; displayed with dir="rtl". */
+window.LPW_DATA = window.LPW_DATA || {};
+window.LPW_DATA.he = {
+  code: 'he', name: 'עברית', en: 'Hebrew', glyph: 'א', color: '#4d96ff', dir: 'rtl',
+  speech: ['he', 'iw'], hello: 'שָׁלוֹם', helloTr: 'sha-LOM',
+  letters: [
+    { ch: 'א', name: 'אָלֶף',  nameTr: 'AH-lef',  snd: 'silent (carries a vowel)', word: 'אַרְיֵה',  tr: 'ar-YEH',     en: 'lion',     pic: 'lion' },
+    { ch: 'בּ', name: 'בֵּית',  nameTr: 'bet',     snd: 'b',  word: 'בַּיִת',    tr: 'BA-yit',     en: 'house',    pic: 'house' },
+    { ch: 'ג', name: 'גִּימֶל', nameTr: 'GHEE-mel', snd: 'g',  word: 'גָּמָל',    tr: 'ga-MAL',     en: 'camel',    pic: 'camel' },
+    { ch: 'ד', name: 'דָּלֶת',  nameTr: 'DA-let',  snd: 'd',  word: 'דָּג',      tr: 'dahg',       en: 'fish',     pic: 'fish' },
+    { ch: 'ה', name: 'הֵא',    nameTr: 'hey',     snd: 'h',  word: 'הַר',      tr: 'har',        en: 'mountain', pic: 'mountain' },
+    { ch: 'ו', name: 'וָו',    nameTr: 'vav',     snd: 'v',  word: 'וֶרֶד',     tr: 'VEH-red',    en: 'rose',     pic: 'rose' },
+    { ch: 'ז', name: 'זַיִן',   nameTr: 'ZA-yin',  snd: 'z',  word: 'זֶבְּרָה',   tr: 'ZEB-rah',    en: 'zebra',    pic: 'zebra' },
+    { ch: 'ח', name: 'חֵית',   nameTr: 'khet',    snd: 'kh (throaty)', word: 'חָתוּל', tr: 'kha-TOOL', en: 'cat',  pic: 'cat' },
+    { ch: 'ט', name: 'טֵית',   nameTr: 'tet',     snd: 't',  word: 'טַוָּס',    tr: 'ta-VAHS',    en: 'peacock',  pic: 'peacock' },
+    { ch: 'י', name: 'יוֹד',   nameTr: 'yod',     snd: 'y',  word: 'יָרֵחַ',    tr: 'ya-REH-akh', en: 'moon',     pic: 'moon' },
+    { ch: 'כּ', name: 'כַּף',   nameTr: 'kahf',    snd: 'k',  word: 'כַּדּוּר',   tr: 'ka-DOOR',    en: 'ball',     pic: 'ball' },
+    { ch: 'ל', name: 'לָמֶד',  nameTr: 'LA-med',  snd: 'l',  word: 'לֵב',      tr: 'lev',        en: 'heart',    pic: 'heart' },
+    { ch: 'מ', name: 'מֵם',    nameTr: 'mem',     snd: 'm',  word: 'מְכוֹנִית',  tr: 'meh-kho-NEET', en: 'car',    pic: 'car' },
+    { ch: 'נ', name: 'נוּן',   nameTr: 'noon',    snd: 'n',  word: 'נָחָשׁ',    tr: 'na-KHAHSH',  en: 'snake',    pic: 'snake' },
+    { ch: 'ס', name: 'סָמֶךְ',  nameTr: 'SA-mekh', snd: 's',  word: 'סוּס',     tr: 'soos',       en: 'horse',    pic: 'horse' },
+    { ch: 'ע', name: 'עַיִן',   nameTr: 'AH-yin',  snd: 'silent (carries a vowel)', word: 'עֵץ', tr: 'ets', en: 'tree', pic: 'tree' },
+    { ch: 'פּ', name: 'פֵּא',   nameTr: 'peh',     snd: 'p',  word: 'פִּיל',     tr: 'peel',       en: 'elephant', pic: 'elephant' },
+    { ch: 'צ', name: 'צָדִי',  nameTr: 'TSA-dee', snd: 'ts', word: 'צָב',      tr: 'tsahv',      en: 'turtle',   pic: 'turtle' },
+    { ch: 'ק', name: 'קוֹף',   nameTr: 'kof',     snd: 'k',  word: 'קוֹף',     tr: 'kof',        en: 'monkey',   pic: 'monkey' },
+    { ch: 'ר', name: 'רֵישׁ',  nameTr: 'resh',    snd: 'r',  word: 'רַכֶּבֶת',  tr: 'ra-KEH-vet', en: 'train',    pic: 'train' },
+    { ch: 'שׁ', name: 'שִׁין',  nameTr: 'sheen',   snd: 'sh', word: 'שֶׁמֶשׁ',   tr: 'SHEH-mesh',  en: 'sun',      pic: 'sun' },
+    { ch: 'ת', name: 'תָּו',   nameTr: 'tahv',    snd: 't',  word: 'תַּפּוּחַ',  tr: 'ta-POO-akh', en: 'apple',    pic: 'apple' }
+  ],
+  /* Word Builder: tiles are plain letters in reading order (first = rightmost on screen). */
+  words: [
+    { w: 'סוּס',  tiles: ['ס', 'ו', 'ס'],      tr: 'soos',     en: 'horse',    pic: 'horse' },
+    { w: 'פִּיל',  tiles: ['פ', 'י', 'ל'],      tr: 'peel',     en: 'elephant', pic: 'elephant' },
+    { w: 'גָּמָל', tiles: ['ג', 'מ', 'ל'],      tr: 'ga-MAL',   en: 'camel',    pic: 'camel' },
+    { w: 'כֶּלֶב', tiles: ['כ', 'ל', 'ב'],      tr: 'KEH-lev',  en: 'dog',      pic: 'dog' },
+    { w: 'אִמָּא', tiles: ['א', 'מ', 'א'],      tr: 'EE-ma',    en: 'mom',      pic: 'mom' },
+    { w: 'אַבָּא', tiles: ['א', 'ב', 'א'],      tr: 'AH-ba',    en: 'dad',      pic: 'dad' },
+    { w: 'בַּיִת', tiles: ['ב', 'י', 'ת'],      tr: 'BA-yit',   en: 'house',    pic: 'house' },
+    { w: 'קוֹף',  tiles: ['ק', 'ו', 'ף'],      tr: 'kof',      en: 'monkey',   pic: 'monkey' },
+    { w: 'חָתוּל', tiles: ['ח', 'ת', 'ו', 'ל'], tr: 'kha-TOOL', en: 'cat',      pic: 'cat' }
+  ],
+  /* What each tile says when tapped (letter names; final forms say "final ..."). */
+  tileSay: {
+    'א': 'אָלֶף', 'ב': 'בֵּית', 'ג': 'גִּימֶל', 'ד': 'דָּלֶת', 'ה': 'הֵא', 'ו': 'וָו', 'ז': 'זַיִן',
+    'ח': 'חֵית', 'ט': 'טֵית', 'י': 'יוֹד', 'כ': 'כַּף', 'ל': 'לָמֶד', 'מ': 'מֵם', 'נ': 'נוּן',
+    'ס': 'סָמֶךְ', 'ע': 'עַיִן', 'פ': 'פֵּא', 'צ': 'צָדִי', 'ק': 'קוֹף', 'ר': 'רֵישׁ', 'ש': 'שִׁין', 'ת': 'תָּו',
+    'ך': 'כַּף סוֹפִית', 'ם': 'מֵם סוֹפִית', 'ן': 'נוּן סוֹפִית', 'ף': 'פֵּא סוֹפִית', 'ץ': 'צָדִי סוֹפִית'
+  },
+  tileTr: {
+    'א': 'AH-lef', 'ב': 'bet', 'ג': 'GHEE-mel', 'ד': 'DA-let', 'ה': 'hey', 'ו': 'vav', 'ז': 'ZA-yin',
+    'ח': 'khet', 'ט': 'tet', 'י': 'yod', 'כ': 'kahf', 'ל': 'LA-med', 'מ': 'mem', 'נ': 'noon',
+    'ס': 'SA-mekh', 'ע': 'AH-yin', 'פ': 'peh', 'צ': 'TSA-dee', 'ק': 'kof', 'ר': 'resh', 'ש': 'sheen', 'ת': 'tahv',
+    'ך': 'kahf so-FEET', 'ם': 'mem so-FEET', 'ן': 'noon so-FEET', 'ף': 'peh so-FEET', 'ץ': 'TSA-dee so-FEET'
+  },
+  /* Counting uses the everyday (feminine) number forms. */
+  numbers: [
+    { w: 'אַחַת', tr: 'a-KHAT' }, { w: 'שְׁתַּיִם', tr: 'SHTA-yim' }, { w: 'שָׁלוֹשׁ', tr: 'sha-LOSH' },
+    { w: 'אַרְבַּע', tr: 'AR-ba' }, { w: 'חָמֵשׁ', tr: 'kha-MESH' }, { w: 'שֵׁשׁ', tr: 'shesh' },
+    { w: 'שֶׁבַע', tr: 'SHEH-va' }, { w: 'שְׁמוֹנֶה', tr: 'shmo-NEH' }, { w: 'תֵּשַׁע', tr: 'TEH-sha' },
+    { w: 'עֶשֶׂר', tr: 'EH-ser' }
+  ],
+  colors: [
+    { w: 'אָדֹם', tr: 'a-DOM', en: 'red', hex: '#ff4d4d' },
+    { w: 'כָּתֹם', tr: 'ka-TOM', en: 'orange', hex: '#ff9f1c' },
+    { w: 'צָהֹב', tr: 'tsa-HOV', en: 'yellow', hex: '#ffd23f' },
+    { w: 'יָרֹק', tr: 'ya-ROK', en: 'green', hex: '#3ddc84' },
+    { w: 'כָּחֹל', tr: 'ka-KHOL', en: 'blue', hex: '#4d96ff' },
+    { w: 'סָגֹל', tr: 'sa-GOL', en: 'purple', hex: '#9b5de5' },
+    { w: 'וָרֹד', tr: 'va-ROD', en: 'pink', hex: '#ff7eb6' }
+  ],
+  animals: [
+    { w: 'כֶּלֶב', tr: 'KEH-lev', en: 'dog', pic: 'dog' },
+    { w: 'חָתוּל', tr: 'kha-TOOL', en: 'cat', pic: 'cat' },
+    { w: 'פָּרָה', tr: 'pa-RAH', en: 'cow', pic: 'cow' },
+    { w: 'דָּג', tr: 'dahg', en: 'fish', pic: 'fish' },
+    { w: 'צִפּוֹר', tr: 'tsi-POR', en: 'bird', pic: 'bird' },
+    { w: 'אַרְיֵה', tr: 'ar-YEH', en: 'lion', pic: 'lion' },
+    { w: 'פִּיל', tr: 'peel', en: 'elephant', pic: 'elephant' },
+    { w: 'אַרְנָב', tr: 'ar-NAHV', en: 'rabbit', pic: 'rabbit' }
+  ]
+};
+
+/* ---- data-el.js ---- */
+/* Greek — Ελληνικά. Monotonic accents; final sigma ς where a word ends in sigma. */
+window.LPW_DATA = window.LPW_DATA || {};
+window.LPW_DATA.el = {
+  code: 'el', name: 'Ελληνικά', en: 'Greek', glyph: 'Α', color: '#2ec4b6', dir: 'ltr',
+  speech: ['el'], hello: 'Γεια σου', helloTr: 'YAH-soo',
+  letters: [
+    { ch: 'Αα', name: 'άλφα',    nameTr: 'AL-fa',    snd: 'a',  word: 'αστέρι',      tr: 'a-STEH-ree',    en: 'star',      pic: 'star' },
+    { ch: 'Ββ', name: 'βήτα',    nameTr: 'VEE-ta',   snd: 'v',  word: 'βάρκα',       tr: 'VAR-ka',        en: 'boat',      pic: 'boat' },
+    { ch: 'Γγ', name: 'γάμμα',   nameTr: 'GHA-ma',   snd: 'gh / y', word: 'γάτα',    tr: 'GHA-ta',        en: 'cat',       pic: 'cat' },
+    { ch: 'Δδ', name: 'δέλτα',   nameTr: 'THEL-ta',  snd: 'th (as in "this")', word: 'δέντρο', tr: 'THEN-dro', en: 'tree', pic: 'tree' },
+    { ch: 'Εε', name: 'έψιλον',  nameTr: 'EP-see-lon', snd: 'e', word: 'ελέφαντας',  tr: 'e-LEH-fan-das', en: 'elephant',  pic: 'elephant' },
+    { ch: 'Ζζ', name: 'ζήτα',    nameTr: 'ZEE-ta',   snd: 'z',  word: 'ζέβρα',       tr: 'ZEV-ra',        en: 'zebra',     pic: 'zebra' },
+    { ch: 'Ηη', name: 'ήτα',     nameTr: 'EE-ta',    snd: 'ee', word: 'ήλιος',       tr: 'EE-lee-os',     en: 'sun',       pic: 'sun' },
+    { ch: 'Θθ', name: 'θήτα',    nameTr: 'THEE-ta',  snd: 'th (as in "thin")', word: 'θάλασσα', tr: 'THA-la-sa', en: 'sea', pic: 'sea' },
+    { ch: 'Ιι', name: 'γιώτα',   nameTr: 'YO-ta',    snd: 'ee', word: 'ιππόκαμπος',  tr: 'ee-PO-kam-bos', en: 'seahorse',  pic: 'seahorse' },
+    { ch: 'Κκ', name: 'κάπα',    nameTr: 'KA-pa',    snd: 'k',  word: 'κότα',        tr: 'KO-ta',         en: 'hen',       pic: 'chicken' },
+    { ch: 'Λλ', name: 'λάμδα',   nameTr: 'LAM-tha',  snd: 'l',  word: 'λουλούδι',    tr: 'loo-LOO-thee',  en: 'flower',    pic: 'flower' },
+    { ch: 'Μμ', name: 'μι',      nameTr: 'mee',      snd: 'm',  word: 'μήλο',        tr: 'MEE-lo',        en: 'apple',     pic: 'apple' },
+    { ch: 'Νν', name: 'νι',      nameTr: 'nee',      snd: 'n',  word: 'νερό',        tr: 'ne-RO',         en: 'water',     pic: 'water' },
+    { ch: 'Ξξ', name: 'ξι',      nameTr: 'ksee',     snd: 'ks', word: 'ξύλο',        tr: 'KSEE-lo',       en: 'wood',      pic: 'log' },
+    { ch: 'Οο', name: 'όμικρον', nameTr: 'O-mee-kron', snd: 'o', word: 'ομπρέλα',    tr: 'om-BREH-la',    en: 'umbrella',  pic: 'umbrella' },
+    { ch: 'Ππ', name: 'πι',      nameTr: 'pee',      snd: 'p',  word: 'πάπια',       tr: 'PA-pya',        en: 'duck',      pic: 'duck' },
+    { ch: 'Ρρ', name: 'ρο',      nameTr: 'ro',       snd: 'r (rolled)', word: 'ρολόι', tr: 'ro-LO-ee',    en: 'clock',     pic: 'clock' },
+    { ch: 'Σσς', name: 'σίγμα',  nameTr: 'SEEG-ma',  snd: 's',  word: 'σκύλος',      tr: 'SKEE-los',      en: 'dog',       pic: 'dog' },
+    { ch: 'Ττ', name: 'ταυ',     nameTr: 'taf',      snd: 't',  word: 'τυρί',        tr: 'tee-REE',       en: 'cheese',    pic: 'cheese' },
+    { ch: 'Υυ', name: 'ύψιλον',  nameTr: 'EEP-see-lon', snd: 'ee', word: 'υποβρύχιο', tr: 'ee-po-VREE-hyo', en: 'submarine', pic: 'submarine' },
+    { ch: 'Φφ', name: 'φι',      nameTr: 'fee',      snd: 'f',  word: 'φεγγάρι',     tr: 'fen-GA-ree',    en: 'moon',      pic: 'moon' },
+    { ch: 'Χχ', name: 'χι',      nameTr: 'hee',      snd: 'h (throaty)', word: 'χελώνα', tr: 'he-LO-na',  en: 'turtle',    pic: 'turtle' },
+    { ch: 'Ψψ', name: 'ψι',      nameTr: 'psee',     snd: 'ps', word: 'ψάρι',        tr: 'PSA-ree',       en: 'fish',      pic: 'fish' },
+    { ch: 'Ωω', name: 'ωμέγα',   nameTr: 'o-MEH-gha', snd: 'o', word: 'ωκεανός',     tr: 'o-ke-a-NOS',    en: 'ocean',     pic: 'sea' }
+  ],
+  words: [
+    { w: 'γάτα', tiles: ['γ', 'ά', 'τ', 'α'], tr: 'GHA-ta',  en: 'cat',    pic: 'cat' },
+    { w: 'ψάρι', tiles: ['ψ', 'ά', 'ρ', 'ι'], tr: 'PSA-ree', en: 'fish',   pic: 'fish' },
+    { w: 'μήλο', tiles: ['μ', 'ή', 'λ', 'ο'], tr: 'MEE-lo',  en: 'apple',  pic: 'apple' },
+    { w: 'κότα', tiles: ['κ', 'ό', 'τ', 'α'], tr: 'KO-ta',   en: 'hen',    pic: 'chicken' },
+    { w: 'νερό', tiles: ['ν', 'ε', 'ρ', 'ό'], tr: 'ne-RO',   en: 'water',  pic: 'water' },
+    { w: 'τυρί', tiles: ['τ', 'υ', 'ρ', 'ί'], tr: 'tee-REE', en: 'cheese', pic: 'cheese' },
+    { w: 'μαμά', tiles: ['μ', 'α', 'μ', 'ά'], tr: 'ma-MA',   en: 'mom',    pic: 'mom' },
+    { w: 'αυγό', tiles: ['α', 'υ', 'γ', 'ό'], tr: 'av-GHO',  en: 'egg',    pic: 'egg' },
+    { w: 'ήλιος', tiles: ['ή', 'λ', 'ι', 'ο', 'ς'], tr: 'EE-lee-os', en: 'sun', pic: 'sun' }
+  ],
+  /* Tiles say the letter name (accents are stripped to find the base letter). */
+  tileSay: {
+    'α': 'άλφα', 'β': 'βήτα', 'γ': 'γάμμα', 'δ': 'δέλτα', 'ε': 'έψιλον', 'ζ': 'ζήτα', 'η': 'ήτα', 'θ': 'θήτα',
+    'ι': 'γιώτα', 'κ': 'κάπα', 'λ': 'λάμδα', 'μ': 'μι', 'ν': 'νι', 'ξ': 'ξι', 'ο': 'όμικρον', 'π': 'πι',
+    'ρ': 'ρο', 'σ': 'σίγμα', 'ς': 'σίγμα', 'τ': 'ταυ', 'υ': 'ύψιλον', 'φ': 'φι', 'χ': 'χι', 'ψ': 'ψι', 'ω': 'ωμέγα'
+  },
+  tileTr: {
+    'α': 'AL-fa', 'β': 'VEE-ta', 'γ': 'GHA-ma', 'δ': 'THEL-ta', 'ε': 'EP-see-lon', 'ζ': 'ZEE-ta', 'η': 'EE-ta', 'θ': 'THEE-ta',
+    'ι': 'YO-ta', 'κ': 'KA-pa', 'λ': 'LAM-tha', 'μ': 'mee', 'ν': 'nee', 'ξ': 'ksee', 'ο': 'O-mee-kron', 'π': 'pee',
+    'ρ': 'ro', 'σ': 'SEEG-ma', 'ς': 'SEEG-ma (final)', 'τ': 'taf', 'υ': 'EEP-see-lon', 'φ': 'fee', 'χ': 'hee', 'ψ': 'psee', 'ω': 'o-MEH-gha'
+  },
+  numbers: [
+    { w: 'ένα', tr: 'EH-na' }, { w: 'δύο', tr: 'THEE-o' }, { w: 'τρία', tr: 'TREE-a' }, { w: 'τέσσερα', tr: 'TEH-se-ra' },
+    { w: 'πέντε', tr: 'PEN-de' }, { w: 'έξι', tr: 'EH-ksee' }, { w: 'επτά', tr: 'ep-TA' }, { w: 'οκτώ', tr: 'ok-TO' },
+    { w: 'εννέα', tr: 'e-NEH-a' }, { w: 'δέκα', tr: 'THEH-ka' }
+  ],
+  colors: [
+    { w: 'κόκκινο', tr: 'KO-kee-no', en: 'red', hex: '#ff4d4d' },
+    { w: 'πορτοκαλί', tr: 'por-to-ka-LEE', en: 'orange', hex: '#ff9f1c' },
+    { w: 'κίτρινο', tr: 'KEE-tree-no', en: 'yellow', hex: '#ffd23f' },
+    { w: 'πράσινο', tr: 'PRA-see-no', en: 'green', hex: '#3ddc84' },
+    { w: 'μπλε', tr: 'bleh', en: 'blue', hex: '#4d96ff' },
+    { w: 'μωβ', tr: 'mov', en: 'purple', hex: '#9b5de5' },
+    { w: 'ροζ', tr: 'roz', en: 'pink', hex: '#ff7eb6' }
+  ],
+  animals: [
+    { w: 'σκύλος', tr: 'SKEE-los', en: 'dog', pic: 'dog' },
+    { w: 'γάτα', tr: 'GHA-ta', en: 'cat', pic: 'cat' },
+    { w: 'αγελάδα', tr: 'a-ye-LA-tha', en: 'cow', pic: 'cow' },
+    { w: 'ψάρι', tr: 'PSA-ree', en: 'fish', pic: 'fish' },
+    { w: 'πουλί', tr: 'poo-LEE', en: 'bird', pic: 'bird' },
+    { w: 'λιοντάρι', tr: 'lyon-DA-ree', en: 'lion', pic: 'lion' },
+    { w: 'ελέφαντας', tr: 'e-LEH-fan-das', en: 'elephant', pic: 'elephant' },
+    { w: 'κουνέλι', tr: 'koo-NEH-lee', en: 'rabbit', pic: 'rabbit' }
+  ]
+};
+
+/* ---- data-th.js ---- */
+/* Thai — ภาษาไทย. Classic consonant + picture-word tradition (ก ไก่, ข ไข่ ...).
+   Word-builder tiles are whole grapheme clusters / syllables so vowel & tone marks never detach. */
+window.LPW_DATA = window.LPW_DATA || {};
+window.LPW_DATA.th = {
+  code: 'th', name: 'ภาษาไทย', en: 'Thai', glyph: 'ก', color: '#ff9f1c', dir: 'ltr',
+  speech: ['th'], hello: 'สวัสดี', helloTr: 'sa-wat-DEE',
+  letters: [
+    { ch: 'ก', name: 'กอ ไก่',    nameTr: 'gor gài',      snd: 'g',  word: 'ไก่',    tr: 'gài',        en: 'chicken',  pic: 'chicken' },
+    { ch: 'ข', name: 'ขอ ไข่',    nameTr: 'khŏr khài',    snd: 'kh', word: 'ไข่',    tr: 'khài',       en: 'egg',      pic: 'egg' },
+    { ch: 'ค', name: 'คอ ควาย',   nameTr: 'khor khwaai',  snd: 'kh', word: 'ควาย',   tr: 'khwaai',     en: 'buffalo',  pic: 'buffalo' },
+    { ch: 'ง', name: 'งอ งู',     nameTr: 'ngor nguu',    snd: 'ng', word: 'งู',     tr: 'nguu',       en: 'snake',    pic: 'snake' },
+    { ch: 'จ', name: 'จอ จาน',    nameTr: 'jor jaan',     snd: 'j',  word: 'จาน',    tr: 'jaan',       en: 'plate',    pic: 'plate' },
+    { ch: 'ช', name: 'ชอ ช้าง',   nameTr: 'chor cháang',  snd: 'ch', word: 'ช้าง',   tr: 'cháang',     en: 'elephant', pic: 'elephant' },
+    { ch: 'ด', name: 'ดอ เด็ก',   nameTr: 'dor dèk',      snd: 'd',  word: 'เด็ก',   tr: 'dèk',        en: 'child',    pic: 'child' },
+    { ch: 'ต', name: 'ตอ เต่า',   nameTr: 'dtor dtào',    snd: 'dt', word: 'เต่า',   tr: 'dtào',       en: 'turtle',   pic: 'turtle' },
+    { ch: 'น', name: 'นอ หนู',    nameTr: 'nor nŭu',      snd: 'n',  word: 'หนู',    tr: 'nŭu',        en: 'mouse',    pic: 'mouse' },
+    { ch: 'บ', name: 'บอ ใบไม้',  nameTr: 'bor bai-máai', snd: 'b',  word: 'ใบไม้',  tr: 'bai-máai',   en: 'leaf',     pic: 'leaf' },
+    { ch: 'ป', name: 'ปอ ปลา',    nameTr: 'bpor bplaa',   snd: 'bp', word: 'ปลา',    tr: 'bplaa',      en: 'fish',     pic: 'fish' },
+    { ch: 'พ', name: 'พอ พาน',    nameTr: 'phor phaan',   snd: 'ph', word: 'พาน',    tr: 'phaan',      en: 'offering tray', pic: 'tray' },
+    { ch: 'ฟ', name: 'ฟอ ฟัน',    nameTr: 'for fan',      snd: 'f',  word: 'ฟัน',    tr: 'fan',        en: 'tooth',    pic: 'tooth' },
+    { ch: 'ม', name: 'มอ ม้า',    nameTr: 'mor máa',      snd: 'm',  word: 'ม้า',    tr: 'máa',        en: 'horse',    pic: 'horse' },
+    { ch: 'ย', name: 'ยอ ยักษ์',  nameTr: 'yor yák',      snd: 'y',  word: 'ยักษ์',  tr: 'yák',        en: 'giant',    pic: 'giant' },
+    { ch: 'ร', name: 'รอ เรือ',   nameTr: 'ror ruea',     snd: 'r',  word: 'เรือ',   tr: 'ruea',       en: 'boat',     pic: 'boat' },
+    { ch: 'ล', name: 'ลอ ลิง',    nameTr: 'lor ling',     snd: 'l',  word: 'ลิง',    tr: 'ling',       en: 'monkey',   pic: 'monkey' },
+    { ch: 'ว', name: 'วอ แหวน',   nameTr: 'wor wăen',     snd: 'w',  word: 'แหวน',   tr: 'wăen',       en: 'ring',     pic: 'ring' },
+    { ch: 'ส', name: 'สอ เสือ',   nameTr: 'sŏr sŭea',     snd: 's',  word: 'เสือ',   tr: 'sŭea',       en: 'tiger',    pic: 'tiger' },
+    { ch: 'ห', name: 'หอ หีบ',    nameTr: 'hŏr hìip',     snd: 'h',  word: 'หีบ',    tr: 'hìip',       en: 'chest',    pic: 'chest' },
+    { ch: 'อ', name: 'ออ อ่าง',   nameTr: 'or àang',      snd: 'o (vowel carrier)', word: 'อ่าง', tr: 'àang', en: 'basin', pic: 'basin' }
+  ],
+  words: [
+    { w: 'ปลา',     tiles: ['ป', 'ลา'],       say: ['ปอ', 'ลา'],       tr: 'bplaa',      en: 'fish',       pic: 'fish' },
+    { w: 'แมว',     tiles: ['แม', 'ว'],       say: ['แม', 'วอ'],       tr: 'maeo',       en: 'cat',        pic: 'cat' },
+    { w: 'ลิง',     tiles: ['ลิ', 'ง'],       say: ['ลิ', 'งอ'],       tr: 'ling',       en: 'monkey',     pic: 'monkey' },
+    { w: 'ช้าง',    tiles: ['ช้า', 'ง'],      say: ['ช้า', 'งอ'],      tr: 'cháang',     en: 'elephant',   pic: 'elephant' },
+    { w: 'กระต่าย', tiles: ['กระ', 'ต่าย'],   say: ['กระ', 'ต่าย'],    tr: 'grà-dtàai',  en: 'rabbit',     pic: 'rabbit' },
+    { w: 'ผีเสื้อ',  tiles: ['ผี', 'เสื้อ'],   say: ['ผี', 'เสื้อ'],     tr: 'phĭi-sûea',  en: 'butterfly',  pic: 'butterfly' },
+    { w: 'มะม่วง',  tiles: ['มะ', 'ม่วง'],    say: ['มะ', 'ม่วง'],     tr: 'má-mûang',   en: 'mango',      pic: 'mango' },
+    { w: 'แตงโม',   tiles: ['แตง', 'โม'],     say: ['แตง', 'โม'],      tr: 'dtaeng-moo', en: 'watermelon', pic: 'watermelon' },
+    { w: 'นาฬิกา',  tiles: ['นา', 'ฬิ', 'กา'], say: ['นา', 'ลิ', 'กา'], tr: 'naa-lí-gaa', en: 'clock',      pic: 'clock' }
+  ],
+  tileSay: {},
+  tileTr: {
+    'ป': 'bpor', 'ลา': 'laa', 'แม': 'mae', 'ว': 'wor', 'ลิ': 'lí', 'ง': 'ngor', 'ช้า': 'cháa', 'กระ': 'grà',
+    'ต่าย': 'dtàai', 'ผี': 'phĭi', 'เสื้อ': 'sûea', 'มะ': 'má', 'ม่วง': 'mûang', 'แตง': 'dtaeng', 'โม': 'moo',
+    'นา': 'naa', 'ฬิ': 'lí', 'กา': 'gaa'
+  },
+  digits: ['๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙', '๑๐'],
+  numbers: [
+    { w: 'หนึ่ง', tr: 'nùeng' }, { w: 'สอง', tr: 'sŏng' }, { w: 'สาม', tr: 'săam' }, { w: 'สี่', tr: 'sìi' },
+    { w: 'ห้า', tr: 'hâa' }, { w: 'หก', tr: 'hòk' }, { w: 'เจ็ด', tr: 'jèt' }, { w: 'แปด', tr: 'bpàet' },
+    { w: 'เก้า', tr: 'gâo' }, { w: 'สิบ', tr: 'sìp' }
+  ],
+  colors: [
+    { w: 'สีแดง', tr: 'sĭi daeng', en: 'red', hex: '#ff4d4d' },
+    { w: 'สีส้ม', tr: 'sĭi sôm', en: 'orange', hex: '#ff9f1c' },
+    { w: 'สีเหลือง', tr: 'sĭi lŭeang', en: 'yellow', hex: '#ffd23f' },
+    { w: 'สีเขียว', tr: 'sĭi khĭao', en: 'green', hex: '#3ddc84' },
+    { w: 'สีฟ้า', tr: 'sĭi fáa', en: 'blue (sky blue)', hex: '#4d96ff' },
+    { w: 'สีม่วง', tr: 'sĭi mûang', en: 'purple', hex: '#9b5de5' },
+    { w: 'สีชมพู', tr: 'sĭi chom-phuu', en: 'pink', hex: '#ff7eb6' }
+  ],
+  animals: [
+    { w: 'หมา', tr: 'măa', en: 'dog', pic: 'dog' },
+    { w: 'แมว', tr: 'maeo', en: 'cat', pic: 'cat' },
+    { w: 'วัว', tr: 'wua', en: 'cow', pic: 'cow' },
+    { w: 'ปลา', tr: 'bplaa', en: 'fish', pic: 'fish' },
+    { w: 'นก', tr: 'nók', en: 'bird', pic: 'bird' },
+    { w: 'สิงโต', tr: 'sĭng-dtoo', en: 'lion', pic: 'lion' },
+    { w: 'ช้าง', tr: 'cháang', en: 'elephant', pic: 'elephant' },
+    { w: 'กระต่าย', tr: 'grà-dtàai', en: 'rabbit', pic: 'rabbit' }
+  ]
+};
+
+/* ---- data-es.js ---- */
+/* Spanish — Español. Includes syllable sound-out (ma-má, ga-to, pe-rro). */
+window.LPW_DATA = window.LPW_DATA || {};
+window.LPW_DATA.es = {
+  code: 'es', name: 'Español', en: 'Spanish', glyph: 'Ñ', color: '#ff5a5f', dir: 'ltr',
+  speech: ['es'], hello: '¡Hola!', helloTr: 'OH-la',
+  letters: [
+    { ch: 'Aa', name: 'a',    nameTr: 'ah',    snd: 'ah',  word: 'árbol',    syl: 'ár-bol',      tr: 'AR-bol',        en: 'tree',     pic: 'tree' },
+    { ch: 'Bb', name: 'be',   nameTr: 'beh',   snd: 'b',   word: 'barco',    syl: 'bar-co',      tr: 'BAR-koh',       en: 'boat',     pic: 'boat' },
+    { ch: 'Cc', name: 'ce',   nameTr: 'seh / theh', snd: 'k (ca, co, cu)', word: 'casa', syl: 'ca-sa', tr: 'KAH-sah', en: 'house', pic: 'house' },
+    { ch: 'Dd', name: 'de',   nameTr: 'deh',   snd: 'd',   word: 'delfín',   syl: 'del-fín',     tr: 'del-FEEN',      en: 'dolphin',  pic: 'dolphin' },
+    { ch: 'Ee', name: 'e',    nameTr: 'eh',    snd: 'eh',  word: 'elefante', syl: 'e-le-fan-te', tr: 'eh-leh-FAHN-teh', en: 'elephant', pic: 'elephant' },
+    { ch: 'Ff', name: 'efe',  nameTr: 'EH-feh', snd: 'f',  word: 'flor',     syl: 'flor',        tr: 'flor',          en: 'flower',   pic: 'flower' },
+    { ch: 'Gg', name: 'ge',   nameTr: 'heh',   snd: 'g (ga, go, gu)', word: 'gato', syl: 'ga-to', tr: 'GAH-toh',   en: 'cat',      pic: 'cat' },
+    { ch: 'Ii', name: 'i',    nameTr: 'ee',    snd: 'ee',  word: 'iguana',   syl: 'i-gua-na',    tr: 'ee-GWAH-nah',   en: 'iguana',   pic: 'iguana' },
+    { ch: 'Jj', name: 'jota', nameTr: 'HO-tah', snd: 'h (throaty)', word: 'jirafa', syl: 'ji-ra-fa', tr: 'hee-RAH-fah', en: 'giraffe', pic: 'giraffe' },
+    { ch: 'Ll', name: 'ele',  nameTr: 'EH-leh', snd: 'l',  word: 'luna',     syl: 'lu-na',       tr: 'LOO-nah',       en: 'moon',     pic: 'moon' },
+    { ch: 'Mm', name: 'eme',  nameTr: 'EH-meh', snd: 'm',  word: 'mamá',     syl: 'ma-má',       tr: 'mah-MAH',       en: 'mom',      pic: 'mom' },
+    { ch: 'Nn', name: 'ene',  nameTr: 'EH-neh', snd: 'n',  word: 'nube',     syl: 'nu-be',       tr: 'NOO-beh',       en: 'cloud',    pic: 'cloud' },
+    { ch: 'Ññ', name: 'eñe',  nameTr: 'EH-nyeh', snd: 'ny', word: 'ñandú',   syl: 'ñan-dú',      tr: 'nyahn-DOO',     en: 'rhea (big bird)', pic: 'bird' },
+    { ch: 'Oo', name: 'o',    nameTr: 'oh',    snd: 'oh',  word: 'oso',      syl: 'o-so',        tr: 'OH-soh',        en: 'bear',     pic: 'bear' },
+    { ch: 'Pp', name: 'pe',   nameTr: 'peh',   snd: 'p',   word: 'perro',    syl: 'pe-rro',      tr: 'PEH-rroh',      en: 'dog',      pic: 'dog' },
+    { ch: 'Rr', name: 'erre', nameTr: 'EH-rreh', snd: 'r (rolled)', word: 'ratón', syl: 'ra-tón', tr: 'rrah-TOHN',   en: 'mouse',    pic: 'mouse' },
+    { ch: 'Ss', name: 'ese',  nameTr: 'EH-seh', snd: 's',  word: 'sol',      syl: 'sol',         tr: 'sohl',          en: 'sun',      pic: 'sun' },
+    { ch: 'Tt', name: 'te',   nameTr: 'teh',   snd: 't',   word: 'tortuga',  syl: 'tor-tu-ga',   tr: 'tor-TOO-gah',   en: 'turtle',   pic: 'turtle' },
+    { ch: 'Uu', name: 'u',    nameTr: 'oo',    snd: 'oo',  word: 'uva',      syl: 'u-va',        tr: 'OO-bah',        en: 'grape',    pic: 'grapes' },
+    { ch: 'Vv', name: 'uve',  nameTr: 'OO-beh', snd: 'b',  word: 'vaca',     syl: 'va-ca',       tr: 'BAH-kah',       en: 'cow',      pic: 'cow' },
+    { ch: 'Zz', name: 'zeta', nameTr: 'SEH-tah / THEH-tah', snd: 's / th', word: 'zapato', syl: 'za-pa-to', tr: 'sah-PAH-toh', en: 'shoe', pic: 'shoe' }
+  ],
+  words: [
+    { w: 'sol',  tiles: ['s', 'o', 'l'],      syl: ['sol'],      tr: 'sohl',     en: 'sun',   pic: 'sun' },
+    { w: 'oso',  tiles: ['o', 's', 'o'],      syl: ['o', 'so'],  tr: 'OH-soh',   en: 'bear',  pic: 'bear' },
+    { w: 'uva',  tiles: ['u', 'v', 'a'],      syl: ['u', 'va'],  tr: 'OO-bah',   en: 'grape', pic: 'grapes' },
+    { w: 'gato', tiles: ['g', 'a', 't', 'o'], syl: ['ga', 'to'], tr: 'GAH-toh',  en: 'cat',   pic: 'cat' },
+    { w: 'casa', tiles: ['c', 'a', 's', 'a'], syl: ['ca', 'sa'], tr: 'KAH-sah',  en: 'house', pic: 'house' },
+    { w: 'luna', tiles: ['l', 'u', 'n', 'a'], syl: ['lu', 'na'], tr: 'LOO-nah',  en: 'moon',  pic: 'moon' },
+    { w: 'mamá', tiles: ['m', 'a', 'm', 'á'], syl: ['ma', 'má'], tr: 'mah-MAH',  en: 'mom',   pic: 'mom' },
+    { w: 'papá', tiles: ['p', 'a', 'p', 'á'], syl: ['pa', 'pá'], tr: 'pah-PAH',  en: 'dad',   pic: 'dad' },
+    { w: 'pato', tiles: ['p', 'a', 't', 'o'], syl: ['pa', 'to'], tr: 'PAH-toh',  en: 'duck',  pic: 'duck' },
+    { w: 'vaca', tiles: ['v', 'a', 'c', 'a'], syl: ['va', 'ca'], tr: 'BAH-kah',  en: 'cow',   pic: 'cow' }
+  ],
+  /* Vowels say their sound; consonants say their letter name. */
+  tileSay: {
+    'a': 'a', 'á': 'a', 'e': 'e', 'i': 'i', 'o': 'o', 'u': 'u', 'b': 'be', 'c': 'ce', 'd': 'de', 'f': 'efe',
+    'g': 'ge', 'j': 'jota', 'l': 'ele', 'm': 'eme', 'n': 'ene', 'ñ': 'eñe', 'p': 'pe', 'r': 'erre', 's': 'ese',
+    't': 'te', 'v': 'uve', 'z': 'zeta'
+  },
+  tileTr: {
+    'a': 'ah', 'á': 'AH (stressed)', 'e': 'eh', 'i': 'ee', 'o': 'oh', 'u': 'oo', 'b': 'beh', 'c': 'seh', 'd': 'deh', 'f': 'EH-feh',
+    'g': 'heh', 'j': 'HO-tah', 'l': 'EH-leh', 'm': 'EH-meh', 'n': 'EH-neh', 'ñ': 'EH-nyeh', 'p': 'peh', 'r': 'EH-rreh', 's': 'EH-seh',
+    't': 'teh', 'v': 'OO-beh', 'z': 'SEH-tah'
+  },
+  numbers: [
+    { w: 'uno', tr: 'OO-noh' }, { w: 'dos', tr: 'dohs' }, { w: 'tres', tr: 'trehs' }, { w: 'cuatro', tr: 'KWAH-troh' },
+    { w: 'cinco', tr: 'SEEN-koh' }, { w: 'seis', tr: 'says' }, { w: 'siete', tr: 'SYEH-teh' }, { w: 'ocho', tr: 'OH-choh' },
+    { w: 'nueve', tr: 'NWEH-beh' }, { w: 'diez', tr: 'dyehs' }
+  ],
+  colors: [
+    { w: 'rojo', tr: 'RROH-hoh', en: 'red', hex: '#ff4d4d' },
+    { w: 'naranja', tr: 'nah-RAHN-hah', en: 'orange', hex: '#ff9f1c' },
+    { w: 'amarillo', tr: 'ah-mah-REE-yoh', en: 'yellow', hex: '#ffd23f' },
+    { w: 'verde', tr: 'BEHR-deh', en: 'green', hex: '#3ddc84' },
+    { w: 'azul', tr: 'ah-SOOL', en: 'blue', hex: '#4d96ff' },
+    { w: 'morado', tr: 'moh-RAH-doh', en: 'purple', hex: '#9b5de5' },
+    { w: 'rosa', tr: 'RROH-sah', en: 'pink', hex: '#ff7eb6' }
+  ],
+  animals: [
+    { w: 'perro', tr: 'PEH-rroh', en: 'dog', pic: 'dog' },
+    { w: 'gato', tr: 'GAH-toh', en: 'cat', pic: 'cat' },
+    { w: 'vaca', tr: 'BAH-kah', en: 'cow', pic: 'cow' },
+    { w: 'pez', tr: 'pehs', en: 'fish', pic: 'fish' },
+    { w: 'pájaro', tr: 'PAH-hah-roh', en: 'bird', pic: 'bird' },
+    { w: 'león', tr: 'leh-OHN', en: 'lion', pic: 'lion' },
+    { w: 'elefante', tr: 'eh-leh-FAHN-teh', en: 'elephant', pic: 'elephant' },
+    { w: 'conejo', tr: 'koh-NEH-hoh', en: 'rabbit', pic: 'rabbit' }
+  ]
+};
+
+/* ---- art1.js ---- */
+/* Inline SVG art — part 1: helpers + animal faces. viewBox 0 0 100 100. No external assets. */
+window.ART = window.ART || {};
+(function (A) {
+  var INK = '#2b2350';
+  function eye(x, y, r) { r = r || 4; return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + INK + '"/><circle cx="' + (x + r * .35) + '" cy="' + (y - r * .35) + '" r="' + (r * .38) + '" fill="#fff"/>'; }
+  function eyes(cx, y, g, r) { return eye(cx - g, y, r) + eye(cx + g, y, r); }
+  function smile(cx, y, w) { w = w || 8; return '<path d="M' + (cx - w) + ' ' + y + ' Q' + cx + ' ' + (y + w * .9) + ' ' + (cx + w) + ' ' + y + '" stroke="' + INK + '" stroke-width="3" fill="none" stroke-linecap="round"/>'; }
+  function cheeks(cx, y, g) { return '<circle cx="' + (cx - g) + '" cy="' + y + '" r="4" fill="#ff8fab" opacity=".7"/><circle cx="' + (cx + g) + '" cy="' + y + '" r="4" fill="#ff8fab" opacity=".7"/>'; }
+  function face(cx, cy, g) { g = g || 10; return eyes(cx, cy, g) + cheeks(cx, cy + 9, g + 5) + smile(cx, cy + 9, 7); }
+  A._h = { eye: eye, eyes: eyes, smile: smile, cheeks: cheeks, face: face, INK: INK };
+
+  var mane = '';
+  for (var i = 0; i < 12; i++) {
+    var a = i / 12 * Math.PI * 2;
+    mane += '<circle cx="' + (50 + Math.cos(a) * 32).toFixed(1) + '" cy="' + (52 + Math.sin(a) * 32).toFixed(1) + '" r="13" fill="#ff8c1a"/>';
+  }
+  A.lion = mane + '<circle cx="50" cy="52" r="34" fill="#ff9f1c"/><circle cx="30" cy="30" r="8" fill="#ffd23f"/><circle cx="70" cy="30" r="8" fill="#ffd23f"/>' +
+    '<circle cx="50" cy="54" r="25" fill="#ffd23f"/>' + eyes(50, 48, 9) + '<path d="M45 57h10l-5 5z" fill="#ff5a8a"/>' + smile(50, 63, 6) + cheeks(50, 60, 15);
+
+  A.cat = '<path d="M22 44 L26 12 L44 30Z M78 44 L74 12 L56 30Z" fill="#a9a6d6"/><path d="M27 36 L29 20 L39 30Z M73 36 L71 20 L61 30Z" fill="#ffb3c7"/>' +
+    '<ellipse cx="50" cy="56" rx="34" ry="30" fill="#b9b6e3"/>' + eyes(50, 50, 12, 5) + '<path d="M46 60h8l-4 4z" fill="#ff5a8a"/>' + smile(50, 65, 6) +
+    '<path d="M14 58h20M14 66l20-3M86 58H66M86 66l-20-3" stroke="' + INK + '" stroke-width="2" stroke-linecap="round"/>';
+
+  A.dog = '<ellipse cx="50" cy="54" rx="30" ry="29" fill="#ffe0a3"/><ellipse cx="22" cy="48" rx="11" ry="22" fill="#f4a259" transform="rotate(15 22 48)"/>' +
+    '<ellipse cx="78" cy="48" rx="11" ry="22" fill="#f4a259" transform="rotate(-15 78 48)"/><circle cx="62" cy="44" r="9" fill="#f4a259" opacity=".7"/>' +
+    eyes(50, 47, 11) + '<ellipse cx="50" cy="62" rx="12" ry="9" fill="#fff4dc"/><ellipse cx="50" cy="58" rx="6" ry="4.5" fill="' + INK + '"/>' +
+    smile(50, 64, 6) + '<path d="M47 70q3 9 6 0z" fill="#ff5a8a"/>';
+
+  A.monkey = '<circle cx="18" cy="48" r="12" fill="#f08a3c"/><circle cx="82" cy="48" r="12" fill="#f08a3c"/><circle cx="18" cy="48" r="6" fill="#ffd1a6"/><circle cx="82" cy="48" r="6" fill="#ffd1a6"/>' +
+    '<circle cx="50" cy="50" r="32" fill="#f08a3c"/><path d="M50 30c-20 0-24 14-20 22-6 6-4 26 20 26s26-20 20-26c4-8 0-22-20-22z" fill="#ffd1a6"/>' +
+    eyes(50, 46, 8) + '<circle cx="46" cy="58" r="1.8" fill="' + INK + '"/><circle cx="54" cy="58" r="1.8" fill="' + INK + '"/>' + smile(50, 64, 9);
+
+  A.mouse = '<circle cx="24" cy="30" r="18" fill="#b8bfd6"/><circle cx="76" cy="30" r="18" fill="#b8bfd6"/><circle cx="24" cy="30" r="10" fill="#ffb3c7"/><circle cx="76" cy="30" r="10" fill="#ffb3c7"/>' +
+    '<ellipse cx="50" cy="58" rx="28" ry="26" fill="#c9cfe3"/>' + eyes(50, 52, 10) + '<circle cx="50" cy="64" r="4" fill="#ff5a8a"/>' + smile(50, 68, 5) +
+    '<path d="M20 62h18M22 70l16-4M80 62H62M78 70l-16-4" stroke="' + INK + '" stroke-width="1.8" stroke-linecap="round"/>';
+
+  A.rabbit = '<ellipse cx="36" cy="24" rx="9" ry="22" fill="#f4f1ff"/><ellipse cx="64" cy="24" rx="9" ry="22" fill="#f4f1ff"/><ellipse cx="36" cy="24" rx="4.5" ry="15" fill="#ffb3c7"/><ellipse cx="64" cy="24" rx="4.5" ry="15" fill="#ffb3c7"/>' +
+    '<ellipse cx="50" cy="62" rx="28" ry="26" fill="#f4f1ff" stroke="#d9d3ff" stroke-width="2"/>' + eyes(50, 56, 10) + cheeks(50, 66, 16) +
+    '<path d="M46 66h8l-4 4z" fill="#ff5a8a"/><rect x="46" y="72" width="8" height="7" rx="2" fill="#fff" stroke="#d9d3ff"/>';
+
+  A.bear = '<circle cx="24" cy="28" r="13" fill="#f2b33d"/><circle cx="76" cy="28" r="13" fill="#f2b33d"/><circle cx="24" cy="28" r="6" fill="#ffd98a"/><circle cx="76" cy="28" r="6" fill="#ffd98a"/>' +
+    '<circle cx="50" cy="54" r="32" fill="#f2b33d"/>' + eyes(50, 46, 12) + '<ellipse cx="50" cy="64" rx="14" ry="11" fill="#ffe3a8"/><ellipse cx="50" cy="59" rx="6" ry="4" fill="' + INK + '"/>' + smile(50, 66, 5);
+
+  A.tiger = '<circle cx="24" cy="28" r="11" fill="#ff8c1a"/><circle cx="76" cy="28" r="11" fill="#ff8c1a"/><circle cx="24" cy="28" r="5" fill="#fff"/><circle cx="76" cy="28" r="5" fill="#fff"/>' +
+    '<circle cx="50" cy="54" r="32" fill="#ff8c1a"/><path d="M50 22v12M40 24l3 10M60 24l-3 10M18 50h12M18 60l12-3M82 50H70M82 60l-12-3" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+    '<ellipse cx="50" cy="66" rx="16" ry="12" fill="#fff"/>' + eyes(50, 48, 11) + '<path d="M45 60h10l-5 5z" fill="#ff5a8a"/>' + smile(50, 67, 6);
+
+  A.cow = '<path d="M26 30q-10-12-4-20M74 30q10-12 4-20" stroke="#ffd23f" stroke-width="6" fill="none" stroke-linecap="round"/>' +
+    '<ellipse cx="18" cy="42" rx="11" ry="6" fill="#fff" stroke="#e0dcf5" stroke-width="2"/><ellipse cx="82" cy="42" rx="11" ry="6" fill="#fff" stroke="#e0dcf5" stroke-width="2"/>' +
+    '<ellipse cx="50" cy="50" rx="28" ry="30" fill="#fff" stroke="#e0dcf5" stroke-width="2"/><path d="M30 34q8-8 14 2-4 10-14 4z" fill="' + INK + '"/><circle cx="68" cy="40" r="6" fill="' + INK + '"/>' +
+    eyes(50, 46, 11) + '<ellipse cx="50" cy="68" rx="20" ry="13" fill="#ffb3c7"/><ellipse cx="43" cy="68" rx="3" ry="4" fill="#e0607e"/><ellipse cx="57" cy="68" rx="3" ry="4" fill="#e0607e"/>';
+
+  A.buffalo = '<path d="M30 34Q6 34 8 14q8 12 26 10M70 34q24 0 22-20-8 12-26 10" fill="#e9e4d0" stroke="#c9c2a8" stroke-width="2"/>' +
+    '<ellipse cx="50" cy="54" rx="28" ry="30" fill="#7d8597"/><ellipse cx="22" cy="46" rx="9" ry="5" fill="#7d8597"/><ellipse cx="78" cy="46" rx="9" ry="5" fill="#7d8597"/>' +
+    eyes(50, 48, 11) + '<ellipse cx="50" cy="70" rx="18" ry="12" fill="#a4abbb"/><circle cx="44" cy="70" r="3" fill="' + INK + '"/><circle cx="56" cy="70" r="3" fill="' + INK + '"/>';
+
+  A.zebra = '<path d="M38 18l6 14M62 18l-6 14" stroke="#fff" stroke-width="10" stroke-linecap="round"/><path d="M38 18l6 14M62 18l-6 14" stroke="' + INK + '" stroke-width="3" stroke-linecap="round"/>' +
+    '<path d="M50 14v18" stroke="' + INK + '" stroke-width="9" stroke-linecap="round"/><ellipse cx="50" cy="56" rx="22" ry="32" fill="#fff" stroke="#e0dcf5" stroke-width="2"/>' +
+    '<path d="M29 44h12M28 54h10M71 44H59M72 54H62M38 30l6 6M62 30l-6 6" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>' +
+    eyes(50, 50, 10) + '<ellipse cx="50" cy="76" rx="17" ry="12" fill="#c9c2ee"/><circle cx="44" cy="76" r="2.5" fill="' + INK + '"/><circle cx="56" cy="76" r="2.5" fill="' + INK + '"/>';
+
+  A.horse = '<path d="M36 22l4 14M64 22l-4 14" stroke="#f4b860" stroke-width="9" stroke-linecap="round"/><path d="M40 14q10 6 20 0v16H40z" fill="#9b5de5"/>' +
+    '<ellipse cx="50" cy="56" rx="22" ry="32" fill="#f4b860"/><path d="M42 26q8 10 16 0" fill="#9b5de5"/>' + eyes(50, 48, 10) +
+    '<ellipse cx="50" cy="76" rx="17" ry="12" fill="#ffd9a3"/><circle cx="44" cy="76" r="2.5" fill="' + INK + '"/><circle cx="56" cy="76" r="2.5" fill="' + INK + '"/>' + smile(50, 82, 4);
+
+  A.camel = '<ellipse cx="46" cy="60" rx="30" ry="16" fill="#f2c879"/><path d="M26 56q8-26 18-4q6-24 18 0z" fill="#f2c879"/>' +
+    '<path d="M70 58q10-6 10-26" stroke="#f2c879" stroke-width="10" fill="none" stroke-linecap="round"/><ellipse cx="84" cy="30" rx="11" ry="8" fill="#f2c879"/>' +
+    '<rect x="24" y="68" width="6" height="22" rx="3" fill="#e5b65d"/><rect x="36" y="70" width="6" height="20" rx="3" fill="#e5b65d"/><rect x="54" y="70" width="6" height="20" rx="3" fill="#e5b65d"/><rect x="64" y="68" width="6" height="22" rx="3" fill="#e5b65d"/>' +
+    eye(84, 27, 3) + smile(88, 32, 3) + '<path d="M78 22l-2-5" stroke="#e5b65d" stroke-width="4" stroke-linecap="round"/><path d="M14 58q-6 6-2 12" stroke="#e5b65d" stroke-width="3" fill="none"/>';
+
+  A.giraffe = '<path d="M40 92V44q0-14 12-22" stroke="#ffd23f" stroke-width="18" fill="none" stroke-linecap="round"/><circle cx="36" cy="60" r="4" fill="#ff9f1c"/><circle cx="44" cy="74" r="4.5" fill="#ff9f1c"/><circle cx="38" cy="84" r="3.5" fill="#ff9f1c"/><circle cx="46" cy="48" r="3.5" fill="#ff9f1c"/>' +
+    '<ellipse cx="62" cy="24" rx="18" ry="12" fill="#ffd23f"/><path d="M56 13V4M66 13V4" stroke="#ff9f1c" stroke-width="3"/><circle cx="56" cy="4" r="3" fill="#ff9f1c"/><circle cx="66" cy="4" r="3" fill="#ff9f1c"/>' +
+    eye(60, 21, 3.4) + '<ellipse cx="74" cy="28" rx="6" ry="5" fill="#ffe58a"/>' + smile(70, 30, 3) + '<ellipse cx="46" cy="18" rx="6" ry="3" fill="#ffd23f"/>';
+
+  A.elephant = '<ellipse cx="22" cy="46" rx="20" ry="24" fill="#8fa8d8"/><ellipse cx="78" cy="46" rx="20" ry="24" fill="#8fa8d8"/><ellipse cx="22" cy="46" rx="12" ry="16" fill="#ffb3c7"/><ellipse cx="78" cy="46" rx="12" ry="16" fill="#ffb3c7"/>' +
+    '<circle cx="50" cy="46" r="26" fill="#a3b9e6"/><path d="M50 58q0 18 0 22q0 10 10 8" stroke="#a3b9e6" stroke-width="12" fill="none" stroke-linecap="round"/>' +
+    eyes(50, 42, 10) + cheeks(50, 52, 16) + '<path d="M38 62l-6 8M62 62l6 8" stroke="#fff" stroke-width="5" stroke-linecap="round"/>';
+})(window.ART);
+
+/* ---- art2.js ---- */
+/* Inline SVG art — part 2: creatures & people. */
+(function (A) {
+  var h = A._h, INK = h.INK, eye = h.eye, eyes = h.eyes, smile = h.smile, cheeks = h.cheeks;
+
+  A.fish = '<path d="M70 50l24-18v36z" fill="#ff7eb6"/><ellipse cx="46" cy="50" rx="32" ry="24" fill="#ff9f1c"/>' +
+    '<path d="M40 28q10-14 22 0M40 72q10 12 20 0" fill="#ff7eb6"/><path d="M52 36q8 14 0 28M62 38q6 12 0 24" stroke="#ffd23f" stroke-width="4" fill="none"/>' +
+    eye(30, 44, 5) + smile(30, 56, 5) + '<circle cx="12" cy="30" r="4" fill="none" stroke="#9fd8ff" stroke-width="2"/><circle cx="8" cy="18" r="2.5" fill="none" stroke="#9fd8ff" stroke-width="2"/>';
+
+  A.snake = '<path d="M16 80q0-16 18-16h30q16 0 16-14T64 36H40q-14 0-14-12" stroke="#3ddc84" stroke-width="16" fill="none" stroke-linecap="round"/>' +
+    '<path d="M24 80q0-8 10-8M50 64v0M70 50" stroke="#ffd23f" stroke-width="4" stroke-dasharray="4 10" fill="none"/><ellipse cx="30" cy="20" rx="16" ry="12" fill="#3ddc84"/>' +
+    eyes(30, 17, 6, 3.5) + smile(30, 24, 5) + '<path d="M14 22H6l-3-3M6 22l-3 3" stroke="#ff5a5f" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+
+  A.turtle = '<ellipse cx="24" cy="78" rx="8" ry="6" fill="#7ee0a0"/><ellipse cx="72" cy="78" rx="8" ry="6" fill="#7ee0a0"/><circle cx="86" cy="58" r="12" fill="#7ee0a0"/>' +
+    '<path d="M12 70q2-46 38-46t36 46z" fill="#2ec4b6"/><path d="M30 46l10-10h16l10 10-6 14H36zM12 70h74" stroke="#1a8f86" stroke-width="3" fill="none"/>' +
+    eye(88, 55, 3.4) + smile(88, 61, 4) + '<path d="M8 66l-6 4" stroke="#7ee0a0" stroke-width="5" stroke-linecap="round"/>';
+
+  A.bird = '<ellipse cx="48" cy="56" rx="30" ry="26" fill="#4d96ff"/><path d="M30 54q16 20 32 0q-16 8-32 0z" fill="#9fd8ff"/>' +
+    '<path d="M76 50l16 4-16 6z" fill="#ffd23f"/>' + eye(64, 46, 4.5) + '<path d="M40 22q6 6 4 14M48 20q2 8-2 14" stroke="#4d96ff" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+    '<path d="M40 82v10M54 82v10M36 92h8M50 92h8" stroke="#ff9f1c" stroke-width="3" stroke-linecap="round"/><path d="M18 50L4 42l6 14z" fill="#3b7de0"/>';
+
+  A.duck = '<path d="M10 90q40 10 80 0" stroke="#9fd8ff" stroke-width="4" fill="none"/><ellipse cx="46" cy="66" rx="34" ry="20" fill="#ffd23f"/>' +
+    '<circle cx="66" cy="34" r="17" fill="#ffd23f"/><path d="M80 34q14-2 16 4-6 6-16 4z" fill="#ff9f1c"/>' + eye(68, 30, 4) + cheeks(66, 40, 8) +
+    '<path d="M26 62q14 14 30 0" stroke="#f2b33d" stroke-width="4" fill="none" stroke-linecap="round"/>';
+
+  A.chicken = '<path d="M40 22q4-12 10-4 4-10 10 0 6-6 6 6" fill="#ff5a5f"/><ellipse cx="50" cy="58" rx="30" ry="28" fill="#fff" stroke="#e8e2fb" stroke-width="2"/>' +
+    '<path d="M78 46l12 5-12 5z" fill="#ff9f1c"/><path d="M76 58q4 8 0 12-5-3 0-12z" fill="#ff5a5f"/>' + eyes(56, 44, 9, 4) +
+    '<path d="M22 56q10 12 22 6" stroke="#e8e2fb" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M42 86v8M58 86v8" stroke="#ff9f1c" stroke-width="4" stroke-linecap="round"/>';
+
+  A.peacock = '';
+  var cols = ['#2ec4b6', '#4d96ff', '#3ddc84', '#9b5de5', '#2ec4b6', '#4d96ff', '#3ddc84'];
+  for (var i = 0; i < 7; i++) {
+    var a = Math.PI + (i + .5) / 7 * Math.PI, x = 50 + Math.cos(a) * 34, y = 66 + Math.sin(a) * 34;
+    A.peacock += '<ellipse cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" rx="10" ry="16" fill="' + cols[i] + '" transform="rotate(' + ((a * 180 / Math.PI) + 90).toFixed(0) + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + ')"/>' +
+      '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4.5" fill="#ffd23f"/><circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="2" fill="#1a3b8f"/>';
+  }
+  A.peacock += '<ellipse cx="50" cy="70" rx="13" ry="18" fill="#3b5fe0"/><circle cx="50" cy="44" r="10" fill="#3b5fe0"/><path d="M46 34l-2-8M50 34v-9M54 34l2-8" stroke="#3b5fe0" stroke-width="2"/>' +
+    '<circle cx="44" cy="25" r="2.5" fill="#ffd23f"/><circle cx="50" cy="24" r="2.5" fill="#ffd23f"/><circle cx="56" cy="25" r="2.5" fill="#ffd23f"/>' + eyes(50, 43, 4, 2.5) + '<path d="M48 48h4l-2 4z" fill="#ff9f1c"/>';
+
+  A.seahorse = '<path d="M50 20q20 0 20 18 0 14-12 20-8 6-6 16 2 10 12 10 8 0 8-8" stroke="#ff9f1c" stroke-width="16" fill="none" stroke-linecap="round"/>' +
+    '<path d="M44 26L20 22l2 10z" fill="#ff9f1c"/><path d="M60 14l4-8 4 10 4-6 2 10" stroke="#ff7eb6" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M70 44q12 2 14 10-8 2-14-2z" fill="#ffd23f"/>' + eye(52, 26, 4) + '<circle cx="18" cy="60" r="4" fill="none" stroke="#9fd8ff" stroke-width="2"/><circle cx="24" cy="74" r="3" fill="none" stroke="#9fd8ff" stroke-width="2"/>';
+
+  A.dolphin = '<path d="M10 66q14-40 54-36 22 2 28 14-10-2-16 2 4 10-6 18-28 18-60 2z" fill="#4d96ff"/><path d="M14 66q30 18 58 0-26 10-58 0z" fill="#cfe6ff"/>' +
+    '<path d="M48 32l8-16 6 18z" fill="#3b7de0"/><path d="M12 64L2 56l4 14-4 12 12-10z" fill="#3b7de0"/>' + eye(70, 42, 3.5) + smile(80, 50, 4) +
+    '<path d="M4 92q12-6 24 0t24 0 24 0 24 0" stroke="#9fd8ff" stroke-width="4" fill="none"/>';
+
+  A.iguana = '<path d="M14 66q-10 10 4 20 20 8 34-4" stroke="#3ddc84" stroke-width="7" fill="none" stroke-linecap="round"/><ellipse cx="50" cy="62" rx="26" ry="12" fill="#3ddc84"/>' +
+    '<path d="M30 52l4-8 4 8 4-8 4 8 4-8 4 8 4-8 4 8" fill="#2aa866"/><ellipse cx="80" cy="54" rx="14" ry="10" fill="#3ddc84"/>' +
+    '<path d="M34 72l-6 12M44 72l-2 12M60 72l4 12M68 70l8 10" stroke="#2aa866" stroke-width="5" stroke-linecap="round"/>' + eye(82, 50, 3.6) + smile(88, 57, 3) + '<circle cx="74" cy="62" r="4" fill="#ffd23f"/>';
+
+  A.butterfly = '<path d="M50 50Q20 6 10 30q-6 18 40 20z" fill="#ff7eb6"/><path d="M50 50Q80 6 90 30q6 18-40 20z" fill="#9b5de5"/>' +
+    '<path d="M50 52Q22 60 22 78q4 12 28-20z" fill="#ffd23f"/><path d="M50 52Q78 60 78 78q-4 12-28-20z" fill="#2ec4b6"/>' +
+    '<circle cx="28" cy="32" r="6" fill="#fff" opacity=".6"/><circle cx="72" cy="32" r="6" fill="#fff" opacity=".6"/>' +
+    '<ellipse cx="50" cy="56" rx="5" ry="22" fill="#5b3fa8"/><circle cx="50" cy="32" r="7" fill="#5b3fa8"/><path d="M47 26q-6-12-10-12M53 26q6-12 10-12" stroke="#5b3fa8" stroke-width="2.5" fill="none"/>' +
+    '<circle cx="47" cy="31" r="1.6" fill="#fff"/><circle cx="53" cy="31" r="1.6" fill="#fff"/>';
+
+  /* Friendly giant (ยักษ์) — bright green guardian with horns, a big smile and a crown. */
+  A.giant = '<path d="M30 30l-8-20 16 12zM70 30l8-20-16 12z" fill="#ffd23f"/><path d="M34 22l8-12 8 10 8-10 8 12z" fill="#ff9f1c"/>' +
+    '<rect x="22" y="22" width="56" height="62" rx="26" fill="#3ddc84"/>' + eyes(50, 46, 12, 6) +
+    '<path d="M34 62q16 16 32 0z" fill="#fff" stroke="' + INK + '" stroke-width="3" stroke-linejoin="round"/><path d="M38 63l3 6 3-5M62 63l-3 6-3-5" fill="' + INK + '"/>' +
+    cheeks(50, 58, 22) + '<rect x="30" y="82" width="12" height="12" rx="5" fill="#2aa866"/><rect x="58" y="82" width="12" height="12" rx="5" fill="#2aa866"/>';
+
+  function person(skin, hair, shirt, extra) {
+    return '<rect x="22" y="70" width="56" height="30" rx="20" fill="' + shirt + '"/><circle cx="50" cy="44" r="26" fill="' + skin + '"/>' + hair +
+      eyes(50, 46, 10) + cheeks(50, 55, 16) + smile(50, 56, 7) + (extra || '');
+  }
+  A.mom = person('#ffd9b8', '<path d="M22 50q-6-34 28-34t28 34q-4 24 6 34H16q10-10 6-34z" fill="#ff7eb6" opacity="0"/><path d="M24 46q0-28 26-28t26 28q-8-16-26-16t-26 16z" fill="#e0605e"/><path d="M24 44q-6 22 0 40h8V48zM76 44q6 22 0 40h-8V48z" fill="#e0605e"/>', '#ff7eb6',
+    '<path d="M38 18q12-8 24 0l-4 6H42z" fill="#ffd23f"/><circle cx="50" cy="16" r="3" fill="#ff5a8a"/>');
+  A.dad = person('#f5c79a', '<path d="M24 42q0-26 26-26t26 26q-6-10-26-12-20 2-26 12z" fill="#5b3fa8"/>', '#4d96ff',
+    '<path d="M38 64q12 8 24 0" stroke="#5b3fa8" stroke-width="0"/><rect x="34" y="40" width="14" height="10" rx="4" fill="none" stroke="' + INK + '" stroke-width="2"/><rect x="52" y="40" width="14" height="10" rx="4" fill="none" stroke="' + INK + '" stroke-width="2"/><path d="M48 44h4" stroke="' + INK + '" stroke-width="2"/>');
+  A.child = person('#ffe0c2', '<path d="M26 40q4-24 24-24t24 24q-10-8-16-4-6-8-14 0-8-4-18 4z" fill="#ff9f1c"/><path d="M50 16q4-10 10-6" stroke="#ff9f1c" stroke-width="4" fill="none" stroke-linecap="round"/>', '#3ddc84',
+    '<path d="M36 80l6 8M64 80l-6 8" stroke="#ffd23f" stroke-width="5" stroke-linecap="round"/>');
+})(window.ART);
+
+/* ---- art3.js ---- */
+/* Inline SVG art — part 3: things & nature. */
+(function (A) {
+  var h = A._h, INK = h.INK, eyes = h.eyes, smile = h.smile, face = h.face;
+
+  A.house = '<path d="M10 50L50 14l40 36z" fill="#ff5a5f"/><rect x="20" y="48" width="60" height="44" rx="4" fill="#ffd23f"/><rect x="42" y="64" width="16" height="28" rx="8" fill="#9b5de5"/>' +
+    '<rect x="26" y="56" width="12" height="12" rx="2" fill="#9fd8ff"/><rect x="62" y="56" width="12" height="12" rx="2" fill="#9fd8ff"/><rect x="66" y="22" width="9" height="18" fill="#ff9f1c"/><circle cx="54" cy="79" r="1.8" fill="#ffd23f"/>';
+  A.mountain = '<circle cx="78" cy="22" r="10" fill="#ffd23f"/><path d="M4 90L38 26l22 38 10-14 26 40z" fill="#7b8cde"/><path d="M38 26l-10 18 6-2 4 6 5-6 6 4z" fill="#fff"/><path d="M0 90h100v10H0z" fill="#3ddc84"/>';
+  A.rose = '<path d="M50 54v40" stroke="#2aa866" stroke-width="5"/><path d="M50 76q-16-2-18-14 14 0 18 14zM50 70q14-4 18-14-14 0-18 14z" fill="#3ddc84"/>' +
+    '<circle cx="50" cy="36" r="22" fill="#ff4d6d"/><path d="M50 22q12 4 8 16-6 8-14 2-4-8 6-10" stroke="#c9184a" stroke-width="3" fill="none"/><path d="M34 30q4 18 18 22M66 28q0 18-14 24" stroke="#c9184a" stroke-width="2.5" fill="none"/>';
+  A.flower = '<path d="M50 56v38" stroke="#2aa866" stroke-width="5"/><path d="M50 80q-16-2-18-14 14 0 18 14z" fill="#3ddc84"/>' +
+    [0, 72, 144, 216, 288].map(function (d) { return '<ellipse cx="50" cy="22" rx="11" ry="16" fill="#ff7eb6" transform="rotate(' + d + ' 50 38)"/>'; }).join('') +
+    '<circle cx="50" cy="38" r="12" fill="#ffd23f"/>' + eyes(50, 36, 4, 2) + smile(50, 41, 3);
+  A.sun = (function () { var r = ''; for (var i = 0; i < 12; i++) r += '<rect x="47" y="2" width="6" height="16" rx="3" fill="#ff9f1c" transform="rotate(' + (i * 30) + ' 50 50)"/>'; return r; })() +
+    '<circle cx="50" cy="50" r="28" fill="#ffd23f"/>' + face(50, 46, 10);
+  A.moon = '<path d="M62 10a40 40 0 1 0 28 62A32 32 0 0 1 62 10z" fill="#ffe066"/>' + h.eye(36, 46, 4) + h.eye(52, 50, 4) + smile(44, 60, 6) +
+    '<path d="M80 18l2 5 5 1-5 2-2 5-2-5-5-2 5-1z" fill="#ffd23f"/><circle cx="88" cy="40" r="2.5" fill="#ffd23f"/>';
+  A.star = '<path d="M50 6l13 28 30 3-23 20 7 30-27-16-27 16 7-30-23-20 30-3z" fill="#ffd23f" stroke="#ff9f1c" stroke-width="4" stroke-linejoin="round"/>' + face(50, 50, 9);
+  A.ball = '<circle cx="50" cy="52" r="38" fill="#4d96ff"/><path d="M12 52h76" stroke="#fff" stroke-width="8"/><path d="M50 14a38 38 0 0 1 0 76" fill="#ff5a5f" opacity=".0"/>' +
+    '<path d="M26 22a38 38 0 0 0 0 60" stroke="#ffd23f" stroke-width="8" fill="none"/><path d="M74 22a38 38 0 0 1 0 60" stroke="#ff5a5f" stroke-width="8" fill="none"/><circle cx="36" cy="32" r="6" fill="#fff" opacity=".6"/>';
+  A.heart = '<path d="M50 88S10 62 10 36a20 20 0 0 1 40-6 20 20 0 0 1 40 6c0 26-40 52-40 52z" fill="#ff4d6d"/>' + face(50, 46, 10) + '<ellipse cx="28" cy="32" rx="5" ry="8" fill="#fff" opacity=".5"/>';
+  A.car = '<path d="M8 62q0-12 12-12h8l12-16h26l14 16h6q8 0 8 12v8H8z" fill="#ff5a5f"/><path d="M34 48l8-10h10v10zM58 48V38h6l9 10z" fill="#9fd8ff"/>' +
+    '<circle cx="28" cy="72" r="11" fill="' + INK + '"/><circle cx="72" cy="72" r="11" fill="' + INK + '"/><circle cx="28" cy="72" r="4" fill="#ddd"/><circle cx="72" cy="72" r="4" fill="#ddd"/><circle cx="88" cy="58" r="3" fill="#ffd23f"/>';
+  A.train = '<rect x="8" y="40" width="50" height="34" rx="6" fill="#4d96ff"/><rect x="40" y="22" width="22" height="52" rx="5" fill="#ff5a5f"/><rect x="45" y="28" width="12" height="12" rx="2" fill="#9fd8ff"/>' +
+    '<path d="M62 50h22l8 24H62z" fill="#ffd23f"/><rect x="14" y="20" width="10" height="20" fill="' + INK + '"/><circle cx="18" cy="12" r="6" fill="#e0e0f5"/><circle cx="28" cy="6" r="4" fill="#e0e0f5"/>' +
+    '<circle cx="22" cy="80" r="9" fill="' + INK + '"/><circle cx="50" cy="80" r="9" fill="' + INK + '"/><circle cx="76" cy="80" r="9" fill="' + INK + '"/>';
+  A.tree = '<rect x="43" y="56" width="14" height="36" rx="5" fill="#d9a066"/><circle cx="50" cy="38" r="28" fill="#3ddc84"/><circle cx="30" cy="50" r="16" fill="#2fcf78"/><circle cx="70" cy="50" r="16" fill="#2fcf78"/>' +
+    '<circle cx="38" cy="32" r="4" fill="#ff5a5f"/><circle cx="62" cy="40" r="4" fill="#ff5a5f"/><circle cx="50" cy="22" r="4" fill="#ff5a5f"/>';
+  A.apple = '<path d="M50 28q-6-14 4-20" stroke="#2aa866" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M54 22q14-12 24 0-12 8-24 0z" fill="#3ddc84"/>' +
+    '<path d="M50 30c-14-10-40-6-40 22 0 24 18 42 30 40 6-1 8-3 10-3s4 2 10 3c12 2 30-16 30-40 0-28-26-32-40-22z" fill="#ff4d4d"/>' + face(50, 52, 10) + '<ellipse cx="28" cy="44" rx="5" ry="9" fill="#fff" opacity=".5"/>';
+  A.boat = '<path d="M50 12v52" stroke="' + INK + '" stroke-width="3"/><path d="M52 14l30 44H52z" fill="#fff" stroke="#e0dcf5" stroke-width="2"/><path d="M48 22L24 58h24z" fill="#ffd23f"/>' +
+    '<path d="M8 64h84l-12 20H20z" fill="#ff5a5f"/><path d="M0 88q12-6 25 0t25 0 25 0 25 0v12H0z" fill="#4d96ff"/>';
+  A.sea = '<rect width="100" height="100" rx="20" fill="#cfefff"/><circle cx="78" cy="24" r="10" fill="#ffd23f"/>' +
+    '<path d="M0 50q12-10 25 0t25 0 25 0 25 0v50H0z" fill="#4d96ff"/><path d="M0 68q12-10 25 0t25 0 25 0 25 0v32H0z" fill="#2e7bea"/><path d="M0 84q12-8 25 0t25 0 25 0 25 0v16H0z" fill="#1a5fc9"/>';
+  A.water = '<path d="M50 8C38 32 22 46 22 64a28 28 0 0 0 56 0c0-18-16-32-28-56z" fill="#4dc3ff"/>' + face(50, 64, 9) + '<ellipse cx="36" cy="56" rx="4" ry="8" fill="#fff" opacity=".6"/>';
+  A.log = '<rect x="10" y="36" width="70" height="36" rx="8" fill="#e5a964"/><path d="M20 46h30M30 60h40" stroke="#c98b4a" stroke-width="3" stroke-linecap="round"/>' +
+    '<ellipse cx="80" cy="54" rx="12" ry="18" fill="#ffd9a3"/><ellipse cx="80" cy="54" rx="7" ry="11" fill="none" stroke="#e5a964" stroke-width="2.5"/><ellipse cx="80" cy="54" rx="2.5" ry="4" fill="#e5a964"/>' +
+    '<path d="M36 36q0-14 12-14" stroke="#2aa866" stroke-width="3" fill="none"/><ellipse cx="50" cy="20" rx="6" ry="4" fill="#3ddc84"/>';
+  A.umbrella = '<path d="M50 50v30q0 10-10 10t-10-8" stroke="' + INK + '" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+    '<path d="M6 52a44 40 0 0 1 88 0q-7-8-14 0-8-8-15 0-7-8-15 0-7-8-15 0-7-8-15 0-7-8-14 0z" fill="#9b5de5"/><path d="M50 12q-14 20-15 40M50 12q14 20 15 40" stroke="#ff7eb6" stroke-width="4" fill="none"/>' +
+    '<path d="M20 14l-2 6M80 14l2 6M30 4l-2 6" stroke="#4dc3ff" stroke-width="3" stroke-linecap="round"/>';
+  A.clock = '<circle cx="22" cy="18" r="12" fill="#ffd23f"/><circle cx="78" cy="18" r="12" fill="#ffd23f"/><circle cx="50" cy="54" r="38" fill="#ff5a5f"/><circle cx="50" cy="54" r="30" fill="#fff"/>' +
+    '<path d="M50 54V34M50 54l14 8" stroke="' + INK + '" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="54" r="4" fill="' + INK + '"/>' +
+    [0, 90, 180, 270].map(function (d) { return '<rect x="48" y="27" width="4" height="7" rx="2" fill="#9b5de5" transform="rotate(' + d + ' 50 54)"/>'; }).join('');
+  A.cheese = '<path d="M8 70l76-40 8 14v34H8z" fill="#ffd23f"/><path d="M8 70h84v8H8z" fill="#f2b33d"/><path d="M8 70l76-40 8 14z" fill="#ffe680"/>' +
+    '<circle cx="30" cy="62" r="5" fill="#f2b33d"/><circle cx="66" cy="54" r="6" fill="#f2b33d"/><circle cx="80" cy="66" r="4" fill="#f2b33d"/>' + eyes(46, 60, 7, 3) + smile(46, 66, 4);
+  A.submarine = '<path d="M0 80q12-6 25 0t25 0 25 0 25 0" stroke="#9fd8ff" stroke-width="3" fill="none"/><rect x="40" y="22" width="18" height="18" rx="4" fill="#ff9f1c"/><path d="M50 22V10h10" stroke="' + INK + '" stroke-width="3" fill="none"/>' +
+    '<ellipse cx="48" cy="54" rx="40" ry="20" fill="#ffd23f"/><circle cx="32" cy="54" r="7" fill="#9fd8ff" stroke="#ff9f1c" stroke-width="3"/><circle cx="52" cy="54" r="7" fill="#9fd8ff" stroke="#ff9f1c" stroke-width="3"/>' +
+    '<path d="M88 46l10-8v32l-10-8z" fill="#ff9f1c"/><circle cx="20" cy="30" r="3" fill="none" stroke="#9fd8ff" stroke-width="2"/>';
+  A.egg = '<ellipse cx="50" cy="56" rx="30" ry="38" fill="#fff8e7" stroke="#f2e2b8" stroke-width="3"/>' + face(50, 58, 10) + '<ellipse cx="36" cy="38" rx="5" ry="9" fill="#fff" />';
+  A.plate = '<ellipse cx="50" cy="58" rx="44" ry="30" fill="#fff" stroke="#c9c2ee" stroke-width="3"/><ellipse cx="50" cy="58" rx="30" ry="19" fill="none" stroke="#9fd8ff" stroke-width="4"/>' +
+    '<circle cx="42" cy="54" r="7" fill="#ff5a5f"/><ellipse cx="58" cy="58" rx="9" ry="6" fill="#3ddc84"/><circle cx="50" cy="64" r="5" fill="#ffd23f"/>';
+  A.leaf = '<path d="M20 84Q14 30 80 14q8 56-60 70z" fill="#3ddc84"/><path d="M20 84Q46 50 72 24" stroke="#2aa866" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M40 60l-4-14M52 48l-2-14M40 60l14 2M52 48l14 0" stroke="#2aa866" stroke-width="3" stroke-linecap="round"/>';
+  /* พาน — footed offering tray with flowers */
+  A.tray = '<path d="M14 46h72l-8 12H22z" fill="#ffd23f"/><rect x="42" y="58" width="16" height="16" fill="#f2b33d"/><path d="M26 84l12-12h24l12 12z" fill="#ffd23f"/>' +
+    '<path d="M30 46q20-40 40 0z" fill="#ff7eb6"/><circle cx="40" cy="36" r="5" fill="#fff"/><circle cx="52" cy="28" r="5" fill="#fff"/><circle cx="60" cy="38" r="5" fill="#fff"/><circle cx="50" cy="16" r="5" fill="#ffd23f"/>';
+  A.tooth = '<path d="M24 26q0-16 16-16 6 0 10 4 4-4 10-4 16 0 16 16 0 16-6 30-4 30-12 30t-8-16q-2-4-4 0 0 16-8 16t-12-30q-6-14-6-30z" fill="#fff" stroke="#c9c2ee" stroke-width="3"/>' + face(50, 34, 9) + '<path d="M70 18l3 3M76 12l2 6" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/>';
+  A.ring = '<circle cx="50" cy="62" r="28" fill="none" stroke="#ffd23f" stroke-width="10"/><path d="M36 26l14-16 14 16-14 14z" fill="#7fdcff" stroke="#4d96ff" stroke-width="3"/>' +
+    '<path d="M18 20l2 5 5 1-5 2-2 5-2-5-5-2 5-1zM82 30l2 4 4 1-4 2-2 4-2-4-4-2 4-1z" fill="#ff7eb6"/>';
+  A.chest = '<path d="M12 46q0-26 38-26t38 26z" fill="#ff5a5f"/><rect x="12" y="46" width="76" height="40" rx="4" fill="#ff7a5f"/><path d="M12 46h76" stroke="#ffd23f" stroke-width="6"/>' +
+    '<path d="M28 22v64M72 22v64" stroke="#ffd23f" stroke-width="6"/><rect x="42" y="42" width="16" height="18" rx="4" fill="#ffd23f"/><circle cx="50" cy="51" r="3" fill="' + INK + '"/>' +
+    '<path d="M50 6l2 5 5 1-5 2-2 5-2-5-5-2 5-1z" fill="#ffd23f"/>';
+  A.basin = '<ellipse cx="50" cy="46" rx="42" ry="12" fill="#2e7bea"/><path d="M8 46q4 40 42 40t42-40" fill="#4d96ff"/><ellipse cx="50" cy="46" rx="34" ry="8" fill="#9fd8ff"/>' +
+    '<circle cx="36" cy="30" r="6" fill="none" stroke="#9fd8ff" stroke-width="2.5"/><circle cx="58" cy="22" r="8" fill="none" stroke="#9fd8ff" stroke-width="2.5"/><circle cx="70" cy="34" r="4" fill="none" stroke="#9fd8ff" stroke-width="2.5"/>' + eyes(50, 64, 10, 3.5) + smile(50, 72, 5);
+  A.mango = '<path d="M60 14q4-8 12-8" stroke="#2aa866" stroke-width="4" fill="none"/><path d="M62 14q16-6 22 6-14 4-22-6z" fill="#3ddc84"/>' +
+    '<path d="M60 16C30 14 12 40 18 66s40 30 56 10 14-58-14-60z" fill="#ffb627"/><path d="M60 16C76 20 86 40 74 76" stroke="#ff7a1c" stroke-width="0" fill="#ff9f1c" opacity=".5"/>' + face(46, 52, 9);
+  A.watermelon = '<path d="M6 40a44 44 0 0 0 88 0z" fill="#3ddc84"/><path d="M12 40a38 38 0 0 0 76 0z" fill="#fff"/><path d="M16 40a34 34 0 0 0 68 0z" fill="#ff4d6d"/>' +
+    '<ellipse cx="34" cy="52" rx="2.5" ry="4" fill="' + INK + '"/><ellipse cx="50" cy="62" rx="2.5" ry="4" fill="' + INK + '"/><ellipse cx="66" cy="52" rx="2.5" ry="4" fill="' + INK + '"/><ellipse cx="42" cy="66" rx="2" ry="3.5" fill="' + INK + '"/><ellipse cx="58" cy="66" rx="2" ry="3.5" fill="' + INK + '"/>';
+  A.cloud = '<path d="M24 78a18 18 0 0 1 0-36 24 24 0 0 1 46-6 20 20 0 0 1 8 42z" fill="#fff" stroke="#bfe0ff" stroke-width="3"/>' + face(50, 56, 10) +
+    '<path d="M30 86l-3 8M50 86l-3 8M70 86l-3 8" stroke="#4dc3ff" stroke-width="3" stroke-linecap="round"/>';
+  A.grapes = '<path d="M50 20q0-10 8-14" stroke="#2aa866" stroke-width="4" fill="none"/><path d="M52 16q18-10 26 2-14 6-26-2z" fill="#3ddc84"/>' +
+    [[38, 30], [54, 30], [70, 30], [30, 46], [46, 46], [62, 46], [38, 62], [54, 62], [46, 78]].map(function (p) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="10" fill="#9b5de5"/><circle cx="' + (p[0] - 3) + '" cy="' + (p[1] - 3) + '" r="3" fill="#fff" opacity=".5"/>'; }).join('');
+  A.shoe = '<path d="M10 70V40q0-8 8-8h18q4 14 20 16l26 6q12 4 12 16H10z" fill="#ff5a5f"/><path d="M8 70h86v10H8z" fill="#fff" stroke="#e0dcf5" stroke-width="2" rx="4"/>' +
+    '<path d="M38 40l8 8M44 36l8 8M50 34l8 8" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="22" cy="50" r="5" fill="#ffd23f"/>';
+})(window.ART);
+
+/* ---- icons.js ---- */
+/* UI icons, mode illustrations, stickers and the pic() helper. */
+(function (A) {
+  var h = A._h, INK = h.INK, eyes = h.eyes, smile = h.smile, face = h.face;
+  var I = window.ICON = {};
+  function svg(inner, cls, label) {
+    return '<svg viewBox="0 0 100 100" class="' + (cls || '') + '"' + (label ? ' role="img" aria-label="' + label + '"' : ' aria-hidden="true"') + '>' + inner + '</svg>';
+  }
+  window.svg = svg;
+  window.pic = function (name, cls) { return svg(A[name] || A.star, cls || 'pic', name); };
+
+  I.home = svg('<path d="M10 50L50 14l40 36" stroke="#ff5a5f" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 46v42h56V46L50 22z" fill="#fff"/><rect x="40" y="58" width="20" height="30" rx="8" fill="#4d96ff"/>');
+  I.star = svg(A.star.split('<circle')[0]);
+  I.speaker = svg('<path d="M12 38h16l22-18v60L28 62H12z" fill="#ff5a8a"/><path d="M62 34q10 16 0 32M72 24q18 26 0 52" stroke="#ff5a8a" stroke-width="7" fill="none" stroke-linecap="round"/>');
+  I.parent = svg('<circle cx="34" cy="28" r="12" fill="#4d96ff"/><path d="M14 72q0-30 20-30t20 30z" fill="#4d96ff"/><circle cx="68" cy="44" r="9" fill="#ff9f1c"/><path d="M54 78q0-22 14-22t14 22z" fill="#ff9f1c"/>' +
+    '<rect x="40" y="70" width="44" height="22" rx="4" fill="#ffd23f"/><path d="M62 70v22" stroke="#fff" stroke-width="3"/>');
+  I.next = svg('<circle cx="50" cy="50" r="44" fill="#fff" opacity=".0"/><path d="M30 20l36 30-36 30z" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"/>');
+  I.replay = svg('<path d="M74 34A30 30 0 1 0 80 56" stroke="#2b2350" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M64 14l18 22-28 4z" fill="#2b2350"/>');
+  I.note = svg('<path d="M38 70V22l40-8v48" stroke="#9b5de5" stroke-width="7" fill="none" stroke-linejoin="round"/><ellipse cx="28" cy="72" rx="13" ry="10" fill="#9b5de5"/><ellipse cx="68" cy="64" rx="13" ry="10" fill="#9b5de5"/>');
+  I.palette = svg('<path d="M50 10C24 10 8 30 8 50s16 38 34 38c8 0 10-6 6-12s0-12 8-12h14c14 0 22-8 22-20 0-20-20-34-42-34z" fill="#ffe0a3"/>' +
+    '<circle cx="30" cy="40" r="7" fill="#ff4d4d"/><circle cx="46" cy="26" r="7" fill="#ffd23f"/><circle cx="66" cy="28" r="7" fill="#3ddc84"/><circle cx="76" cy="46" r="7" fill="#4d96ff"/><circle cx="28" cy="62" r="7" fill="#9b5de5"/>');
+  I.paw = svg('<ellipse cx="50" cy="64" rx="22" ry="18" fill="#ff7eb6"/><circle cx="24" cy="40" r="9" fill="#ff7eb6"/><circle cx="40" cy="24" r="9" fill="#ff7eb6"/><circle cx="60" cy="24" r="9" fill="#ff7eb6"/><circle cx="76" cy="40" r="9" fill="#ff7eb6"/>');
+  I.book = svg('<rect x="12" y="12" width="76" height="80" rx="10" fill="#9b5de5"/><rect x="20" y="12" width="68" height="74" rx="8" fill="#ff7eb6"/>' +
+    '<circle cx="42" cy="38" r="12" fill="#ffd23f"/><path d="M62 30l4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1z" fill="#fff"/><rect x="32" y="58" width="22" height="20" rx="6" fill="#3ddc84"/><circle cx="68" cy="68" r="10" fill="#4dc3ff"/>');
+  I.check = svg('<path d="M20 52l20 20 40-44" stroke="#fff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>');
+
+  /* Mode illustrations */
+  I.mLetters = svg('<rect x="16" y="14" width="68" height="74" rx="20" fill="#fff"/><path d="M34 12l-4-10 10 6zM66 12l4-10-10 6z" fill="#ffd23f"/>' +
+    '<text x="50" y="74" text-anchor="middle" font-size="46" font-weight="900" fill="#ff5a8a" font-family="Arial,sans-serif">A</text>' + eyes(50, 32, 11, 5) +
+    '<path d="M84 20l3 6 6 1-5 4 2 6-6-3-6 3 2-6-5-4 6-1z" fill="#ffd23f"/>');
+  I.mBuilder = svg('<rect x="22" y="22" width="56" height="52" rx="22" fill="#ff9f1c"/><path d="M34 24l-8-18M66 24l8-18" stroke="#ff9f1c" stroke-width="5" stroke-linecap="round"/><circle cx="26" cy="6" r="6" fill="#ffd23f"/><circle cx="74" cy="6" r="6" fill="#ffd23f"/>' +
+    eyes(50, 42, 11, 6) + '<path d="M38 56q12 12 24 0z" fill="#fff"/>' +
+    '<rect x="6" y="74" width="26" height="24" rx="6" fill="#ffd23f"/><rect x="37" y="74" width="26" height="24" rx="6" fill="#ff5a8a"/><rect x="68" y="74" width="26" height="24" rx="6" fill="#4d96ff"/>');
+  I.mBubbles = svg('<circle cx="40" cy="54" r="34" fill="#cfefff" stroke="#fff" stroke-width="4"/><circle cx="28" cy="40" r="7" fill="#fff" opacity=".9"/>' + A.fish.replace(/<circle[^>]*stroke="#9fd8ff"[^>]*\/>/g, '').replace(/^/, '<g transform="translate(18 34) scale(.44)">') + '</g>' +
+    '<circle cx="80" cy="24" r="16" fill="#cfefff" stroke="#fff" stroke-width="3"/><circle cx="84" cy="66" r="10" fill="#cfefff" stroke="#fff" stroke-width="3"/>');
+  I.mStage = svg('<rect x="6" y="20" width="12" height="62" rx="5" fill="#ff4d4d"/><rect x="22" y="25" width="12" height="52" rx="5" fill="#ff9f1c"/><rect x="38" y="30" width="12" height="42" rx="5" fill="#ffd23f"/>' +
+    '<rect x="54" y="35" width="12" height="32" rx="5" fill="#3ddc84"/><rect x="70" y="40" width="12" height="22" rx="5" fill="#4d96ff"/><path d="M84 30l12-12M90 36l8-4" stroke="#fff" stroke-width="5" stroke-linecap="round"/>' +
+    '<circle cx="92" cy="14" r="6" fill="#fff"/>');
+
+  /* Sound-out badge mascot: a smiling star with a speech bubble feel */
+  I.badgeStar = svg(A.star);
+
+  /* Star jar with n stars inside (max shown 40) */
+  I.jar = function (n) {
+    var stars = '', shown = Math.min(n, 40);
+    for (var i = 0; i < shown; i++) {
+      var row = Math.floor(i / 5), col = i % 5, x = 24 + col * 13 + (row % 2) * 6, y = 136 - row * 12;
+      stars += '<path transform="translate(' + x + ' ' + y + ') scale(.16) translate(-50 -50)" d="M50 6l13 28 30 3-23 20 7 30-27-16-27 16 7-30-23-20 30-3z" fill="' + ['#ffd23f', '#ff9f1c', '#ff7eb6', '#4dc3ff', '#3ddc84'][i % 5] + '"/>';
+    }
+    return '<svg viewBox="0 0 100 160" aria-hidden="true"><rect x="28" y="6" width="44" height="14" rx="6" fill="#ff7eb6"/>' +
+      '<path d="M22 22h56q8 0 8 10v112q0 12-12 12H26q-12 0-12-12V32q0-10 8-10z" fill="#e8f7ff" stroke="#9fd8ff" stroke-width="4"/>' + stars +
+      '<path d="M24 34v100" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"/></svg>';
+  };
+
+  /* Stickers: 4 modes × 4 languages. Each is a framed character. */
+  var frames = { letters: '#ff7eb6', builder: '#4d96ff', bubbles: '#3ddc84', stage: '#9b5de5' };
+  var stickerPics = {
+    he: { letters: 'lion', builder: 'camel', bubbles: 'fish', stage: 'peacock' },
+    el: { letters: 'star', builder: 'dolphin', bubbles: 'seahorse', stage: 'butterfly' },
+    th: { letters: 'elephant', builder: 'turtle', bubbles: 'giant', stage: 'tiger' },
+    es: { letters: 'sun', builder: 'giraffe', bubbles: 'iguana', stage: 'bear' }
+  };
+  I.sticker = function (lang, mode) {
+    var p = (stickerPics[lang] || stickerPics.es)[mode];
+    return '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" fill="' + frames[mode] + '"/><circle cx="50" cy="50" r="40" fill="#fff"/>' +
+      '<g transform="translate(14 14) scale(.72)">' + (A[p] || A.star) + '</g>' +
+      '<path d="M84 8l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="#ffd23f"/></svg>';
+  };
+  I.modeIcon = { letters: I.mLetters, builder: I.mBuilder, bubbles: I.mBubbles, stage: I.mStage };
+})(window.ART);
+
+/* ---- audio.js ---- */
+/* Sound effects (Web Audio synth) + speech (Web Speech API) with a no-voice fallback badge. */
+(function () {
+  var ctx = null, master = null, muted = false;
+  function ensure() {
+    try {
+      if (!ctx) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        ctx = new AC();
+        master = ctx.createGain(); master.gain.value = 0.5; master.connect(ctx.destination);
+      }
+      if (ctx.state === 'suspended') ctx.resume().catch(function () {});
+      return ctx;
+    } catch (e) { return null; }
+  }
+  /* AudioContext only starts on a user gesture. */
+  ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) {
+    window.addEventListener(ev, function () { ensure(); }, { capture: true, passive: true });
+  });
+
+  function tone(freq, dur, type, vol, when, slideTo) {
+    try {
+      var c = ctx; if (!c || muted || c.state !== 'running') return;
+      var t = c.currentTime + (when || 0), o = c.createOscillator(), g = c.createGain();
+      o.type = type || 'sine'; o.frequency.setValueAtTime(freq, t);
+      if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol || 0.3, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
+    } catch (e) { /* ignore */ }
+  }
+  var SCALE = [523.25, 587.33, 659.25, 698.46, 783.99, 880.0, 987.77, 1046.5, 1174.66, 1318.51];
+  var S = window.SFX = {
+    ensure: ensure,
+    xylo: function (i) { var f = SCALE[i % SCALE.length]; tone(f, 0.9, 'sine', 0.35); tone(f * 4, 0.25, 'sine', 0.06); tone(f * 2.76, 0.4, 'triangle', 0.05); },
+    chime: function () { [0, 4, 7, 12].forEach(function (s, i) { tone(1046.5 * Math.pow(2, s / 12), 0.5, 'sine', 0.18, i * 0.07); }); },
+    pop: function () { tone(900, 0.12, 'sine', 0.35, 0, 180); tone(1600, 0.05, 'triangle', 0.12); },
+    star: function () { [0, 7, 12, 19].forEach(function (s, i) { tone(1318 * Math.pow(2, s / 12), 0.25, 'triangle', 0.1, i * 0.05); }); },
+    giggle: function () { [0, 1, 2, 3, 4].forEach(function (i) { tone(620 + (i % 2) * 180 + i * 40, 0.09, 'square', 0.05, i * 0.085, 540 + i * 30); }); },
+    boing: function () { tone(220, 0.35, 'sine', 0.3, 0, 520); tone(330, 0.2, 'triangle', 0.08, 0.05, 160); },
+    tap: function () { tone(740, 0.08, 'triangle', 0.15); },
+    win: function () { [0, 4, 7, 12, 7, 12, 16].forEach(function (s, i) { tone(523.25 * Math.pow(2, s / 12), 0.3, i < 4 ? 'triangle' : 'sine', 0.2, i * 0.11); }); },
+    animal: function () { tone(330, 0.25, 'sawtooth', 0.06, 0, 440); tone(440, 0.3, 'triangle', 0.12, 0.2, 300); },
+    mute: function (m) { muted = !!m; }
+  };
+
+  /* ---------------- Speech ---------------- */
+  var voices = [];
+  function loadVoices() {
+    try { if (window.speechSynthesis) voices = window.speechSynthesis.getVoices() || []; } catch (e) { voices = []; }
+  }
+  try {
+    if (window.speechSynthesis) {
+      loadVoices();
+      if (window.speechSynthesis.addEventListener) window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+      else window.speechSynthesis.onvoiceschanged = loadVoices;
+      setTimeout(loadVoices, 600); setTimeout(loadVoices, 2000);
+    }
+  } catch (e) { /* ignore */ }
+
+  var PREFER = { he: ['he-IL', 'iw-IL'], el: ['el-GR'], th: ['th-TH'], es: ['es-ES', 'es-MX', 'es-US'] };
+  function norm(l) { return String(l || '').replace('_', '-').toLowerCase(); }
+  function findVoice(code) {
+    if (!voices.length) loadVoices();
+    var D = (window.LPW_DATA || {})[code]; if (!D) return null;
+    var prefs = (PREFER[code] || []).map(norm), i, v;
+    for (i = 0; i < prefs.length; i++) {
+      for (var j = 0; j < voices.length; j++) if (norm(voices[j].lang) === prefs[i]) return voices[j];
+    }
+    for (i = 0; i < voices.length; i++) {
+      v = norm(voices[i].lang);
+      for (var k = 0; k < D.speech.length; k++) if (v === D.speech[k] || v.indexOf(D.speech[k] + '-') === 0) return voices[i];
+    }
+    return null;
+  }
+
+  var badgeTimer = null;
+  function showBadge(native, tr, dir) {
+    try {
+      var b = document.getElementById('badge'); if (!b) return;
+      b.innerHTML = (window.ICON ? ICON.badgeStar : '') + '<div class="bw"><span>' + esc(tr || native) + '</span>' +
+        (tr && native ? '<small dir="' + (dir || 'ltr') + '">' + esc(native) + '</small>' : '') + '</div>';
+      b.classList.add('show'); b.setAttribute('data-shown', '1');
+      clearTimeout(badgeTimer);
+      badgeTimer = setTimeout(function () { b.classList.remove('show'); }, 2400);
+    } catch (e) { /* ignore */ }
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  var Speech = window.SPEECH = {
+    hasVoice: function (code) { return !!findVoice(code); },
+    voiceName: function (code) { var v = findVoice(code); return v ? v.name + ' (' + v.lang + ')' : ''; },
+    /* items: [{text, tr}] spoken in order in language `code`. Never uses a wrong-language voice. */
+    say: function (code, items, opts) {
+      opts = opts || {};
+      if (!Array.isArray(items)) items = [items];
+      var D = (window.LPW_DATA || {})[code] || {};
+      var v = findVoice(code);
+      var trs = items.map(function (it) { return it.tr || it.text; }).join(' · ');
+      var natives = items.map(function (it) { return it.text; }).join(' · ');
+      if (!v || !window.speechSynthesis || !window.SpeechSynthesisUtterance) {
+        if (!opts.quiet) S.chime();
+        showBadge(natives, trs, D.dir);
+        return false;
+      }
+      try {
+        var ss = window.speechSynthesis;
+        if (!opts.queue) ss.cancel();
+        items.forEach(function (it) {
+          var u = new SpeechSynthesisUtterance(it.text);
+          u.voice = v; u.lang = v.lang; u.rate = opts.rate || 0.8; u.pitch = 1.1; u.volume = 1;
+          ss.speak(u);
+        });
+        if (document.body.classList.contains('parent-on')) showBadge(natives, trs, D.dir);
+        return true;
+      } catch (e) {
+        showBadge(natives, trs, D.dir);
+        return false;
+      }
+    },
+    badge: showBadge
+  };
+})();
+
+/* ---- core.js ---- */
+/* Core: persistent store, stars, stickers, effects, small DOM helpers. */
+(function () {
+  var KEY = 'littlePhonicsWorld.v1';
+  var MODES_LIST = ['letters', 'builder', 'bubbles', 'stage'];
+  var NEED = { letters: 5, builder: 1, bubbles: 3, stage: 10 }; /* actions to unlock a sticker */
+  var memory = null;
+
+  function fresh() { return { stars: 0, lang: 'he', parent: false, prog: {}, stickers: {} }; }
+  function load() {
+    var s = null;
+    try { var raw = window.localStorage && window.localStorage.getItem(KEY); if (raw) s = JSON.parse(raw); } catch (e) { s = null; }
+    if (!s && memory) s = JSON.parse(memory);
+    var f = fresh();
+    if (!s || typeof s !== 'object') return f;
+    Object.keys(f).forEach(function (k) { if (s[k] === undefined) s[k] = f[k]; });
+    return s;
+  }
+  var ST = load();
+  function save() {
+    var raw = JSON.stringify(ST);
+    memory = raw;
+    try { if (window.localStorage) window.localStorage.setItem(KEY, raw); } catch (e) { /* private mode / file:// — keep in memory */ }
+  }
+
+  function el(tag, attrs, html) {
+    var e = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'class') e.className = attrs[k];
+      else if (k === 'style') e.style.cssText = attrs[k];
+      else if (k.indexOf('on') === 0) e.addEventListener(k.slice(2), attrs[k]);
+      else e.setAttribute(k, attrs[k]);
+    });
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function reduced() { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
+  function restart(node, cls) { if (!node) return; node.classList.remove(cls); void node.offsetWidth; node.classList.add(cls); }
+
+  var COLORS = ['#ff5a8a', '#ff9f1c', '#4d96ff', '#3ddc84', '#9b5de5', '#2ec4b6', '#ff5a5f', '#f7b801'];
+
+  function confetti(n) {
+    if (reduced()) return;
+    var fx = document.getElementById('fx'); if (!fx) return;
+    n = n || 60;
+    for (var i = 0; i < n; i++) {
+      var c = el('div', { class: 'confetti' });
+      c.style.left = (Math.random() * 100) + 'vw';
+      c.style.background = COLORS[i % COLORS.length];
+      c.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+      c.style.setProperty('--rot', (Math.random() * 900 - 450) + 'deg');
+      c.style.animationDelay = (Math.random() * 0.4) + 's';
+      if (i % 3 === 0) c.style.borderRadius = '50%';
+      fx.appendChild(c);
+      (function (c) { setTimeout(function () { c.remove(); }, 2600); })(c);
+    }
+  }
+  function burst(x, y) {
+    if (reduced()) return;
+    var fx = document.getElementById('fx'); if (!fx) return;
+    for (var i = 0; i < 14; i++) {
+      var a = i / 14 * Math.PI * 2, b = el('div', { class: 'burst' });
+      b.style.left = x + 'px'; b.style.top = y + 'px'; b.style.background = COLORS[i % COLORS.length];
+      b.style.setProperty('--dx', Math.cos(a) * 80 + 'px'); b.style.setProperty('--dy', Math.sin(a) * 80 + 'px');
+      fx.appendChild(b);
+      (function (b) { setTimeout(function () { b.remove(); }, 800); })(b);
+    }
+  }
+  function center(node) {
+    if (!node || !node.getBoundingClientRect) return { x: innerWidth / 2, y: innerHeight / 2 };
+    var r = node.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+
+  function renderStars() {
+    var sc = document.getElementById('starCount');
+    if (sc) { sc.innerHTML = ICON.star + '<span id="starNum">' + ST.stars + '</span>'; restart(sc, 'bump'); }
+  }
+  function addStar(fromNode, n) {
+    n = n || 1;
+    ST.stars += n; save();
+    try { SFX.star(); } catch (e) { /* ignore */ }
+    var fx = document.getElementById('fx'), sc = document.getElementById('starCount');
+    if (fx && sc && !reduced()) {
+      var a = center(fromNode), b = center(sc), s = el('div', { class: 'flystar' }, ICON.star);
+      s.style.left = (a.x - 28) + 'px'; s.style.top = (a.y - 28) + 'px';
+      s.style.setProperty('--tx', (b.x - a.x) + 'px'); s.style.setProperty('--ty', (b.y - a.y) + 'px');
+      fx.appendChild(s);
+      setTimeout(function () { s.remove(); renderStars(); }, 900);
+    } else renderStars();
+    renderStars();
+  }
+
+  /* Count an action for (lang, mode); unlock that sticker when the goal is reached. */
+  function progress(mode, key) {
+    var L = ST.lang, p = ST.prog[L] = ST.prog[L] || {};
+    if (mode === 'letters') {
+      p.letters = p.letters || [];
+      if (p.letters.indexOf(key) < 0) p.letters.push(key);
+      var count = p.letters.length;
+    } else { p[mode] = (p[mode] || 0) + 1; count = p[mode]; }
+    save();
+    var id = L + '-' + mode;
+    if (!ST.stickers[id] && count >= NEED[mode]) {
+      ST.stickers[id] = Date.now(); save();
+      setTimeout(function () { stickerToast(L, mode); }, 700);
+      return true;
+    }
+    return false;
+  }
+  function stickerToast(L, mode) {
+    var fx = document.getElementById('fx'); if (!fx) return;
+    var t = el('div', { class: 'stk-toast', style: 'position:fixed;left:50%;top:50%;width:min(240px,60vw);transform:translate(-50%,-50%);animation:pop .6s cubic-bezier(.3,1.6,.5,1);filter:drop-shadow(0 12px 20px rgba(43,35,80,.3))' }, ICON.sticker(L, mode));
+    fx.appendChild(t);
+    try { SFX.win(); } catch (e) { /* ignore */ }
+    confetti(90);
+    setTimeout(function () { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; }, 1800);
+    setTimeout(function () { t.remove(); }, 2300);
+  }
+
+  window.LPWCore = {
+    ST: ST, save: save, el: el, esc: esc, shuffle: shuffle, restart: restart, reduced: reduced,
+    confetti: confetti, burst: burst, center: center, addStar: addStar, renderStars: renderStars,
+    progress: progress, MODES_LIST: MODES_LIST, NEED: NEED, COLORS: COLORS,
+    D: function () { return window.LPW_DATA[ST.lang]; },
+    /* say a native word (+ transliteration fallback) in the current language */
+    say: function (items, opts) { return SPEECH.say(ST.lang, items, opts); }
+  };
+  window.MODES = window.MODES || {};
+})();
+
+/* ---- mode-letters.js ---- */
+/* Mode 1 — Letter & Sound Factory: tap a letter-character, it dances, speaks, and its picture pops. */
+(function () {
+  var C = window.LPWCore;
+  function la(D) { return 'lang="' + D.code + '" dir="' + D.dir + '"'; }
+  window.LPWla = la;
+
+  MODES.letters = {
+    title: 'Letter & Sound Factory',
+    render: function (root, D) {
+      root.innerHTML = '<div class="screen-title"><span class="ico">' + ICON.mLetters + '</span><h1>' + this.title + '</h1></div>';
+      var wrap = C.el('div', { class: 'factory' });
+      var grid = C.el('div', { class: 'letter-grid', id: 'letterGrid' });
+      var spot = C.el('div', { class: 'spot', id: 'spot', style: '--c:' + D.color });
+      spot.innerHTML = '<div class="hint">' + ICON.mLetters + '</div>' +
+        '<div class="bigch" ' + la(D) + '>' + C.esc(D.letters[0].ch) + '</div>' +
+        '<div class="ptxt parent">Tap any letter friend: it says its name and a word that starts with it.</div>';
+      var seen = ((C.ST.prog[D.code] || {}).letters) || [];
+      D.letters.forEach(function (L, i) {
+        var col = C.COLORS[i % C.COLORS.length];
+        var b = C.el('button', {
+          class: 'lcard' + (seen.indexOf(L.ch) >= 0 ? ' seen' : ''), style: '--c:' + col, 'data-i': i,
+          'aria-label': L.nameTr + ' — ' + L.en
+        });
+        b.innerHTML = (i % 3 === 1 ? '<span class="horn l"></span><span class="horn r"></span>' : '') +
+          '<span class="face"><span class="eye"></span><span class="mouth"></span><span class="eye"></span></span>' +
+          '<span class="ch" ' + la(D) + '>' + C.esc(L.ch) + '</span>';
+        b.addEventListener('click', function () { tapLetter(b, L, D, col); });
+        grid.appendChild(b);
+      });
+      wrap.appendChild(grid); wrap.appendChild(spot);
+      root.appendChild(wrap);
+    }
+  };
+
+  function tapLetter(btn, L, D, col) {
+    try { SFX.tap(); } catch (e) { /* ignore */ }
+    C.restart(btn, 'dance');
+    btn.classList.add('seen');
+    var spot = document.getElementById('spot');
+    spot.style.setProperty('--c', col);
+    spot.innerHTML =
+      '<div class="row"><div class="bigch" ' + la(D) + '>' + C.esc(L.ch) + '</div>' + pic(L.pic, 'pic') + '</div>' +
+      '<div class="word" ' + la(D) + '>' + C.esc(L.word) + '</div>' +
+      (L.syl ? '<div class="syl">' + C.esc(L.syl) + '</div>' : '') +
+      '<div class="ptxt parent"><b>' + C.esc(L.nameTr) + '</b> · sound: <b>' + C.esc(L.snd) + '</b><br>' +
+      C.esc(L.word) + ' = <i>' + C.esc(L.tr) + '</i> — “' + C.esc(L.en) + '”</div>' +
+      '<button class="roundbtn speak" id="replayLetter" aria-label="Hear again">' + ICON.speaker + '</button>';
+    var speakIt = function () {
+      var items = [{ text: L.name, tr: L.nameTr }, { text: L.word, tr: L.tr }];
+      if (L.syl && D.code === 'es') items.splice(1, 0, { text: L.syl.split('-').join(', '), tr: L.syl });
+      C.say(items);
+    };
+    document.getElementById('replayLetter').addEventListener('click', function (e) { e.stopPropagation(); speakIt(); });
+    speakIt();
+    C.addStar(btn);
+    C.progress('letters', L.ch);
+    if (window.innerWidth <= 900 && spot.scrollIntoView) {
+      try { spot.scrollIntoView({ behavior: C.reduced() ? 'auto' : 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ }
+    }
+  }
+})();
+
+/* ---- mode-builder.js ---- */
+/* Mode 2 — Word Builder Monsters: tap or drag silly letter tiles into glowing slots. */
+(function () {
+  var C = window.LPWCore;
+  var order = {}, pos = {};
+
+  function base(t) { try { return t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); } catch (e) { return t; } }
+  function tileSay(D, W, k) {
+    var t = W.tiles[k];
+    if (W.say && W.say[k]) return W.say[k];
+    return D.tileSay[t] || D.tileSay[base(t)] || t;
+  }
+  function tileTr(D, t) { return (D.tileTr || {})[t] || (D.tileTr || {})[base(t)] || t; }
+
+  function current(D) {
+    if (!order[D.code]) { order[D.code] = C.shuffle(D.words.map(function (_, i) { return i; })); pos[D.code] = 0; }
+    return D.words[order[D.code][pos[D.code] % D.words.length]];
+  }
+
+  MODES.builder = {
+    title: 'Word Builder Monsters',
+    next: function () { var D = C.D(); current(D); pos[D.code]++; },
+    render: function (root, D) {
+      var W = current(D), la = window.LPWla(D), done = false;
+      root.innerHTML = '<div class="screen-title"><span class="ico">' + ICON.mBuilder + '</span><h1>' + this.title + '</h1></div>';
+      var box = C.el('div', { class: 'builder' + (D.code === 'th' ? ' th' : ''), id: 'builder' });
+      box.innerHTML =
+        '<div class="target"><div class="pic" id="bPic">' + pic(W.pic, '') + '</div>' +
+        '<button class="roundbtn speak" id="bSay" aria-label="Hear the word">' + ICON.speaker + '</button></div>' +
+        '<div class="ptxt parent" style="text-align:center"><span ' + la + '>' + C.esc(W.w) + '</span> = <i>' + C.esc(W.tr) + '</i> — “' + C.esc(W.en) + '”' +
+        (D.dir === 'rtl' ? ' · Hebrew reads right → left: the first letter goes in the right-most slot.' : '') + '</div>' +
+        '<div class="slots" id="slots" ' + la + '></div><div class="tray" id="tray" ' + la + '></div>' +
+        '<div class="row" id="bNext" style="min-height:96px"></div>';
+      root.appendChild(box);
+      var slotsEl = box.querySelector('#slots'), tray = box.querySelector('#tray');
+      W.tiles.forEach(function (t, k) {
+        slotsEl.appendChild(C.el('div', { class: 'slot', 'data-t': t, 'data-k': k }, C.esc(t)));
+      });
+      var tileOrder = C.shuffle(W.tiles.map(function (_, k) { return k; }));
+      if (W.tiles.length > 1 && tileOrder.every(function (v, i) { return v === i; })) tileOrder.reverse();
+      tileOrder.forEach(function (k, n) {
+        var t = W.tiles[k];
+        var tile = C.el('button', { class: 'tile', 'data-t': t, 'data-k': k, style: '--c:' + C.COLORS[(n + 2) % C.COLORS.length], 'aria-label': tileTr(D, t) },
+          '<span class="ant l"></span><span class="ant r"></span><span class="tch">' + C.esc(t) + '</span><span class="te"><i></i><i></i></span>');
+        attachDrag(tile, function (target) { return tryPlace(tile, target); }, function () { speakTile(k); });
+        tray.appendChild(tile);
+      });
+      markNext();
+      box.querySelector('#bSay').addEventListener('click', function () { sayWord(); });
+      setTimeout(function () { if (document.body.contains(box)) sayWord(); }, 350);
+
+      function sayWord() { C.say([{ text: W.w, tr: W.tr }]); }
+      function speakTile(k) { C.say([{ text: tileSay(D, W, k), tr: tileTr(D, W.tiles[k]) }], { quiet: true }); }
+      function nextSlot() { return slotsEl.querySelector('.slot:not(.filled)'); }
+      function markNext() {
+        slotsEl.querySelectorAll('.slot').forEach(function (s) { s.classList.remove('next'); });
+        var n = nextSlot(); if (n) n.classList.add('next');
+      }
+      /* target: a slot element (drag) or null (tap = next empty slot) */
+      function tryPlace(tile, target) {
+        if (done) return false;
+        var slot = target || nextSlot();
+        try { SFX.tap(); } catch (e) { /* ignore */ }
+        if (slot && !slot.classList.contains('filled') && slot.getAttribute('data-t') === tile.getAttribute('data-t')) {
+          slot.classList.add('filled'); slot.style.setProperty('--c', tile.style.getPropertyValue('--c'));
+          slot.textContent = tile.getAttribute('data-t');
+          tile.classList.add('used');
+          speakTile(+slot.getAttribute('data-k'));
+          markNext();
+          if (!nextSlot()) complete();
+          return true;
+        }
+        try { SFX.boing(); } catch (e) { /* ignore */ }
+        C.restart(tile, 'no');
+        return false;
+      }
+      function complete() {
+        done = true;
+        var items = [];
+        if (W.syl && W.syl.length > 1) items.push({ text: W.syl.join(', '), tr: W.syl.join(' - ') });
+        items.push({ text: W.w, tr: W.tr });
+        setTimeout(function () { C.say(items, { quiet: true }); }, 450);
+        try { SFX.win(); } catch (e) { /* ignore */ }
+        C.confetti(80);
+        C.restart(box.querySelector('#bPic'), 'win');
+        C.addStar(box.querySelector('#bPic'), 2);
+        C.progress('builder');
+        box.setAttribute('data-done', '1');
+        var nb = C.el('button', { class: 'roundbtn go', id: 'nextWord', 'aria-label': 'Next word' }, ICON.next);
+        nb.addEventListener('click', function () { MODES.builder.next(); window.LPWApp.go('builder'); });
+        box.querySelector('#bNext').appendChild(nb);
+      }
+    }
+  };
+
+  /* Pointer-event drag that also works with touch. Short press without movement = tap. */
+  function attachDrag(tile, place, onTapSound) {
+    var sx = 0, sy = 0, dragging = false, active = false, pid = null, hover = null;
+    tile.addEventListener('pointerdown', function (e) {
+      if (tile.classList.contains('used')) return;
+      active = true; dragging = false; sx = e.clientX; sy = e.clientY; pid = e.pointerId;
+      try { tile.setPointerCapture(pid); } catch (er) { /* ignore */ }
+    });
+    tile.addEventListener('pointermove', function (e) {
+      if (!active) return;
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!dragging && Math.abs(dx) + Math.abs(dy) > 10) { dragging = true; tile.classList.add('drag'); onTapSound(); }
+      if (dragging) {
+        tile.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(1.12)';
+        var s = slotAt(e.clientX, e.clientY);
+        if (s !== hover) { if (hover) hover.classList.remove('hover'); hover = s; if (s) s.classList.add('hover'); }
+      }
+    });
+    function end(e, cancelled) {
+      if (!active) return;
+      active = false;
+      try { tile.releasePointerCapture(pid); } catch (er) { /* ignore */ }
+      if (hover) hover.classList.remove('hover');
+      var wasDrag = dragging; dragging = false;
+      tile.classList.remove('drag'); tile.style.transform = '';
+      if (cancelled) return;
+      if (wasDrag) { var s = slotAt(e.clientX, e.clientY); if (s) place(s); else { try { SFX.boing(); } catch (er) { /* ignore */ } } }
+      else place(null);
+      hover = null;
+    }
+    tile.addEventListener('pointerup', function (e) { end(e, false); });
+    tile.addEventListener('pointercancel', function (e) { end(e, true); });
+    tile.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); place(null); } });
+  }
+  function slotAt(x, y) {
+    var slots = document.querySelectorAll('#slots .slot');
+    for (var i = 0; i < slots.length; i++) {
+      var r = slots[i].getBoundingClientRect();
+      if (x >= r.left - 12 && x <= r.right + 12 && y >= r.top - 12 && y <= r.bottom + 12) return slots[i];
+    }
+    return null;
+  }
+})();
+
+/* ---- mode-bubbles.js ---- */
+/* Mode 3 — Listen & Pop Bubble Hunt: hear a word, pop the matching picture bubble. No timers, no lives. */
+(function () {
+  var C = window.LPWCore;
+  var last = {};
+
+  function pool(D) {
+    var seen = {}, out = [];
+    D.animals.concat(D.letters.map(function (L) { return { w: L.word, tr: L.tr, en: L.en, pic: L.pic }; })).forEach(function (it) {
+      if (!seen[it.pic]) { seen[it.pic] = 1; out.push(it); }
+    });
+    return out;
+  }
+
+  MODES.bubbles = {
+    title: 'Listen & Pop Bubble Hunt',
+    render: function (root, D) {
+      var la = window.LPWla(D), P = pool(D), target, opts, wrong = 0, solved = false;
+      do { target = P[Math.floor(Math.random() * P.length)]; } while (P.length > 1 && target.pic === last[D.code]);
+      last[D.code] = target.pic;
+      opts = C.shuffle([target].concat(C.shuffle(P.filter(function (p) { return p.pic !== target.pic; })).slice(0, 3)));
+
+      root.innerHTML = '<div class="screen-title"><span class="ico">' + ICON.mBubbles + '</span><h1>' + this.title + '</h1></div>';
+      var box = C.el('div', { class: 'listen', id: 'listen' });
+      box.innerHTML =
+        '<div class="ask"><button class="roundbtn speak" id="hear" aria-label="Hear the word">' + ICON.speaker + '</button>' +
+        '<div><div class="say" ' + la + '>' + C.esc(target.w) + '</div><div style="font-weight:800;color:#7a6fb0;font-size:18px">' + C.esc(target.tr) + '</div></div></div>' +
+        '<div class="ptxt parent" style="text-align:center">Find: <b>' + C.esc(target.en) + '</b>. Wrong taps just giggle — after two, the right bubble glows.</div>' +
+        '<div class="bubbles" id="bubbleBox" style="--n:' + opts.length + '"></div>';
+      root.appendChild(box);
+      var bb = box.querySelector('#bubbleBox');
+      opts.forEach(function (o) {
+        var b = C.el('button', { class: 'bubble', 'data-pic': o.pic, 'aria-label': o.en }, pic(o.pic, '') +
+          '<span class="cap parent ptxt" ' + la + '>' + C.esc(o.w) + '</span>');
+        if (o === target) b.setAttribute('data-ok', '1');
+        b.addEventListener('click', function () { choose(b, o); });
+        bb.appendChild(b);
+      });
+      function sayTarget() { C.say([{ text: target.w, tr: target.tr }]); }
+      box.querySelector('#hear').addEventListener('click', sayTarget);
+      setTimeout(function () { if (document.body.contains(box)) sayTarget(); }, 400);
+
+      function choose(b, o) {
+        if (solved) return;
+        if (o === target) {
+          solved = true;
+          try { SFX.pop(); } catch (e) { /* ignore */ }
+          var c = C.center(b); C.burst(c.x, c.y);
+          C.addStar(b);
+          b.classList.add('popped');
+          C.confetti(50);
+          C.say([{ text: target.w, tr: target.tr }], { quiet: true });
+          C.progress('bubbles');
+          box.setAttribute('data-solved', '1');
+          setTimeout(function () {
+            if (document.body.contains(box)) window.LPWApp.go('bubbles');
+          }, 1700);
+          return;
+        }
+        wrong++;
+        try { SFX.giggle(); } catch (e) { /* ignore */ }
+        C.restart(b, 'no');
+        var g = C.el('span', { class: 'giggle' }, '♪'); b.appendChild(g);
+        setTimeout(function () { g.remove(); }, 700);
+        if (wrong >= 2) {
+          var ok = bb.querySelector('[data-ok]');
+          setTimeout(function () {
+            sayTarget();
+            if (ok) { ok.classList.add('hint'); setTimeout(function () { ok.classList.remove('hint'); }, 2200); }
+          }, 500);
+        }
+      }
+    }
+  };
+})();
+
+/* ---- mode-stage.js ---- */
+/* Mode 4 — Rainbow Sound Stage (free play) + Sticker Book / Star Jar. */
+(function () {
+  var C = window.LPWCore;
+  var RAINBOW = ['#ff4d4d', '#ff7a1c', '#ff9f1c', '#ffd23f', '#a8e05f', '#3ddc84', '#2ec4b6', '#4d96ff', '#7b6cff', '#c86bff'];
+  var tabNow = 'numbers';
+
+  MODES.stage = {
+    title: 'Rainbow Sound Stage',
+    render: function (root, D) {
+      var la = window.LPWla(D);
+      root.innerHTML = '<div class="screen-title"><span class="ico">' + ICON.mStage + '</span><h1>' + this.title + '</h1></div>';
+      var tabs = C.el('div', { class: 'tabs', role: 'tablist' });
+      [['numbers', ICON.note, '1-10'], ['colors', ICON.palette, ''], ['animals', ICON.paw, '']].forEach(function (t) {
+        var b = C.el('button', { class: 'tab' + (tabNow === t[0] ? ' on' : ''), 'data-tab': t[0], role: 'tab', 'aria-label': t[0], 'aria-selected': String(tabNow === t[0]) },
+          t[1] + (t[2] ? '<span>' + t[2] + '</span>' : ''));
+        b.addEventListener('click', function () { tabNow = t[0]; try { SFX.tap(); } catch (e) { /* ignore */ } MODES.stage.render(root, D); });
+        tabs.appendChild(b);
+      });
+      root.appendChild(tabs);
+      var area = C.el('div', { id: 'stageArea' }), out = C.el('div', { class: 'stage-out', id: 'stageOut' });
+
+      function show(word, tr, en, extra) {
+        out.innerHTML = '<div class="w" ' + la + '>' + C.esc(word) + '</div>' + (extra || '') +
+          '<div class="ptxt parent" style="display:inline-block">' + C.esc(tr) + (en ? ' — “' + C.esc(en) + '”' : '') + '</div>';
+        if (document.body.classList.contains('parent-on')) out.querySelector('.parent').style.display = 'inline-block';
+      }
+      function count() { C.progress('stage'); var s = C.ST.prog[D.code].stage; if (s % 10 === 0) C.addStar(out); }
+
+      if (tabNow === 'numbers') {
+        var x = C.el('div', { class: 'xylo', id: 'xylo' });
+        D.numbers.forEach(function (n, i) {
+          var b = C.el('button', { class: 'bar', 'data-n': i + 1, style: '--c:' + RAINBOW[i] + ';--h:' + (100 - i * 5.5) + '%;--hp:' + (150 - i * 7) + 'px', 'aria-label': String(i + 1) },
+            '<i></i><span>' + (i + 1) + (D.digits ? '<br><small>' + D.digits[i] + '</small>' : '') + '</span><i></i>');
+          b.addEventListener('pointerdown', function () { C.restart(b, 'hit'); });
+          b.addEventListener('click', function () {
+            try { SFX.xylo(i); } catch (e) { /* ignore */ }
+            C.restart(b, 'hit');
+            setTimeout(function () { b.classList.remove('hit'); }, 160);
+            C.say([{ text: n.w, tr: n.tr }], { quiet: true });
+            var dots = '<div class="dots">';
+            for (var k = 0; k <= i; k++) dots += '<span style="animation-delay:' + (k * 0.05) + 's;display:block">' + ICON.star + '</span>';
+            show((D.digits ? D.digits[i] + ' · ' : (i + 1) + ' · ') + n.w, n.tr, String(i + 1), dots + '</div>');
+            count();
+          });
+          x.appendChild(b);
+        });
+        area.appendChild(x);
+      } else if (tabNow === 'colors') {
+        var sw = C.el('div', { class: 'swatches' });
+        D.colors.forEach(function (c, i) {
+          var b = C.el('button', { class: 'swatch', style: '--c:' + c.hex, 'aria-label': c.en }, svg(ART._h.face(50, 44, 12)));
+          b.addEventListener('click', function () {
+            try { SFX.xylo(i + 2); } catch (e) { /* ignore */ }
+            C.restart(b, 'dance');
+            C.say([{ text: c.w, tr: c.tr }], { quiet: true });
+            show(c.w, c.tr, c.en);
+            out.querySelector('.w').style.color = c.hex;
+            count();
+          });
+          sw.appendChild(b);
+        });
+        area.appendChild(sw);
+      } else {
+        var zoo = C.el('div', { class: 'zoo' });
+        D.animals.forEach(function (a) {
+          var b = C.el('button', { 'aria-label': a.en, 'data-pic': a.pic }, pic(a.pic, ''));
+          b.addEventListener('click', function () {
+            try { SFX.animal(); } catch (e) { /* ignore */ }
+            C.restart(b, 'dance');
+            C.say([{ text: a.w, tr: a.tr }], { quiet: true });
+            show(a.w, a.tr, a.en);
+            count();
+          });
+          zoo.appendChild(b);
+        });
+        area.appendChild(zoo);
+      }
+      root.appendChild(area); root.appendChild(out);
+    }
+  };
+
+  MODES.stickers = {
+    title: 'Sticker Book & Star Jar',
+    render: function (root) {
+      var ST = C.ST;
+      root.innerHTML = '<div class="screen-title"><span class="ico">' + ICON.book + '</span><h1>' + this.title + '</h1></div>';
+      var book = C.el('div', { class: 'book' });
+      var jar = C.el('div', { class: 'jar', id: 'jar' }, ICON.jar(ST.stars) + '<div class="n">' + ICON.star + '<span>' + ST.stars + '</span></div>');
+      var right = C.el('div');
+      var head = '<div class="stk-head">' + C.MODES_LIST.map(function (m) { return '<div>' + ICON.modeIcon[m] + '</div>'; }).join('') + '</div>';
+      var grid = '<div class="stickers" id="stickerGrid">';
+      ['he', 'el', 'th', 'es'].forEach(function (L) {
+        var D = LPW_DATA[L];
+        C.MODES_LIST.forEach(function (m, j) {
+          var got = !!ST.stickers[L + '-' + m];
+          grid += '<div class="stk' + (got ? '' : ' locked') + '" data-id="' + L + '-' + m + '" style="--c:' + D.color + ';animation-delay:' + (j * 0.06) + 's">' +
+            ICON.sticker(L, m) + '<span class="lg" lang="' + L + '"' + (D.dir === 'rtl' ? ' dir="rtl"' : '') + '>' + D.glyph + '</span></div>';
+        });
+      });
+      grid += '</div>';
+      right.innerHTML = head + grid +
+        '<div class="ptxt parent" style="margin-top:12px">Stickers unlock per language: Letters — tap ' + C.NEED.letters + ' different letters · Word Builder — finish ' +
+        C.NEED.builder + ' word · Bubble Hunt — pop ' + C.NEED.bubbles + ' right bubbles · Sound Stage — play ' + C.NEED.stage + ' notes. Progress is saved on this device.</div>';
+      book.appendChild(jar); book.appendChild(right);
+      root.appendChild(book);
+      root.querySelectorAll('.stk:not(.locked)').forEach(function (s) {
+        s.addEventListener('click', function () { try { SFX.chime(); } catch (e) { /* ignore */ } C.restart(s, 'dance'); });
+      });
+    }
+  };
+})();
+
+/* ---- app.js ---- */
+/* App shell: top bar, language switcher, parent toggle, home screen, navigation, test hook. */
+(function () {
+  var C = window.LPWCore, ST = C.ST;
+  var LANGS = ['he', 'el', 'th', 'es'];
+  var screen = document.getElementById('screen');
+  var mode = 'home';
+
+  function renderLangbar() {
+    var bar = document.getElementById('langbar');
+    bar.innerHTML = '';
+    LANGS.forEach(function (code) {
+      var D = LPW_DATA[code];
+      var b = C.el('button', {
+        class: 'pill' + (ST.lang === code ? ' on' : ''), 'data-lang': code, style: '--c:' + D.color,
+        'aria-label': D.en + ' — ' + D.name, 'aria-pressed': String(ST.lang === code), title: D.en
+      }, '<span class="glyph" style="background:' + D.color + '" lang="' + code + '"' + (D.dir === 'rtl' ? ' dir="rtl"' : '') + '>' + D.glyph + '</span>' +
+        '<span class="nm" lang="' + code + '"' + (D.dir === 'rtl' ? ' dir="rtl"' : '') + '>' + D.name + '</span>');
+      b.addEventListener('click', function () { setLang(code, true); });
+      bar.appendChild(b);
+    });
+  }
+
+  function setLang(code, greet) {
+    if (!LPW_DATA[code]) return false;
+    ST.lang = code; C.save();
+    document.documentElement.setAttribute('data-lang', code);
+    renderLangbar();
+    go(mode === 'stickers' ? 'stickers' : mode);
+    if (greet) {
+      try { SFX.chime(); } catch (e) { /* ignore */ }
+      var D = LPW_DATA[code];
+      C.say([{ text: D.hello, tr: D.helloTr }], { quiet: true });
+    }
+    return true;
+  }
+
+  function setParent(on) {
+    ST.parent = !!on; C.save();
+    document.body.classList.toggle('parent-on', ST.parent);
+    document.getElementById('parentBtn').setAttribute('aria-pressed', String(ST.parent));
+  }
+
+  function renderHome(root) {
+    var D = C.D();
+    root.innerHTML =
+      '<div class="hello"><div class="big" lang="' + D.code + '" dir="' + D.dir + '">' + C.esc(D.hello) + '</div>' +
+      '<div class="ptxt parent" style="display:inline-block">' + C.esc(D.helloTr) + ' = “hello” in ' + D.en + '. Pick a game — every button is a picture, no reading needed.</div></div>';
+    var grid = C.el('div', { class: 'home-grid' });
+    [['letters', 'm-letters'], ['builder', 'm-builder'], ['bubbles', 'm-bubbles'], ['stage', 'm-stage']].forEach(function (m) {
+      var b = C.el('button', { class: 'mode-btn ' + m[1], 'data-mode': m[0], 'aria-label': MODES[m[0]].title },
+        ICON.modeIcon[m[0]] + '<span class="lbl">' + MODES[m[0]].title + '</span>');
+      b.addEventListener('click', function () { try { SFX.tap(); } catch (e) { /* ignore */ } go(m[0]); });
+      grid.appendChild(b);
+    });
+    root.appendChild(grid);
+    var sb = C.el('button', { class: 'sticker-btn', 'data-mode': 'stickers', 'aria-label': 'Sticker Book' }, ICON.book + '<span>Sticker Book</span>' + ICON.jar(ST.stars).replace('<svg', '<svg style="width:46px;height:74px"'));
+    sb.addEventListener('click', function () { try { SFX.tap(); } catch (e) { /* ignore */ } go('stickers'); });
+    root.appendChild(sb);
+  }
+
+  function go(name) {
+    if (name !== 'home' && !MODES[name]) name = 'home';
+    mode = name;
+    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+    screen.innerHTML = '';
+    screen.setAttribute('data-mode', name);
+    try {
+      if (name === 'home') renderHome(screen);
+      else MODES[name].render(screen, C.D());
+    } catch (e) {
+      screen.innerHTML = '';
+      if (window.console) console.warn('render failed', e);
+      renderHome(screen); mode = 'home';
+    }
+    window.scrollTo(0, 0);
+    return mode;
+  }
+
+  /* Boot */
+  document.getElementById('homeBtn').innerHTML = ICON.home;
+  document.getElementById('homeBtn').addEventListener('click', function () { try { SFX.tap(); } catch (e) { /* ignore */ } go('home'); });
+  document.getElementById('parentBtn').innerHTML = ICON.parent;
+  document.getElementById('parentBtn').addEventListener('click', function () { setParent(!ST.parent); try { SFX.tap(); } catch (e) { /* ignore */ } });
+  if (!LPW_DATA[ST.lang]) ST.lang = 'he';
+  setParent(ST.parent);
+  C.renderStars();
+  renderLangbar();
+  document.documentElement.setAttribute('data-lang', ST.lang);
+  go('home');
+
+  window.LPWApp = { go: go, setLang: setLang };
+  /* Small, harmless hook for automated tests. */
+  window.LPW = {
+    setLang: function (c) { return setLang(c, false); },
+    goMode: go,
+    setParent: setParent,
+    state: function () {
+      return { lang: ST.lang, mode: mode, stars: ST.stars, parent: ST.parent, stickers: Object.keys(ST.stickers),
+        voice: SPEECH.voiceName(ST.lang) || null };
+    },
+    langs: LANGS.slice(),
+    modes: ['home', 'letters', 'builder', 'bubbles', 'stage', 'stickers']
+  };
+})();
+
+</script>
+</body>
+</html>
