@@ -64,6 +64,28 @@
     return { key: k, src: BASE + k, lang: lang, text: m.text };
   }
 
+  /* Letter-card tap flow clips: English "is for <word>" (window.LPW_FOR = {en: {ch: {file, text}}}), the shared English
+     "is for" (audio/for/is-for.mp3) and English "which means <meaning>" (window.LPW_MEANS = {lang: {ch: {file, text}}}).
+     The standalone embeds audio/for (window.LPW_FOR_EMBED = {ch: data URI, 'is-for': data URI}); audio/means streams
+     from BASE like the other non-English clips. Each returns {key, src, lang, text} or null (skip that step). */
+  var FOR = window.LPW_FOR || {}, MEANS = window.LPW_MEANS || {}, FEMBED = window.LPW_FOR_EMBED || null;
+  function forMeta(lang, ch) { return own(FOR[lang], ch) ? FOR[lang][ch] : null; }
+  function meansMeta(lang, ch) { return own(MEANS[lang], ch) ? MEANS[lang][ch] : null; }
+  function forEntry(k, embedKey, text) {
+    if (FEMBED) return own(FEMBED, embedKey) ? { key: k, src: FEMBED[embedKey], lang: 'en', text: text } : null;
+    if (!REMOTE) return { key: k, src: './audio/' + k, lang: 'en', text: text };
+    if (remoteBlocked()) return null;
+    return { key: k, src: BASE + k, lang: 'en-remote', text: text };
+  }
+  function forClip(ch) { var m = forMeta('en', ch); return m ? forEntry('for/en/' + m.file, ch, m.text) : null; }
+  function isFor() { return forEntry('for/is-for.mp3', 'is-for', 'is for'); }
+  function means(lang, ch) {
+    var m = meansMeta(lang, ch);
+    if (!m || remoteBlocked()) return null;
+    var k = 'means/' + lang + '/' + m.file;
+    return { key: k, src: BASE + k, lang: lang, text: m.text };
+  }
+
   function el() {
     if (audio) return audio;
     try { audio = new Audio(); } catch (e) { audio = null; return null; }
@@ -144,7 +166,8 @@
     has: has, src: src, text: function (k) { return TEXT[k] || ''; }, slug: slug, embedded: !!EMBED,
     play: play, run: run, stop: stopAll, later: later,
     native: native, nativeFile: nativeFile,
-    sound: sound, explain: explain, approved: approved, soundMeta: soundMeta, explainMeta: explainMeta, nativeBase: function () { return BASE; }, remote: REMOTE,
+    sound: sound, explain: explain, approved: approved, soundMeta: soundMeta, explainMeta: explainMeta,
+    forClip: forClip, isFor: isFor, means: means, forMeta: forMeta, meansMeta: meansMeta, nativeBase: function () { return BASE; }, remote: REMOTE,
     nativeLangs: function () { return Object.keys(NATIVE); },
     state: function () {
       return { playing: !!(audio && cur && !audio.paused && !audio.ended), key: cur ? cur.key : null,

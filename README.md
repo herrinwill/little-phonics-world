@@ -2,12 +2,12 @@
 
 A joyful, picture-first phonics and early-language game for little learners (ages 4+), made for a child who **can't read yet** to play with a grown-up reading along.
 
-It has **zero external dependencies**: no CDNs, web fonts or third-party requests. All pictures are inline SVG and sound effects are synthesised with the Web Audio API. **Each letter card has big Sound, Name and Word buttons** (plus **Explain in English** for Hebrew, Greek, Thai and Spanish); tapping a letter plays its sound twice, then its word. Sound credits are in the footer and Parent Info. **All 5 languages now have natural, pre-recorded native voices**: English (119 clips in `audio/en/`), Hebrew, Greek, Thai and Spanish (native neural voices in `audio/he/`, `audio/el/`, `audio/th/`, `audio/es/`).
+It has **zero external dependencies**: no CDNs, web fonts or third-party requests. All pictures are inline SVG and sound effects are synthesised with the Web Audio API. **Each letter card has big Sound, Name and Word buttons** (plus **Explain in English** for Hebrew, Greek, Thai and Spanish); tapping a letter card says its name, then its sound, then its word, with a short pause between each: in English "B … /b/ … is for bear"; in Hebrew, Greek, Thai and Spanish the name and sound in that language, then "is for" (in English), the native word, and "which means house" (in English). Tapping another letter or any button stops it at once. Sound credits are in the footer and Parent Info. **All 5 languages now have natural, pre-recorded native voices**: English (119 clips in `audio/en/`), Hebrew, Greek, Thai and Spanish (native neural voices in `audio/he/`, `audio/el/`, `audio/th/`, `audio/es/`).
 
 ## How to play
 
 - **Online:** open the GitHub Pages URL for this repository. It serves `index.html`, which loads every voice clip from `./audio/<language>/`.
-- **Offline / to share:** double-click `Little-Phonics-World.html`. It is a single file (about 2.4 MB) with every English voice clip (and Hoot's lines) embedded, so it works from `file://` with no internet and needs no other files. The Hebrew, Greek, Thai and Spanish voices are streamed from this game's website when you are online. Offline, those languages quietly fall back to the device voice or the sound-out badge.
+- **Offline / to share:** double-click `Little-Phonics-World.html`. It is a single file (about 3.0 MB) with every English voice clip (plus Hoot's lines and the English "is for …" clips) embedded, so it works from `file://` with no internet and needs no other files. The Hebrew, Greek, Thai and Spanish voices are streamed from this game's website when you are online. Offline, those languages quietly fall back to the device voice or the sound-out badge.
 
 Tap the big picture buttons. Nothing has to be read, there are no timers and no lives, and a wrong tap only makes a giggle.
 
@@ -60,6 +60,8 @@ audio/he|el|th|es/  native voice clips NNN.mp3 + manifest.json (exact spoken tex
 audio/sound/<lang>/  letter SOUND clips NN.mp3 + manifest.json (114: en 26, he 22, el 24, th 21, es 21); approved.json; CREDITS.md
 audio/buddy/     Hoot's 21 English lines (en-US Ava) + manifest.json {voice, clips: {key: {file, text, group}}}; streamed by index.html, embedded in the standalone
 audio/explain/<lang>/ English "Explain in English" clips NN.mp3 + manifest.json (88: he/el/th/es)
+audio/for/en/    English "is for <word>" clips NN.mp3 (NN = letter index) + manifest.json {ch: {file, text}}; audio/for/is-for.mp3 = "is for" (embedded in the standalone)
+audio/means/<lang>/ English "which means <meaning>" clips NN.mp3 + manifest.json {ch: {file, text}} (88: he/el/th/es; streamed like other non-English clips)
 build.mjs       builds index.html (clips by relative URL) and Little-Phonics-World.html (clips embedded) from the same source
 tests/          headless-Chrome smoke tests (Playwright): index.html over a local HTTP server, the standalone file over file://
 ```

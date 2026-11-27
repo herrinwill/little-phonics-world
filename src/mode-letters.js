@@ -1,4 +1,5 @@
-/* Mode 1 — Letter & Sound Factory: tap a letter-character, it dances, plays its SOUND (twice) then its word,
+/* Mode 1 — Letter & Sound Factory: tap a letter-character, it dances, says its NAME, its SOUND, then "is for <word>"
+   (non-English: "is for" + native word + "which means <English>"),
    and its picture pops. The spotlight has big separate Sound / Name / Word buttons (+ Explain in English). */
 (function () {
   var C = window.LPWCore;
@@ -35,7 +36,8 @@
       spot.innerHTML = '<div class="hint">' + ICON.mLetters + '</div>' +
         '<div class="bigch" ' + la(D) + '>' + C.esc(D.letters[0].ch) + '</div>' +
         '<div class="instr" lang="en" dir="ltr">Tap a letter to hear its sound!</div>' +
-        '<div class="ptxt parent">Tap any letter friend: it says its sound twice, then a word that starts with that sound. ' +
+        '<div class="ptxt parent">Tap any letter friend: it says its name, then its sound, then a word that starts with that sound' +
+        (D.code === 'en' ? ' (“B … /b/ … is for bear”). ' : ', then what the word means in English. ') +
         'Then use the big Sound, Name and Word buttons' + (D.code === 'en' ? '' : ' (and Explain in English)') + '.</div>';
       var seen = ((C.ST.prog[D.code] || {}).letters) || [];
       D.letters.forEach(function (L, i) {
@@ -78,12 +80,43 @@
     badge(D, L, enName(D, L) + ' — ' + soundsLike(D, L));
     if (!e || !CLIPS.run([e], fb)) fb();
   }
-  /* Letter tap: sound … sound … word. Falls back to the old name + word when the sound clip is missing or offline. */
+  /* Letter tap, ~300 ms between clips (NAME / SOUND / WORD are the same clips as the Name, Sound and Word buttons):
+       English:  NAME … SOUND … "is for turtle" (audio/for/en/NN.mp3)
+       Others:   NAME … SOUND … "is for" (audio/for/is-for.mp3) … native WORD … "which means house" (audio/means/<lang>/NN.mp3)
+     A missing step is skipped (no sound clip when not approved; English without its "is for" clip says the word clip).
+     No name or word clip at all: the old name + word fallback. If a name/sound/word clip fails to play, the old fallback
+     runs; if an "is for" / "which means" clip fails, that step is skipped and the rest continues.
+     Everything is one CLIPS.run sequence, so any new tap or button cancels it at once (token) and Hoot waits (busy). */
+  var GAP = 300;
+  function nameEntry(D, L) { return D.code === 'en' ? enClip('tile-' + soundKey(D, L)) : (window.CLIPS ? CLIPS.native(D.code, L.name) : null); }
+  function tapSeq(D, L) {
+    var n = nameEntry(D, L), s = soundEntry(D, L), w = wordEntry(D, L);
+    if (!n || !w) return null;
+    var seq = [copy(n)], add = function (e, extra) { if (e) { var o = copy(e, GAP); if (extra) o.extra = true; seq.push(o); } };
+    add(s);
+    if (D.code === 'en') {
+      var f = CLIPS.forClip && CLIPS.forClip(L.ch);
+      if (f) add(f, true); else add(w);
+    } else {
+      add(CLIPS.isFor && CLIPS.isFor(), true);
+      add(w);
+      add(CLIPS.means && CLIPS.means(D.code, L.ch), true);
+    }
+    return seq;
+  }
   function playTap(D, L) {
-    var s = soundEntry(D, L), w = wordEntry(D, L);
-    if (!s || !w) return sayNameWord(D, L);
-    badge(D, L, L.snd.split(' ')[0] + ' … ' + L.snd.split(' ')[0] + ' … ' + L.tr);
-    CLIPS.run([s, copy(s, 350), copy(w, 450)], function () { sayNameWord(D, L); });
+    var seq = tapSeq(D, L);
+    if (!seq) return sayNameWord(D, L);
+    var s = soundEntry(D, L);
+    badge(D, L, L.nameTr + (s ? ' … ' + L.snd.split(' ')[0] : '') + ' … ' +
+      (D.code === 'en' ? 'is for ' + L.word : 'is for ' + L.tr + ' … which means ' + L.en));
+    var go = function (list) {
+      CLIPS.run(list, function (i) {
+        if (list[i] && list[i].extra && i + 1 < list.length) go(list.slice(i + 1)); /* skip a failed "is for" / "means" clip */
+        else if (!(list[i] && list[i].extra)) sayNameWord(D, L);
+      });
+    };
+    go(seq);
   }
   function playSound(D, L) {
     var s = soundEntry(D, L);
@@ -119,16 +152,16 @@
       (en ? '' : btn('btnExplain', ICON.lExplain, 'Explain in English', 'explain')) + '</div>' +
       '<div class="ptxt parent"><b>' + C.esc(L.nameTr) + '</b> · sound: <b>' + C.esc(L.snd) + '</b>' +
       (sm && sm.ipa ? ' · IPA <b>/' + C.esc(sm.ipa) + '/</b>' : '') + (ok ? '' : ' · (no recorded sound yet: the English explanation plays instead)') + '<br>' +
-      (en ? 'Say it together: “' + C.esc(L.snd.split(' ')[0]) + ' … ' + C.esc(L.snd.split(' ')[0]) + ' … ' + C.esc(L.word) + '!” · Name: ' + C.esc(L.name) :
+      (en ? 'Say it together: “' + C.esc(L.name) + ' … ' + C.esc(L.snd.split(' ')[0]) + ' … is for ' + C.esc(L.word) + '!”' :
         C.esc(L.word) + ' = <i>' + C.esc(L.tr) + '</i> — “' + C.esc(L.en) + '” · Sound clips are the consonant said with “a” (Thai: as Thai children say it).') + '</div>';
     var on = function (id, fn) { var b = document.getElementById(id); if (b) b.addEventListener('click', function (e) { e.stopPropagation(); try { SFX.tap(); } catch (x) { /* ignore */ } fn(D, L); }); };
     on('btnSound', playSound); on('btnName', playName); on('btnWord', playWord); on('btnExplain', sayExplain);
     playTap(D, L);
     C.addStar(btnEl);
     C.progress('letters', L.ch);
-    /* Every 5th new letter: Hoot dances and cheers once "/b/ … /b/ … bear" has finished. */
+    /* Every 5th new letter: Hoot dances and cheers once the whole "B … /b/ … is for bear" flow has finished. */
     var seenN = (((C.ST.prog[D.code] || {}).letters) || []).length;
-    if (isNew && seenN % 5 === 0) C.buddy('cheer', { maxRuns: 1, maxWait: 9000 });
+    if (isNew && seenN % 5 === 0) C.buddy('cheer', { maxRuns: 1, maxWait: 16000 });
     if (window.innerWidth <= 900 && spot.scrollIntoView) {
       try { spot.scrollIntoView({ behavior: C.reduced() ? 'auto' : 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ }
     }

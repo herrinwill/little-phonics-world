@@ -10,7 +10,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { serve, mediaTracker, requiredKeys, clipFiles, loadClips, rapidTap,
   NATIVE_LANGS, SITE, nativeManifest, requiredTexts, routeSite, loadNative, rapidTapLang,
-  ALL_LANGS, soundManifest, explainManifest, approvedList, SOUND_COUNTS, loadEntries } from './audio-checks.mjs';
+  ALL_LANGS, soundManifest, explainManifest, approvedList, SOUND_COUNTS, loadEntries, forManifest, meansManifest } from './audio-checks.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
@@ -248,6 +248,7 @@ for (const vp of VIEWPORTS) {
     for (const n of [0, 4, 9]) await page.locator('.bar').nth(n).click();
     check(await page.locator('#stageOut .w').count() === 1, `${lang} stage: number shown`);
     if (lang !== 'en') check(/ten/.test(await page.locator('#stageOut .mean').textContent().catch(() => '')), `${vp.name} ${lang} stage: number shows English meaning`);
+    await page.waitForTimeout(350); // let the tap squish (CSS scale) settle before measuring the visual box
     const barBox = await page.locator('.bar').nth(9).boundingBox();
     const barW = await page.locator('.bar').evaluateAll((els) => els.map((e) => e.offsetWidth));
     check(barW.every((w) => w >= 64), `${vp.name} ${lang} stage: every xylophone bar >= 64px wide (${barW})`);
@@ -334,7 +335,8 @@ url = TARGETS[0].url; T = TARGETS[0];
   await page.locator('.lcard').first().click();
   await page.waitForTimeout(400);
   check((await page.evaluate(() => window.LPW.state().stars)) === 1, 'stars work without localStorage');
-  check((await page.evaluate(() => window.LPW.audioState().key)) === 'sound/en/00.mp3', 'no speech API: English still plays its letter sound clip');
+  const ns = await page.evaluate(() => window.CLIPS.log());
+  check(ns[0] === 'tile-a' && (ns[1] === undefined || ns[1] === 'sound/en/00.mp3'), `no speech API: English still plays its name, then letter sound clip (${ns})`);
   await page.click('.pill[data-lang="he"]');
   await page.click('#homeBtn'); await page.click('.mode-btn[data-mode="letters"]');
   await page.locator('.lcard').first().click();
@@ -385,9 +387,9 @@ for (const [label, saved, expectLang, expectStars] of [
   await page.waitForFunction(() => window.LPW && document.querySelector('.mode-btn'));
   await page.click('.mode-btn[data-mode="letters"]');
   await page.locator('.lcard').nth(0).click();
-  await page.waitForFunction(() => window.CLIPS.log().length >= 3 && !window.LPW.audioState().playing, null, { timeout: 8000 }).catch(() => {});
+  await page.waitForFunction(() => window.CLIPS.log().length >= 3 && !window.CLIPS.busy(), null, { timeout: 10000 }).catch(() => {});
   const said = await page.evaluate(() => ({ spoken: window.__spoken.map((u) => u.text), clips: window.CLIPS.log() }));
-  check(said.clips.join('|') === 'sound/en/00.mp3|sound/en/00.mp3|word-apple' && said.spoken.length === 0, `en letter A plays sound, sound, word "/a/ … /a/ … apple" (${said.clips} / ${said.spoken})`);
+  check(said.clips.join('|') === 'tile-a|sound/en/00.mp3|for/en/00.mp3' && said.spoken.length === 0, `en letter A plays name, sound, "is for apple" (${said.clips} / ${said.spoken})`);
   await page.screenshot({ path: join(shots, 'desktop-en-letters.png') }); shotCount++;
   await page.click('#homeBtn'); await page.click('.mode-btn[data-mode="builder"]');
   await page.waitForTimeout(400);
@@ -406,14 +408,17 @@ for (const [label, saved, expectLang, expectStars] of [
   const a = readFileSync(join(root, 'index.html'), 'utf8'), b = readFileSync(join(root, 'Little-Phonics-World.html'), 'utf8');
   check(/window\.LPW_CLIPS = null;/.test(a) && !/"data:audio\/mpeg/.test(a), 'index.html loads clips from ./audio/en (no embedded audio)');
   const n = (b.match(/"data:audio\/mpeg;base64,/g) || []).length, nb = Object.keys(buddyManifest().clips).length;
-  check(n === clipFiles(root).size + SOUND_COUNTS.en + nb, `standalone embeds all ${clipFiles(root).size} English clips + ${SOUND_COUNTS.en} English letter sounds + ${nb} Buddy clips (${n})`);
+  const nf = Object.keys(forManifest(root)).length + 1;
+  check(n === clipFiles(root).size + SOUND_COUNTS.en + nb + nf, `standalone embeds all ${clipFiles(root).size} English clips + ${SOUND_COUNTS.en} English letter sounds + ${nb} Buddy clips + ${nf} "is for" clips (${n})`);
+  check(/window\.LPW_FOR_EMBED = null;/.test(a) && (b.match(/window\.LPW_FOR_EMBED = \{"Aa":"data:audio\/mpeg;base64,[^\n]*"is-for":"data:audio\/mpeg;base64,/g) || []).length === 1, '"is for" clips: loaded by index.html from ./audio/for, embedded in the standalone');
+  check(/window\.LPW_MEANS = \{"he":/.test(a) && /window\.LPW_MEANS = \{"he":/.test(b) && !/"data:audio\/mpeg;base64,[^"]*"[^\n]*window\.LPW_MEANS/.test(b), '"which means" map in both builds (clips streamed, not embedded)');
   check(/window\.LPW_BUDDY_EMBED = null;/.test(a) && (b.match(/window\.LPW_BUDDY_EMBED = \{"[a-z-]+":"data:audio\/mpeg;base64,/g) || []).length === 1, 'Buddy clips: streamed by index.html, embedded in the standalone');
   check(!/Commons|CC BY-SA/.test(a) && !/Commons|CC BY-SA/.test(b), 'no Commons / CC BY-SA text anywhere in either build');
   check(/window\.LPW_SOUND_EMBED = null;/.test(a), 'index.html loads letter sounds from ./audio/sound (none embedded)');
   check((b.match(/window\.LPW_SOUND_EMBED = \{"a":"data:audio\/mpeg;base64,/g) || []).length === 1, 'standalone embeds the English letter sounds');
-  check(Buffer.byteLength(b) < 3.0 * 1024 * 1024, `standalone < 3.0 MB (${(Buffer.byteLength(b) / 1048576).toFixed(2)} MB)`);
+  check(Buffer.byteLength(b) < 3.5 * 1024 * 1024, `standalone < 3.5 MB (${(Buffer.byteLength(b) / 1048576).toFixed(2)} MB)`);
   console.log(`Standalone size: ${Buffer.byteLength(b)} bytes (${(Buffer.byteLength(b) / 1048576).toFixed(2)} MB); index.html: ${Buffer.byteLength(a)} bytes`);
-  const strip = (x) => x.replace(/window\.LPW_SOUND_EMBED = [^\n]*\n/, '').replace(/window\.LPW_BUDDY_EMBED = [^\n]*\n/, '').replace(/window\.LPW_CLIPS = [\s\S]*?;\n\/\* ---- data-en/, '');
+  const strip = (x) => x.replace(/window\.LPW_SOUND_EMBED = [^\n]*\n/, '').replace(/window\.LPW_BUDDY_EMBED = [^\n]*\n/, '').replace(/window\.LPW_FOR_EMBED = [^\n]*\n/, '').replace(/window\.LPW_CLIPS = [\s\S]*?;\n\/\* ---- data-en/, '');
   check(strip(a) === strip(b), 'both builds share identical game code');
   const bad = httpLog.filter(([, st]) => st !== 200);
   check(bad.length === 0, 'local HTTP server: every request 200 (' + JSON.stringify(bad.slice(0, 5)) + ')');
@@ -482,7 +487,7 @@ async function audioSuite() {
   const rt = await rapidTap(page);
   console.log(`  ${T.name} rapid tap: 8 taps in ${rt.ms} ms -> ${JSON.stringify({ key: rt.key, playing: rt.playing, now: rt.now, max: rt.max, t: rt.t })}`);
   check(rt.ms < 1600, `${T.name}: 8 taps happened quickly (${rt.ms} ms)`);
-  check(rt.key === rt.want, `${T.name}: rapid tap ends on the last tapped letter's sound (${rt.key} vs ${rt.want})`);
+  check(rt.want.includes(rt.key), `${T.name}: rapid tap ends on the last tapped letter's name/sound (${rt.key} vs ${rt.want})`);
   check(rt.playing === true && rt.now <= 1 && rt.max <= 1, `${T.name}: exactly one clip playing after rapid taps (playing=${rt.playing}, now=${rt.now}, max=${rt.max})`);
   check(rt.t > 0, `${T.name}: last clip is actually progressing (currentTime ${rt.t})`);
   check(rt.spoken === 0 && rt.errs.length === 0, `${T.name}: no Web Speech stacking / media errors (${rt.spoken}, ${rt.errs})`);
@@ -575,10 +580,10 @@ async function nativeChecks(page) {
     await page.waitForTimeout(250);
     const st = await page.evaluate(() => {
       const D = window.LPW_DATA[window.LPW.state().lang], L = D.letters[0], b = document.getElementById('badge');
-      return { ...window.LPW.audioState(), want: window.CLIPS.sound(D.code, L.ch).key, badge: b.classList.contains('show') && getComputedStyle(b).visibility === 'visible',
+      return { ...window.LPW.audioState(), want: window.CLIPS.native(D.code, L.name).key, badge: b.classList.contains('show') && getComputedStyle(b).visibility === 'visible',
         spoken: window.__spoken.length, errs: window.__media.errors.slice() };
     });
-    check(st.lang === l && st.key === st.want && st.playing, `${T.name}: tapping a ${l} letter plays its letter sound clip first (${JSON.stringify({ key: st.key, lang: st.lang, playing: st.playing, want: st.want })})`);
+    check(st.lang === l && st.key === st.want && st.playing, `${T.name}: tapping a ${l} letter plays its letter name clip first (${JSON.stringify({ key: st.key, lang: st.lang, playing: st.playing, want: st.want })})`);
     check(st.badge, `${T.name}: ${l} sound-out badge visible while the native clip plays`);
     check(st.spoken === 0 && st.errs.length === 0, `${T.name}: ${l} letter used no device voice / media errors (${st.spoken}, ${st.errs})`);
     if (l === 'he') await page.screenshot({ path: join(shots, `${T.shot}native-he-letter.png`) }), shotCount++;
@@ -694,20 +699,53 @@ async function soundSuite(page) {
     check(bad.length === 0 && loaded.length === keys.length * (l === 'en' ? 1 : 2), `${T.name}: all ${loaded.length} ${l} sound/explain clips load (${JSON.stringify(bad.slice(0, 3))})`);
   }
 
-  // 2. Letter tap = sound, sound, word; then each button plays the right clip, in every language.
+  // 1b. Letter-card flow clips: every audio/for/en and audio/means/<lang> manifest key resolves, matches a letter
+  //     (NN = letter index), is embedded/streamed from the right place, and loads; audio/for/is-for.mp3 too.
   for (const l of ALL_LANGS) {
-    await page.evaluate((l) => { window.__spoken.length = 0; window.LPW.setLang(l); window.LPW.goMode('letters'); }, l);
+    const man = l === 'en' ? forManifest(root) : meansManifest(root, l), dir = l === 'en' ? 'for/en/' : `means/${l}/`;
+    const r = await page.evaluate(({ l, keys }) => {
+      const D = window.LPW_DATA[l], get = (k) => l === 'en' ? window.CLIPS.forClip(k) : window.CLIPS.means(l, k);
+      return { letters: D.letters.map((L) => L.ch), entries: keys.map((k) => [k, get(k)]), meta: l === 'en' ? window.LPW_FOR.en : window.LPW_MEANS[l],
+        isFor: window.CLIPS.isFor() };
+    }, { l, keys: Object.keys(man) });
+    const unresolved = r.entries.filter(([, e]) => !e).map(([k]) => k);
+    check(unresolved.length === 0, `${T.name}: every ${dir} manifest key resolves in the game (${unresolved})`);
+    check(r.letters.length === Object.keys(man).length && r.letters.every((ch, i) => man[ch] && man[ch].file === String(i).padStart(2, '0') + '.mp3'),
+      `${T.name}: ${dir} keys match the ${l} letters in order (NN = letter index)`);
+    check(Object.keys(man).every((k) => r.meta[k] && r.meta[k].file === man[k].file && r.meta[k].text === man[k].text), `${T.name}: ${dir} manifest embedded unchanged`);
+    check(Object.keys(man).every((k) => fs.existsSync(join(root, 'audio', dir, man[k].file))), `${T.name}: every ${dir} file exists`);
+    const ents = r.entries.map(([, e]) => e).filter(Boolean);
+    const want = (e) => l === 'en' && !T.http ? e.src.startsWith('data:audio/mpeg') : e.src === (T.http ? './audio/' : SITE) + e.key;
+    check(ents.every(want), `${T.name}: ${dir} clips ${l === 'en' && !T.http ? 'embedded as data URIs' : 'load from ' + (T.http ? './audio/' + dir : 'the website')}`);
+    if (l === 'en') {
+      check(!!r.isFor && r.isFor.key === 'for/is-for.mp3' && (T.http ? r.isFor.src === './audio/for/is-for.mp3' : r.isFor.src.startsWith('data:audio/mpeg')),
+        `${T.name}: audio/for/is-for.mp3 resolves (${r.isFor && r.isFor.src.slice(0, 30)})`);
+      if (r.isFor) ents.push(r.isFor);
+    }
+    const loaded = await loadEntries(page, ents.map((e) => ({ key: e.key, src: e.src })));
+    const bad = loaded.filter((x) => !(x.ok && x.rs >= 2 && x.dur > 0.2));
+    check(bad.length === 0 && loaded.length === Object.keys(man).length + (l === 'en' ? 1 : 0), `${T.name}: all ${loaded.length} ${dir} clips load and decode (${JSON.stringify(bad.slice(0, 3))})`);
+  }
+
+  // 2. Letter tap = NAME, SOUND, then (en) "is for <word>" | (others) "is for", native WORD, "which means <meaning>";
+  //    then each button plays the right clip, in every language.
+  for (const l of ALL_LANGS) {
+    await page.evaluate((l) => { window.__spoken.length = 0; window.LPW.setLang(l); window.LPW.goMode('letters'); window.__media.max = 0; window.__media.errors.length = 0; }, l);
     const n0 = await page.evaluate(() => window.CLIPS.log().length);
     await page.locator('.lcard').nth(1).click();
     const exp = await page.evaluate(() => {
       const D = window.LPW_DATA[window.LPW.state().lang], L = D.letters[1], en = D.code === 'en', k = window.LPWLetters.soundKey(D, L);
       return { sound: window.CLIPS.sound(D.code, k).key, name: en ? 'tile-' + k : window.CLIPS.native(D.code, L.name).key,
         word: en ? window.LPWCore.wordKey(L.word) : window.CLIPS.native(D.code, L.word).key, explain: en ? null : window.CLIPS.explain(D.code, L.ch).key,
+        flow: en ? [window.CLIPS.forClip(L.ch).key] : [window.CLIPS.isFor().key, window.CLIPS.native(D.code, L.word).key, window.CLIPS.means(D.code, L.ch).key],
         ipa: (window.CLIPS.soundMeta(D.code, k) || {}).ipa, parent: document.querySelector('#spot .ptxt').textContent };
     });
-    await page.waitForFunction((n0) => window.CLIPS.log().length >= n0 + 3 && !window.LPW.audioState().playing, n0, { timeout: 9000 }).catch(() => {});
-    const seq = (await page.evaluate(() => window.CLIPS.log())).slice(n0);
-    check(seq.join('|') === [exp.sound, exp.sound, exp.word].join('|'), `${T.name}: ${l} letter tap plays sound, sound, word (${seq})`);
+    const want = [exp.name, exp.sound, ...exp.flow];
+    await page.waitForFunction(({ n0, n }) => window.CLIPS.log().length >= n0 + n && !window.CLIPS.busy(), { n0, n: want.length }, { timeout: 20000 }).catch(() => {});
+    const res = await page.evaluate(() => ({ log: window.CLIPS.log(), max: window.__media.max, errs: window.__media.errors.slice(), spoken: window.__spoken.length }));
+    const seq = res.log.slice(n0);
+    check(seq.join('|') === want.join('|'), `${T.name}: ${l} letter tap plays ${l === 'en' ? 'name, sound, "is for <word>"' : 'name, sound, "is for", word, "which means"'} in order (${seq} vs ${want})`);
+    check(res.max <= 1 && res.errs.length === 0 && res.spoken === 0, `${T.name}: ${l} letter-tap flow: one clip at a time, no errors, no device voice (max=${res.max}, ${res.errs}, ${res.spoken})`);
     check(exp.ipa && exp.parent.includes('IPA') && exp.parent.includes('/' + exp.ipa + '/'), `${T.name}: ${l} Parent Info shows the IPA hint (${exp.parent.slice(0, 90)})`);
     for (const [id, k] of [['btnSound', 'sound'], ['btnName', 'name'], ['btnWord', 'word'], ['btnExplain', 'explain']]) {
       if (!exp[k]) { check(await page.locator('#' + id).count() === 0, `${l}: no #${id} in English`); continue; }
@@ -719,6 +757,33 @@ async function soundSuite(page) {
     }
     if (l === 'he') { await page.screenshot({ path: join(shots, `${T.shot}sound-buttons-he.png`) }); shotCount++; }
     check(await page.evaluate(() => window.__spoken.length) === 0, `${T.name}: ${l} buttons needed no device voice`);
+  }
+
+  // 2b. Tapping a different card mid-flow cancels the old sequence at once: none of its later clips play, the new card's
+  //     full flow plays from the start, and never more than one clip at once (media events + a 20 ms sampler).
+  for (const l of ALL_LANGS) {
+    await page.evaluate((l) => { window.__spoken.length = 0; window.LPW.setLang(l); window.LPW.goMode('letters'); window.__media.max = 0; window.__media.errors.length = 0;
+      window.__smax = 0; clearInterval(window.__samp); window.__samp = setInterval(() => { window.__smax = Math.max(window.__smax, window.__media.playingNow()); }, 20); }, l);
+    const n0 = await page.evaluate(() => window.CLIPS.log().length);
+    await page.locator('.lcard').nth(2).click();
+    // wait until the old flow is on its 2nd clip (or in the pause before it), then tap another card
+    await page.waitForFunction((n0) => window.CLIPS.log().length >= n0 + 2, n0, { timeout: 6000 }).catch(() => {});
+    const n1 = await page.evaluate(() => window.CLIPS.log().length);
+    await page.locator('.lcard').nth(4).click({ delay: 0 });
+    await page.waitForTimeout(60);
+    const mid = await page.evaluate(() => ({ now: window.__media.playingNow(), st: window.LPW.audioState() }));
+    const exp = await page.evaluate(() => {
+      const D = window.LPW_DATA[window.LPW.state().lang], L = D.letters[4], en = D.code === 'en', k = window.LPWLetters.soundKey(D, L);
+      return [en ? 'tile-' + k : window.CLIPS.native(D.code, L.name).key, window.CLIPS.sound(D.code, k).key,
+        ...(en ? [window.CLIPS.forClip(L.ch).key] : [window.CLIPS.isFor().key, window.CLIPS.native(D.code, L.word).key, window.CLIPS.means(D.code, L.ch).key])];
+    });
+    await page.waitForFunction(({ n1, n }) => window.CLIPS.log().length >= n1 + n && !window.CLIPS.busy(), { n1, n: exp.length }, { timeout: 20000 }).catch(() => {});
+    const r = await page.evaluate(() => { clearInterval(window.__samp); return { log: window.CLIPS.log(), max: window.__media.max, smax: window.__smax, errs: window.__media.errors.slice(), spoken: window.__spoken.length }; });
+    const after = r.log.slice(n1);
+    check(n1 - n0 >= 2 && n1 - n0 < exp.length, `${T.name}: ${l} second card tapped mid-flow (${n1 - n0} clip(s) of the first card started)`);
+    check(after.join('|') === exp.join('|'), `${T.name}: ${l} tapping another card cancels the old flow; only the new card's flow plays (${after} vs ${exp})`);
+    check(mid.now <= 1 && r.max <= 1 && r.smax <= 1, `${T.name}: ${l} rapid card change: max 1 clip at once (now=${mid.now}, max=${r.max}, sampler=${r.smax})`);
+    check(r.errs.length === 0 && r.spoken === 0, `${T.name}: ${l} rapid card change: no media errors / device voice (${r.errs}, ${r.spoken})`);
   }
 
   // 3. Word Builder: tapping a letter tile plays its letter sound (Thai syllable tiles keep their syllable clips).
@@ -942,7 +1007,7 @@ async function buddySuite() {
   await page.locator('.lcard').nth(0).click();
   await page.waitForTimeout(150);
   const cut = await page.evaluate(() => ({ s: window.CLIPS.state(), bp: window.CLIPS.buddyPlaying() }));
-  check(cut.s.key === 'sound/en/00.mp3' && !cut.bp, `${tag}: a letter tap cuts Hoot off (${JSON.stringify(cut)})`);
+  check(cut.s.key === 'tile-a' && !cut.bp, `${tag}: a letter tap cuts Hoot off (${JSON.stringify(cut)})`);
   await idle();
 
   // 5. Completed word: Hoot dances at once and cheers after "spell … word … cheer" has finished.

@@ -2,6 +2,7 @@
 //  - index.html (GitHub Pages): English voice clips load from ./audio/en/<key>.mp3 (window.LPW_CLIPS = null).
 //  - Little-Phonics-World.html (standalone, works offline from file://): every English clip embedded as a data: URI.
 //  - Both: Hebrew/Greek/Thai/Spanish clip maps embedded; MP3s from ./audio/<lang>/ (or the website when on file://).
+//  - Letter-card flow: audio/for (English "is for …") embedded in the standalone; audio/means ("which means …") always streamed.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -94,8 +95,36 @@ for (const g of BUDDY_GROUPS) if (!Object.values(buddyMeta).some((m) => m.group 
 const buddyPre = `window.LPW_BUDDY = ${JSON.stringify({ voice: buddyMan.voice || '', clips: buddyMeta })};\n`;
 const buddyCount = Object.keys(buddyMeta).length;
 
-function page(clips, soundClips, buddyClips) {
-  const pre = `window.LPW_NATIVE = ${nativeMap};\nwindow.LPW_CLIP_TEXT = ${textMap};\n${soundPre}${buddyPre}window.LPW_SOUND_EMBED = ${soundClips};\nwindow.LPW_BUDDY_EMBED = ${buddyClips};\nwindow.LPW_CLIPS = ${clips};\n`;
+// Letter-card tap flow: audio/for/en/NN.mp3 ("is for turtle", English), audio/for/is-for.mp3 ("is for") and
+// audio/means/<lang>/NN.mp3 ("which means house", he/el/th/es). NN = letter index; manifests map letter ch -> {file, text}.
+// index.html loads them from ./audio/for|means/; the standalone embeds audio/for and streams audio/means.
+const forMeta = { en: {} }, meansMeta = {}, forEmbed = {};
+const b64 = (...p) => 'data:audio/mpeg;base64,' + readFileSync(join(root, 'audio', ...p)).toString('base64');
+{
+  const enLetters = readFileSync(join(root, 'src', 'data-en.js'), 'utf8');
+  const m = JSON.parse(readFileSync(join(root, 'audio', 'for', 'en', 'manifest.json'), 'utf8'));
+  for (const [k, v] of Object.entries(m)) {
+    if (!/^[0-9]{2}\.mp3$/.test(v.file) || !existsSync(join(root, 'audio', 'for', 'en', v.file))) throw new Error(`Missing/bad clip audio/for/en/${v.file} for "${k}"`);
+    if (!enLetters.includes(`ch: '${k}'`)) throw new Error(`audio/for/en key "${k}" is not an English letter`);
+    forMeta.en[k] = { file: v.file, text: String(v.text || '') };
+    forEmbed[k] = b64('for', 'en', v.file);
+  }
+  if (!existsSync(join(root, 'audio', 'for', 'is-for.mp3'))) throw new Error('Missing clip audio/for/is-for.mp3');
+  forEmbed['is-for'] = b64('for', 'is-for.mp3');
+  for (const l of NATIVE_LANGS) {
+    const mm = JSON.parse(readFileSync(join(root, 'audio', 'means', l, 'manifest.json'), 'utf8'));
+    meansMeta[l] = {};
+    for (const [k, v] of Object.entries(mm)) {
+      if (!/^[0-9]{2}\.mp3$/.test(v.file) || !existsSync(join(root, 'audio', 'means', l, v.file))) throw new Error(`Missing/bad clip audio/means/${l}/${v.file} for "${k}"`);
+      meansMeta[l][k] = { file: v.file, text: String(v.text || '') };
+    }
+  }
+}
+const forPre = `window.LPW_FOR = ${JSON.stringify(forMeta)};\nwindow.LPW_MEANS = ${JSON.stringify(meansMeta)};\n`;
+const meansCount = Object.values(meansMeta).reduce((n, m) => n + Object.keys(m).length, 0);
+
+function page(clips, soundClips, buddyClips, forClips) {
+  const pre = `window.LPW_NATIVE = ${nativeMap};\nwindow.LPW_CLIP_TEXT = ${textMap};\n${soundPre}${buddyPre}${forPre}window.LPW_SOUND_EMBED = ${soundClips};\nwindow.LPW_BUDDY_EMBED = ${buddyClips};\nwindow.LPW_FOR_EMBED = ${forClips};\nwindow.LPW_CLIPS = ${clips};\n`;
   if (/<\/script/i.test(pre) || /https?:\/\//i.test(pre)) throw new Error('Clip data would break inlining or references a URL');
   return src('shell.html')
     .replace('/*@@STYLE@@*/', () => css)
@@ -103,8 +132,8 @@ function page(clips, soundClips, buddyClips) {
 }
 
 const kb = (s) => (Buffer.byteLength(s) / 1024).toFixed(1) + ' KB';
-const web = page('null', 'null', 'null'), standalone = page(embedded, JSON.stringify(soundEmbed), JSON.stringify(buddyEmbed));
-if (Buffer.byteLength(standalone) > 3.0 * 1024 * 1024) throw new Error('Standalone file exceeds 3.0 MB');
+const web = page('null', 'null', 'null', 'null'), standalone = page(embedded, JSON.stringify(soundEmbed), JSON.stringify(buddyEmbed), JSON.stringify(forEmbed));
+if (Buffer.byteLength(standalone) > 3.5 * 1024 * 1024) throw new Error('Standalone file exceeds 3.5 MB');
 writeFileSync(join(root, 'index.html'), web);
 writeFileSync(join(root, 'Little-Phonics-World.html'), standalone);
-console.log(`Built index.html (${kb(web)}, clips from ./audio/en/) and Little-Phonics-World.html (${kb(standalone)}, ${keys.length} English clips + ${Object.keys(soundEmbed).length} English letter sounds + ${buddyCount} Buddy clips embedded); ${nativeCount} native clips, ${soundCount} letter sounds, ${explainCount} English explanations mapped`);
+console.log(`Built index.html (${kb(web)}, clips from ./audio/en/) and Little-Phonics-World.html (${kb(standalone)}, ${keys.length} English clips + ${Object.keys(soundEmbed).length} English letter sounds + ${buddyCount} Buddy clips + ${Object.keys(forEmbed).length} "is for" clips embedded); ${nativeCount} native clips, ${soundCount} letter sounds, ${explainCount} English explanations, ${meansCount} "which means" clips mapped`);

@@ -1,0 +1,86 @@
+{
+ "ก": {
+  "file": "00.mp3",
+  "text": "which means chicken"
+ },
+ "ข": {
+  "file": "01.mp3",
+  "text": "which means egg"
+ },
+ "ค": {
+  "file": "02.mp3",
+  "text": "which means buffalo"
+ },
+ "ง": {
+  "file": "03.mp3",
+  "text": "which means snake"
+ },
+ "จ": {
+  "file": "04.mp3",
+  "text": "which means plate"
+ },
+ "ช": {
+  "file": "05.mp3",
+  "text": "which means elephant"
+ },
+ "ด": {
+  "file": "06.mp3",
+  "text": "which means child"
+ },
+ "ต": {
+  "file": "07.mp3",
+  "text": "which means turtle"
+ },
+ "น": {
+  "file": "08.mp3",
+  "text": "which means mouse"
+ },
+ "บ": {
+  "file": "09.mp3",
+  "text": "which means leaf"
+ },
+ "ป": {
+  "file": "10.mp3",
+  "text": "which means fish"
+ },
+ "พ": {
+  "file": "11.mp3",
+  "text": "which means offering tray"
+ },
+ "ฟ": {
+  "file": "12.mp3",
+  "text": "which means tooth"
+ },
+ "ม": {
+  "file": "13.mp3",
+  "text": "which means horse"
+ },
+ "ย": {
+  "file": "14.mp3",
+  "text": "which means giant"
+ },
+ "ร": {
+  "file": "15.mp3",
+  "text": "which means boat"
+ },
+ "ล": {
+  "file": "16.mp3",
+  "text": "which means monkey"
+ },
+ "ว": {
+  "file": "17.mp3",
+  "text": "which means ring"
+ },
+ "ส": {
+  "file": "18.mp3",
+  "text": "which means tiger"
+ },
+ "ห": {
+  "file": "19.mp3",
+  "text": "which means chest"
+ },
+ "อ": {
+  "file": "20.mp3",
+  "text": "which means basin"
+ }
+}

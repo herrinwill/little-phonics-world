@@ -84,7 +84,7 @@ export async function rapidTap(page) {
   const ms = Date.now() - t0;
   const last = await page.locator('.lcard').nth(idx[idx.length - 1]).evaluate((e) => e.querySelector('.ch').textContent[0].toLowerCase());
   await page.waitForTimeout(350);
-  const st = await page.evaluate((last) => ({ ...window.LPW.audioState(), want: window.CLIPS.sound('en', last).key, now: window.__media.playingNow(), max: window.__media.max,
+  const st = await page.evaluate((last) => ({ ...window.LPW.audioState(), want: ['tile-' + last, window.CLIPS.sound('en', last).key], now: window.__media.playingNow(), max: window.__media.max,
     t: window.CLIPS.element().currentTime, spoken: window.__spoken.length, errs: window.__media.errors.slice() }), last);
   return { ms, last, ...st };
 }
@@ -117,7 +117,7 @@ export async function routeSite(ctx, root, mode, hits) {
   await ctx.route(SITE + '**', async (r) => {
     const rel = decodeURIComponent(r.request().url().slice(SITE.length).split('?')[0]);
     if (hits) hits.push(rel);
-    if (mode === 'offline' || !/^((he|el|th|es)|(sound|explain)\/(en|he|el|th|es))\/[0-9]+\.mp3$/.test(rel)) return r.abort('internetdisconnected');
+    if (mode === 'offline' || !/^((he|el|th|es)|(sound|explain)\/(en|he|el|th|es)|means\/(he|el|th|es)|for\/en)\/[0-9]+\.mp3$/.test(rel) && rel !== 'for/is-for.mp3') return r.abort('internetdisconnected');
     return r.fulfill({ status: 200, contentType: 'audio/mpeg', body: readFileSyncFs(join(root, 'audio', rel)) });
   });
 }
@@ -151,7 +151,7 @@ export async function rapidTapLang(page, lang) {
   await page.waitForTimeout(350);
   const st = await page.evaluate((i) => {
     const D = window.LPW_DATA[window.LPW.state().lang], L = D.letters[i];
-    return { ...window.LPW.audioState(), want: [window.CLIPS.sound(D.code, L.ch).key, window.CLIPS.native(D.code, L.word).key], now: window.__media.playingNow(), max: window.__media.max,
+    return { ...window.LPW.audioState(), want: [window.CLIPS.native(D.code, L.name).key, window.CLIPS.sound(D.code, L.ch).key], now: window.__media.playingNow(), max: window.__media.max,
       t: window.CLIPS.element().currentTime, spoken: window.__spoken.length, errs: window.__media.errors.slice() };
   }, idx[idx.length - 1]);
   return { ms, taps: idx.length, ...st };
@@ -164,6 +164,8 @@ export const soundManifest = (root, lang) => readJson(root, 'sound', lang, 'mani
 export const explainManifest = (root, lang) => readJson(root, 'explain', lang, 'manifest.json');
 export const approvedList = (root) => readJson(root, 'sound', 'approved.json');
 export const SOUND_COUNTS = { en: 26, he: 22, el: 24, th: 21, es: 21 };
+export const forManifest = (root) => readJson(root, 'for', 'en', 'manifest.json');
+export const meansManifest = (root, lang) => readJson(root, 'means', lang, 'manifest.json');
 
 /** Load clip entries ({key, src}) through fresh Audio elements, a few at a time. */
 export async function loadEntries(page, entries) {

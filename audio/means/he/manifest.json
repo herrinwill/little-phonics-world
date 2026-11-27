@@ -1,0 +1,90 @@
+{
+ "א": {
+  "file": "00.mp3",
+  "text": "which means lion"
+ },
+ "בּ": {
+  "file": "01.mp3",
+  "text": "which means house"
+ },
+ "ג": {
+  "file": "02.mp3",
+  "text": "which means camel"
+ },
+ "ד": {
+  "file": "03.mp3",
+  "text": "which means fish"
+ },
+ "ה": {
+  "file": "04.mp3",
+  "text": "which means mountain"
+ },
+ "ו": {
+  "file": "05.mp3",
+  "text": "which means rose"
+ },
+ "ז": {
+  "file": "06.mp3",
+  "text": "which means zebra"
+ },
+ "ח": {
+  "file": "07.mp3",
+  "text": "which means cat"
+ },
+ "ט": {
+  "file": "08.mp3",
+  "text": "which means peacock"
+ },
+ "י": {
+  "file": "09.mp3",
+  "text": "which means moon"
+ },
+ "כּ": {
+  "file": "10.mp3",
+  "text": "which means ball"
+ },
+ "ל": {
+  "file": "11.mp3",
+  "text": "which means heart"
+ },
+ "מ": {
+  "file": "12.mp3",
+  "text": "which means car"
+ },
+ "נ": {
+  "file": "13.mp3",
+  "text": "which means snake"
+ },
+ "ס": {
+  "file": "14.mp3",
+  "text": "which means horse"
+ },
+ "ע": {
+  "file": "15.mp3",
+  "text": "which means tree"
+ },
+ "פּ": {
+  "file": "16.mp3",
+  "text": "which means elephant"
+ },
+ "צ": {
+  "file": "17.mp3",
+  "text": "which means turtle"
+ },
+ "ק": {
+  "file": "18.mp3",
+  "text": "which means monkey"
+ },
+ "ר": {
+  "file": "19.mp3",
+  "text": "which means train"
+ },
+ "שׁ": {
+  "file": "20.mp3",
+  "text": "which means sun"
+ },
+ "ת": {
+  "file": "21.mp3",
+  "text": "which means apple"
+ }
+}
