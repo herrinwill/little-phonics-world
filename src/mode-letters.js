@@ -104,6 +104,7 @@
   function tapLetter(btnEl, L, D, col) {
     try { SFX.tap(); } catch (e) { /* ignore */ }
     C.restart(btnEl, 'dance');
+    var isNew = (((C.ST.prog[D.code] || {}).letters) || []).indexOf(L.ch) < 0;
     btnEl.classList.add('seen');
     var spot = document.getElementById('spot'), en = D.code === 'en';
     var sm = window.CLIPS && CLIPS.soundMeta(D.code, soundKey(D, L)), ok = !!(window.CLIPS && CLIPS.approved(D.code, soundKey(D, L)));
@@ -125,6 +126,9 @@
     playTap(D, L);
     C.addStar(btnEl);
     C.progress('letters', L.ch);
+    /* Every 5th new letter: Hoot dances and cheers once "/b/ … /b/ … bear" has finished. */
+    var seenN = (((C.ST.prog[D.code] || {}).letters) || []).length;
+    if (isNew && seenN % 5 === 0) C.buddy('cheer', { maxRuns: 1, maxWait: 9000 });
     if (window.innerWidth <= 900 && spot.scrollIntoView) {
       try { spot.scrollIntoView({ behavior: C.reduced() ? 'auto' : 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ }
     }

@@ -99,6 +99,8 @@
           try { if (window.CLIPS) CLIPS.stop(); } catch (e) { /* ignore */ }
           C.later(function () { if (document.body.contains(tile)) speakTile(wk); }, 380);
         }
+        /* Hoot tilts its head; its "try again" line is queued until the tile's letter sound has finished. */
+        C.buddy('retry', { maxRuns: target ? 0 : 1 }); /* a further tap (another clip) drops the line */
         C.restart(tile, 'no');
         return false;
       }
@@ -109,12 +111,15 @@
         items.push({ text: W.w, tr: W.tr });
         try { SFX.win(); } catch (e) { /* ignore */ }
         C.confetti(80);
+        var pc = C.center(box.querySelector('#bPic')); C.sparkle(pc.x, pc.y, 10);
         C.restart(box.querySelector('#bPic'), 'win');
         C.addStar(box.querySelector('#bPic'), 2);
         var cheerKey = C.cheer(box.querySelector('#bPic'));
         /* English: "C, A, T... Cat!" then the cheer that is on screen. */
         C.later(function () { if (document.body.contains(box)) C.say(items, { quiet: true, clip: ['spell-' + W.w, cheerKey] }); }, 450);
         C.progress('builder');
+        /* Hoot dances now and cheers after "C, A, T… Cat! Great job!" has finished. */
+        C.buddy('cheer', { maxRuns: 1, maxWait: 12000 });
         box.setAttribute('data-done', '1');
         var nb = C.el('button', { class: 'roundbtn go', id: 'nextWord', 'aria-label': 'Next word' }, ICON.next);
         nb.addEventListener('click', function () { MODES.builder.next(); window.LPWApp.go('builder'); });

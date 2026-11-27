@@ -62,6 +62,7 @@
 
   function go(name) {
     if (name !== 'home' && !MODES[name]) name = 'home';
+    var prev = mode;
     mode = name;
     try { SPEECH.stop(); } catch (e) { /* ignore */ }
     screen.innerHTML = '';
@@ -75,6 +76,7 @@
       renderHome(screen); mode = 'home';
     }
     window.scrollTo(0, 0);
+    try { if (window.BUDDY) BUDDY.nav(mode, prev); } catch (e) { /* ignore */ }
     return mode;
   }
 
@@ -86,6 +88,7 @@
   if (typeof ST.lang !== 'string' || !LPW_DATA[ST.lang]) { ST.lang = 'en'; C.save(); }
   setParent(ST.parent);
   C.renderStars();
+  try { if (window.BUDDY) BUDDY.init(); } catch (e) { if (window.console) console.warn('buddy failed', e); }
   renderLangbar();
   document.documentElement.setAttribute('data-lang', ST.lang);
   go('home');
@@ -96,8 +99,10 @@
     setLang: function (c) { return setLang(c, false); },
     goMode: go,
     setParent: setParent,
+    buddy: function () { return window.BUDDY ? BUDDY.state() : null; },
+    setBuddy: function (v) { return window.BUDDY ? BUDDY.setOn(v) : false; },
     state: function () {
-      return { lang: ST.lang, mode: mode, stars: ST.stars, parent: ST.parent, stickers: Object.keys(ST.stickers),
+      return { lang: ST.lang, mode: mode, stars: ST.stars, parent: ST.parent, buddy: ST.buddy !== false, stickers: Object.keys(ST.stickers),
         voice: SPEECH.voiceName(ST.lang) || null };
     },
     audioState: function () { return window.CLIPS ? CLIPS.state() : { playing: false, key: null }; },

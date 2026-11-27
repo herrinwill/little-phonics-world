@@ -9,11 +9,11 @@ import { fileURLToPath } from 'node:url';
 const root = dirname(fileURLToPath(import.meta.url));
 const src = (f) => readFileSync(join(root, 'src', f), 'utf8');
 
-const css = ['style.css', 'style2.css', 'style3.css'].map(src).join('\n');
+const css = ['style.css', 'style2.css', 'style3.css', 'style4.css'].map(src).join('\n');
 const js = [
   'data-en.js', 'data-he.js', 'data-el.js', 'data-th.js', 'data-es.js',
   'art1.js', 'art2.js', 'art3.js', 'art4.js', 'art5.js', 'icons.js',
-  'clips.js', 'audio.js', 'core.js',
+  'clips.js', 'audio.js', 'core.js', 'buddy.js',
   'mode-letters.js', 'mode-builder.js', 'mode-bubbles.js', 'mode-stage.js',
   'app.js'
 ].map((f) => `/* ---- ${f} ---- */\n${src(f)}`).join('\n');
@@ -77,8 +77,25 @@ const soundPre = `window.LPW_SOUND = ${JSON.stringify(soundMeta)};\nwindow.LPW_E
 const soundCount = Object.values(soundMeta).reduce((n, m) => n + Object.keys(m).length, 0);
 const explainCount = Object.values(explainMeta).reduce((n, m) => n + Object.keys(m).length, 0);
 
-function page(clips, soundClips) {
-  const pre = `window.LPW_NATIVE = ${nativeMap};\nwindow.LPW_CLIP_TEXT = ${textMap};\n${soundPre}window.LPW_SOUND_EMBED = ${soundClips};\nwindow.LPW_CLIPS = ${clips};\n`;
+// Phonics Buddy (English only, en-US-AvaNeural): audio/buddy/manifest.json = {voice, clips: {key: {file, text, group}}}.
+// index.html streams ./audio/buddy/<file>; the standalone embeds every Buddy clip so Hoot talks offline.
+const BUDDY_GROUPS = ['welcome', 'cheer', 'retry', 'sticker', 'tap'];
+const buddyMan = JSON.parse(readFileSync(join(root, 'audio', 'buddy', 'manifest.json'), 'utf8'));
+if (!buddyMan.clips || typeof buddyMan.clips !== 'object') throw new Error('audio/buddy/manifest.json has no clips');
+const buddyMeta = {}, buddyEmbed = {};
+for (const [k, v] of Object.entries(buddyMan.clips)) {
+  if (!/^[a-z0-9-]+$/.test(k) || !/^[a-z0-9-]+\.mp3$/.test(v.file || '')) throw new Error(`Bad Buddy clip ${k}: ${v.file}`);
+  if (!BUDDY_GROUPS.includes(v.group)) throw new Error(`Buddy clip ${k} has unknown group ${v.group}`);
+  if (!existsSync(join(root, 'audio', 'buddy', v.file))) throw new Error(`Missing Buddy clip audio/buddy/${v.file}`);
+  buddyMeta[k] = { file: v.file, text: String(v.text || ''), group: v.group };
+  buddyEmbed[k] = 'data:audio/mpeg;base64,' + readFileSync(join(root, 'audio', 'buddy', v.file)).toString('base64');
+}
+for (const g of BUDDY_GROUPS) if (!Object.values(buddyMeta).some((m) => m.group === g)) throw new Error(`No Buddy clips in group ${g}`);
+const buddyPre = `window.LPW_BUDDY = ${JSON.stringify({ voice: buddyMan.voice || '', clips: buddyMeta })};\n`;
+const buddyCount = Object.keys(buddyMeta).length;
+
+function page(clips, soundClips, buddyClips) {
+  const pre = `window.LPW_NATIVE = ${nativeMap};\nwindow.LPW_CLIP_TEXT = ${textMap};\n${soundPre}${buddyPre}window.LPW_SOUND_EMBED = ${soundClips};\nwindow.LPW_BUDDY_EMBED = ${buddyClips};\nwindow.LPW_CLIPS = ${clips};\n`;
   if (/<\/script/i.test(pre) || /https?:\/\//i.test(pre)) throw new Error('Clip data would break inlining or references a URL');
   return src('shell.html')
     .replace('/*@@STYLE@@*/', () => css)
@@ -86,8 +103,8 @@ function page(clips, soundClips) {
 }
 
 const kb = (s) => (Buffer.byteLength(s) / 1024).toFixed(1) + ' KB';
-const web = page('null', 'null'), standalone = page(embedded, JSON.stringify(soundEmbed));
-if (Buffer.byteLength(standalone) > 2.5 * 1024 * 1024) throw new Error('Standalone file exceeds 2.5 MB');
+const web = page('null', 'null', 'null'), standalone = page(embedded, JSON.stringify(soundEmbed), JSON.stringify(buddyEmbed));
+if (Buffer.byteLength(standalone) > 3.0 * 1024 * 1024) throw new Error('Standalone file exceeds 3.0 MB');
 writeFileSync(join(root, 'index.html'), web);
 writeFileSync(join(root, 'Little-Phonics-World.html'), standalone);
-console.log(`Built index.html (${kb(web)}, clips from ./audio/en/) and Little-Phonics-World.html (${kb(standalone)}, ${keys.length} English clips + ${Object.keys(soundEmbed).length} English letter sounds embedded); ${nativeCount} native clips, ${soundCount} letter sounds, ${explainCount} English explanations mapped`);
+console.log(`Built index.html (${kb(web)}, clips from ./audio/en/) and Little-Phonics-World.html (${kb(standalone)}, ${keys.length} English clips + ${Object.keys(soundEmbed).length} English letter sounds + ${buddyCount} Buddy clips embedded); ${nativeCount} native clips, ${soundCount} letter sounds, ${explainCount} English explanations mapped`);

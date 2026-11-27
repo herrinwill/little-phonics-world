@@ -5,7 +5,7 @@
   var NEED = { letters: 5, builder: 1, bubbles: 3, stage: 10 }; /* actions to unlock a sticker */
   var memory = null;
 
-  function fresh() { return { stars: 0, lang: 'en', parent: false, prog: {}, stickers: {} }; }
+  function fresh() { return { stars: 0, lang: 'en', parent: false, buddy: true, prog: {}, stickers: {} }; }
   function load() {
     var s = null;
     try { var raw = window.localStorage && window.localStorage.getItem(KEY); if (raw) s = JSON.parse(raw); } catch (e) { s = null; }
@@ -20,6 +20,7 @@
     if (!plain(s.stickers)) s.stickers = {};
     Object.keys(s.prog).forEach(function (L) { if (!plain(s.prog[L])) delete s.prog[L]; else if (s.prog[L].letters && !Array.isArray(s.prog[L].letters)) delete s.prog[L].letters; });
     s.parent = s.parent === true;
+    s.buddy = s.buddy !== false; /* Phonics Buddy: default ON */
     return s;
   }
   var ST = load();
@@ -45,6 +46,8 @@
   function reduced() { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
   function restart(node, cls) { if (!node) return; node.classList.remove(cls); void node.offsetWidth; node.classList.add(cls); }
 
+  var JAR = 40;
+  function buddy(fn, arg) { try { if (window.BUDDY && BUDDY[fn]) BUDDY[fn](arg); } catch (e) { /* ignore */ } }
   var COLORS = ['#ff5a8a', '#ff9f1c', '#4d96ff', '#3ddc84', '#9b5de5', '#2ec4b6', '#ff5a5f', '#f7b801'];
 
   function confetti(n) {
@@ -74,6 +77,19 @@
       (function (b) { setTimeout(function () { b.remove(); }, 800); })(b);
     }
   }
+  /* Little star sparkles flying out of a point (wins). Cheap: 8 spans, removed after 0.9 s. */
+  function sparkle(x, y, n) {
+    if (reduced()) return;
+    var fx = document.getElementById('fx'); if (!fx) return;
+    n = n || 8;
+    for (var i = 0; i < n; i++) {
+      var a = i / n * Math.PI * 2 + Math.random() * 0.5, d = 50 + Math.random() * 50, s = el('span', { class: 'sparkle' }, '\u2605');
+      s.style.left = x + 'px'; s.style.top = y + 'px'; s.style.color = COLORS[(i * 3) % COLORS.length];
+      s.style.setProperty('--dx', Math.cos(a) * d + 'px'); s.style.setProperty('--dy', Math.sin(a) * d + 'px');
+      fx.appendChild(s);
+      (function (s) { setTimeout(function () { s.remove(); }, 900); })(s);
+    }
+  }
   function center(node) {
     if (!node || !node.getBoundingClientRect) return { x: innerWidth / 2, y: innerHeight / 2 };
     var r = node.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
@@ -85,7 +101,10 @@
   }
   function addStar(fromNode, n) {
     n = n || 1;
+    var jarBefore = Math.floor(ST.stars / JAR);
     ST.stars += n; save();
+    /* The Star Jar shows 40 stars: each time it fills up, the Buddy celebrates. */
+    if (Math.floor(ST.stars / JAR) > jarBefore) setTimeout(function () { buddy('sticker', 'stars'); }, 900);
     try { SFX.star(); } catch (e) { /* ignore */ }
     var fx = document.getElementById('fx'), sc = document.getElementById('starCount');
     if (fx && sc && !reduced()) {
@@ -121,6 +140,7 @@
     fx.appendChild(t);
     try { SFX.win(); } catch (e) { /* ignore */ }
     confetti(90);
+    buddy('sticker');
     setTimeout(function () { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; }, 1800);
     setTimeout(function () { t.remove(); }, 2300);
   }
@@ -138,7 +158,7 @@
 
   window.LPWCore = {
     ST: ST, save: save, el: el, esc: esc, shuffle: shuffle, restart: restart, reduced: reduced,
-    confetti: confetti, burst: burst, center: center, addStar: addStar, renderStars: renderStars,
+    confetti: confetti, burst: burst, sparkle: sparkle, center: center, buddy: buddy, addStar: addStar, renderStars: renderStars,
     progress: progress, MODES_LIST: MODES_LIST, NEED: NEED, COLORS: COLORS,
     D: function () { return window.LPW_DATA[ST.lang] || window.LPW_DATA.en; },
     /* Always-visible English meaning caption for non-English words (empty in English). */

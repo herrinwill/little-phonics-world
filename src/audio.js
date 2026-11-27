@@ -148,6 +148,7 @@
       try {
         var ss = window.speechSynthesis;
         if (!opts.queue) ss.cancel();
+        if (C && C.noteSpeech) C.noteSpeech(trs);
         items.forEach(function (it) {
           var u = new SpeechSynthesisUtterance(it.text);
           u.voice = v; u.lang = v.lang; u.rate = opts.rate || 0.8; u.pitch = 1.1; u.volume = 1;

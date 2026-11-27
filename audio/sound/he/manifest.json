@@ -39,7 +39,7 @@
   "ipa": "v",
   "class": "cont",
   "carrier": "וֶרֶד",
-  "source": "Microsoft Edge neural voice el-GR-AthinaNeural (Greek voice saying va; same /v/ sound)"
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural (female; Greek voice saying \"va\", same /v/ sound)"
  },
  "ז": {
   "file": "06.mp3",
@@ -116,7 +116,7 @@
   "ipa": "p",
   "class": "stop",
   "carrier": "פִּיל",
-  "source": "Wikimedia Commons \"Voiceless bilabial plosive.ogg\" (CC BY-SA 3.0;  uploader Joni~commonswiki)"
+  "source": "Microsoft Edge neural voice el-GR-AthinaNeural (female; Greek voice saying \"pa\", same /p/ sound)"
  },
  "צ": {
   "file": "17.mp3",
@@ -151,6 +151,6 @@
   "ipa": "t",
   "class": "stop",
   "carrier": "תַּפּוּחַ",
-  "source": "Wikimedia Commons \"Voiceless alveolar plosive.ogg\" (CC BY-SA 3.0;  uploader Karmosin~commonswiki)"
+  "source": "Microsoft Edge neural voice he-IL-HilaNeural (female; \"ta\")"
  }
 }

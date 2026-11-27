@@ -415,6 +415,87 @@ body.parent-on span.parent{display:inline}
 body.parent-on #credits .full{display:block}
 #credits ul{margin:4px 0;padding-left:18px}
 
+/* ===== Phonics Buddy "Hoot" + fun polish ===== */
+/* The Buddy lives in a fixed bottom-left corner. A left gutter (--bgut) is reserved on #screen and the footer,
+   so no button, letter card, tile, bubble or bar can ever sit under it, at any scroll position. */
+:root{--bsz:96px;--bgap:12px;--bgut:calc(var(--bsz) + var(--bgap) + 10px);--padl:14px}
+@media (max-width:640px){:root{--bsz:64px;--bgap:6px;--bgut:calc(var(--bsz) + var(--bgap) + 10px);--padl:10px}}
+@media (max-height:500px) and (orientation:landscape){:root{--bsz:72px;--bgap:8px;--bgut:calc(var(--bsz) + var(--bgap) + 8px)}}
+body.buddy-off{--bgut:0px}
+#screen{padding-left:max(var(--padl), env(safe-area-inset-left), calc(var(--bgut) - max(0px, (100% - 1200px) / 2)))}
+#credits{padding-left:max(16px, calc(var(--bgut) - max(0px, (100% - 1200px) / 2)))}
+
+.buddy{
+  position:fixed;left:max(var(--bgap), env(safe-area-inset-left));bottom:max(var(--bgap), env(safe-area-inset-bottom));
+  width:var(--bsz);height:var(--bsz);min-width:64px;min-height:64px;z-index:50;border-radius:50%;
+  background:radial-gradient(circle at 50% 40%,#fff 0 55%,#f1ecff 56% 100%);
+  box-shadow:0 0 0 4px #fff,0 6px 0 rgba(43,35,80,.16),0 10px 22px rgba(43,35,80,.18);
+  display:grid;place-items:center;transition:opacity .3s,transform .2s;
+}
+.buddy .bwrap{display:block;width:88%;height:88%;animation:bIdle 2.8s ease-in-out infinite}
+.buddy svg{width:100%;height:100%;overflow:visible}
+.buddy .b-eyes{transform-box:fill-box;transform-origin:center;animation:bBlink 4.6s infinite}
+.buddy .b-wing-r{transform-box:fill-box;transform-origin:20% 15%;animation:bWave 3.6s ease-in-out infinite}
+.buddy .b-beak{transform-box:fill-box;transform-origin:50% 0}
+.buddy.talk .b-beak{animation:bTalk .32s ease-in-out infinite alternate}
+.buddy.wave .b-wing-r{animation:bWaveBig .5s ease-in-out 3 alternate}
+.buddy.dance .bwrap{animation:bDance 1s cubic-bezier(.3,1.4,.5,1)}
+.buddy.tilt .bwrap{animation:bTilt 1.1s ease-in-out}
+.buddy.spin .bwrap{animation:bSpin .9s cubic-bezier(.3,1.3,.5,1)}
+.buddy:active{transform:scale(.92)}
+body.buddy-off .buddy,body.buddy-off .buddy-bubble{display:none}
+
+.buddy-bubble{
+  position:fixed;z-index:51;pointer-events:none;left:calc(var(--bgap) + var(--bsz) * .45);bottom:calc(var(--bgap) + var(--bsz) + 8px);
+  max-width:min(320px,calc(100vw - 24px));padding:10px 16px;border-radius:22px 22px 22px 6px;background:#fff;color:#2b2350;
+  font-size:19px;font-weight:900;line-height:1.3;box-shadow:0 0 0 4px #8b6cff,0 10px 22px rgba(43,35,80,.2);
+  opacity:0;visibility:hidden;transform:translateY(8px) scale(.9);transform-origin:0 100%;
+  transition:opacity .25s,transform .3s cubic-bezier(.3,1.6,.5,1),visibility 0s linear .3s;
+}
+.buddy-bubble.show{opacity:1;visibility:visible;transform:none;transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1),visibility 0s}
+@media (max-width:640px){.buddy-bubble{font-size:18px;left:var(--bgap);max-width:calc(100vw - 20px)}}
+
+@keyframes bIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes bBlink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+@keyframes bWave{0%,70%,100%{transform:rotate(0)}80%{transform:rotate(-24deg)}90%{transform:rotate(-6deg)}}
+@keyframes bWaveBig{from{transform:rotate(0)}to{transform:rotate(-40deg)}}
+@keyframes bTalk{from{transform:scaleY(1)}to{transform:scaleY(.6)}}
+@keyframes bDance{0%{transform:none}20%{transform:translateY(-22px) rotate(-10deg)}40%{transform:translateY(0) scale(1.08,.92)}
+  60%{transform:translateY(-14px) rotate(10deg)}80%{transform:translateY(0) scale(.96,1.04)}100%{transform:none}}
+@keyframes bTilt{0%,100%{transform:none}25%{transform:rotate(-14deg)}55%{transform:rotate(-14deg) translateX(-2px)}75%{transform:rotate(6deg)}}
+@keyframes bSpin{0%{transform:none}50%{transform:translateY(-14px) rotate(180deg) scale(1.1)}100%{transform:rotate(360deg)}}
+
+/* ---- Parent Info: Buddy on/off ---- */
+#credits .parent-tools{display:none;margin:4px 0 8px}
+body.parent-on #credits .parent-tools{display:block}
+.buddy-toggle{min-height:52px;padding:6px 18px;border-radius:999px;background:#fff;box-shadow:var(--shadow);font-size:16px;font-weight:900;color:#2b2350}
+.buddy-toggle b{display:inline-block;min-width:34px;margin-left:4px;padding:2px 10px;border-radius:999px;background:#3ddc84;color:#fff}
+.buddy-toggle[aria-pressed=false] b{background:#c9c3e3}
+
+/* ---- Fun polish: squish/pop on taps (uses the separate `scale` property, so it never fights the dance/drag
+   transforms and causes no layout shift), sparkles on wins ---- */
+.lcard,.bubble,.swatch,.zoo button,.lbtn,.mode-btn,.sticker-btn{transition:transform .15s,scale .22s cubic-bezier(.3,1.8,.5,1),box-shadow .2s,filter .2s}
+.bar{transition:transform .1s,scale .22s cubic-bezier(.3,1.8,.5,1),filter .2s}
+.tile{transition:scale .22s cubic-bezier(.3,1.8,.5,1)}
+.lcard:active,.tile:active,.bubble:active,.swatch:active,.zoo button:active{scale:.9 .86;transition-duration:.08s}
+.bar:active{scale:.94 .9;transition-duration:.08s}
+.sparkle{position:absolute;font-size:22px;line-height:1;margin:-11px 0 0 -11px;text-shadow:0 2px 0 rgba(43,35,80,.15);animation:sparkle .85s ease-out forwards}
+@keyframes sparkle{0%{transform:scale(.3) rotate(0);opacity:1}70%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(160deg);opacity:0}}
+
+/* Reduced motion: no bouncing, spinning or confetti; the bubble just fades. */
+@media (prefers-reduced-motion:reduce){
+  .buddy .bwrap,.buddy .b-eyes,.buddy .b-wing-r,.buddy .b-beak{animation:none!important}
+  .buddy-bubble{transform:none!important;transition:opacity .3s!important}
+  .sparkle{display:none}
+  .lcard,.tile,.bubble,.bar,.swatch,.zoo button{scale:none!important}
+}
+.tile.drag{scale:none}
+/* Phones: long words (5–6 letters) shrink their slots instead of spilling sideways into Hoot's corner. */
+@media (max-width:640px){
+  .slots{max-width:100%;gap:6px;padding:10px 6px}
+  .slot,.th .slot{flex:0 1 auto;min-width:40px}
+}
+
 </style>
 </head>
 <body>
@@ -426,12 +507,13 @@ body.parent-on #credits .full{display:block}
 </header>
 <main id="screen" aria-live="polite"></main>
 <footer id="credits" lang="en">
-  <div class="short"><b>Sound credits:</b> English letter sounds from Open Letter Sounds (CC0) · other syllables from Microsoft Edge neural voices · some sounds from Wikimedia Commons recordings (CC BY-SA 3.0). Turn on Parent Info for details.</div>
+  <div class="parent-tools"><button id="buddyToggle" class="buddy-toggle" type="button" aria-pressed="true" aria-label="Phonics Buddy on or off">Phonics Buddy: <b>On</b></button></div>
+  <div class="short"><b>Sound credits:</b> English letter sounds from Open Letter Sounds (CC0) · all other voices are Microsoft Edge neural voices (all female). Turn on Parent Info for details.</div>
   <div class="full"><b>Sound credits (Parent Info)</b>
     <ul>
-      <li>English letter sounds: Open Letter Sounds by Purple Computer (github.com/purplecomputerorg/openlettersounds), CC0 1.0 (public domain).</li>
-      <li>Spanish, Hebrew, Greek and Thai syllables: Microsoft Edge neural voices (es-MX Dalia, he-IL Hila, el-GR Athina, th-TH Premwadee).</li>
-      <li>Wikimedia Commons recordings, CC BY-SA 3.0 (first syllable only, trimmed and level-matched): “Voiceless bilabial plosive.ogg” (Hebrew פּ, uploader Joni) · “Voiceless alveolar plosive.ogg” (Hebrew ת, uploader Karmosin) · “Open front unrounded vowel.ogg” (Greek Α, Denelson83) · “Voiced velar fricative.ogg” (Greek Γ, uploader Adamsa123) · “Mid front unrounded vowel.ogg” (Greek Ε, TFighterPilot) · “Close front unrounded vowel.ogg” (Greek Ι and Υ, Denelson83) · “Velar nasal.ogg” (Thai ง, uploader Karmosin) · “Voiceless velar fricative.ogg” (Spanish J, uploader Karmosin). Source pages: commons.wikimedia.org/wiki/File:&lt;filename&gt;. License: https://creativecommons.org/licenses/by-sa/3.0/</li>
+      <li>English letter sounds: Open Letter Sounds by Purple Computer (github.com/purplecomputerorg/openlettersounds), CC0 1.0 (public domain). Female voice.</li>
+      <li>Spanish, Hebrew, Greek and Thai letter sounds and words: Microsoft Edge neural voices, all female (es-MX Dalia, he-IL Hila, el-GR Athina, th-TH Premwadee; es-US Paloma for Spanish J). A few sounds are borrowed from another of these female voices.</li>
+      <li>English words, names, explanations and Hoot the Phonics Buddy: Microsoft Edge neural voice en-US Ava (female).</li>
     </ul>
   </div>
 </footer>
@@ -444,7 +526,9 @@ window.LPW_CLIP_TEXT = {"cheer-awesome":"Awesome!","cheer-great-job":"Great job!
 window.LPW_SOUND = {"en":{"a":{"file":"00.mp3","ipa":"æ"},"b":{"file":"01.mp3","ipa":"b"},"c":{"file":"02.mp3","ipa":"k"},"d":{"file":"03.mp3","ipa":"d"},"e":{"file":"04.mp3","ipa":"ɛ"},"f":{"file":"05.mp3","ipa":"f"},"g":{"file":"06.mp3","ipa":"g"},"h":{"file":"07.mp3","ipa":"h"},"i":{"file":"08.mp3","ipa":"ɪ"},"j":{"file":"09.mp3","ipa":"dʒ"},"k":{"file":"10.mp3","ipa":"k"},"l":{"file":"11.mp3","ipa":"l"},"m":{"file":"12.mp3","ipa":"m"},"n":{"file":"13.mp3","ipa":"n"},"o":{"file":"14.mp3","ipa":"ɑ"},"p":{"file":"15.mp3","ipa":"p"},"q":{"file":"16.mp3","ipa":"kw"},"r":{"file":"17.mp3","ipa":"ɹ"},"s":{"file":"18.mp3","ipa":"s"},"t":{"file":"19.mp3","ipa":"t"},"u":{"file":"20.mp3","ipa":"ʌ"},"v":{"file":"21.mp3","ipa":"v"},"w":{"file":"22.mp3","ipa":"w"},"x":{"file":"23.mp3","ipa":"ks"},"y":{"file":"24.mp3","ipa":"j"},"z":{"file":"25.mp3","ipa":"z"}},"he":{"א":{"file":"00.mp3","ipa":"a"},"בּ":{"file":"01.mp3","ipa":"b"},"ג":{"file":"02.mp3","ipa":"g"},"ד":{"file":"03.mp3","ipa":"d"},"ה":{"file":"04.mp3","ipa":"h"},"ו":{"file":"05.mp3","ipa":"v"},"ז":{"file":"06.mp3","ipa":"z"},"ח":{"file":"07.mp3","ipa":"χ"},"ט":{"file":"08.mp3","ipa":"t"},"י":{"file":"09.mp3","ipa":"j"},"כּ":{"file":"10.mp3","ipa":"k"},"ל":{"file":"11.mp3","ipa":"l"},"מ":{"file":"12.mp3","ipa":"m"},"נ":{"file":"13.mp3","ipa":"n"},"ס":{"file":"14.mp3","ipa":"s"},"ע":{"file":"15.mp3","ipa":"e"},"פּ":{"file":"16.mp3","ipa":"p"},"צ":{"file":"17.mp3","ipa":"ts"},"ק":{"file":"18.mp3","ipa":"k"},"ר":{"file":"19.mp3","ipa":"ʁ"},"שׁ":{"file":"20.mp3","ipa":"ʃ"},"ת":{"file":"21.mp3","ipa":"t"}},"el":{"Αα":{"file":"00.mp3","ipa":"a"},"Ββ":{"file":"01.mp3","ipa":"v"},"Γγ":{"file":"02.mp3","ipa":"ɣ"},"Δδ":{"file":"03.mp3","ipa":"ð"},"Εε":{"file":"04.mp3","ipa":"e"},"Ζζ":{"file":"05.mp3","ipa":"z"},"Ηη":{"file":"06.mp3","ipa":"i"},"Θθ":{"file":"07.mp3","ipa":"θ"},"Ιι":{"file":"08.mp3","ipa":"i"},"Κκ":{"file":"09.mp3","ipa":"k"},"Λλ":{"file":"10.mp3","ipa":"l"},"Μμ":{"file":"11.mp3","ipa":"m"},"Νν":{"file":"12.mp3","ipa":"n"},"Ξξ":{"file":"13.mp3","ipa":"ks"},"Οο":{"file":"14.mp3","ipa":"o"},"Ππ":{"file":"15.mp3","ipa":"p"},"Ρρ":{"file":"16.mp3","ipa":"r"},"Σσς":{"file":"17.mp3","ipa":"s"},"Ττ":{"file":"18.mp3","ipa":"t"},"Υυ":{"file":"19.mp3","ipa":"i"},"Φφ":{"file":"20.mp3","ipa":"f"},"Χχ":{"file":"21.mp3","ipa":"x"},"Ψψ":{"file":"22.mp3","ipa":"ps"},"Ωω":{"file":"23.mp3","ipa":"o"}},"th":{"ก":{"file":"00.mp3","ipa":"k"},"ข":{"file":"01.mp3","ipa":"kʰ"},"ค":{"file":"02.mp3","ipa":"kʰ"},"ง":{"file":"03.mp3","ipa":"ŋ"},"จ":{"file":"04.mp3","ipa":"tɕ"},"ช":{"file":"05.mp3","ipa":"tɕʰ"},"ด":{"file":"06.mp3","ipa":"d"},"ต":{"file":"07.mp3","ipa":"t"},"น":{"file":"08.mp3","ipa":"n"},"บ":{"file":"09.mp3","ipa":"b"},"ป":{"file":"10.mp3","ipa":"p"},"พ":{"file":"11.mp3","ipa":"pʰ"},"ฟ":{"file":"12.mp3","ipa":"f"},"ม":{"file":"13.mp3","ipa":"m"},"ย":{"file":"14.mp3","ipa":"j"},"ร":{"file":"15.mp3","ipa":"r"},"ล":{"file":"16.mp3","ipa":"l"},"ว":{"file":"17.mp3","ipa":"w"},"ส":{"file":"18.mp3","ipa":"s"},"ห":{"file":"19.mp3","ipa":"h"},"อ":{"file":"20.mp3","ipa":"ʔa"}},"es":{"Aa":{"file":"00.mp3","ipa":"a"},"Bb":{"file":"01.mp3","ipa":"b"},"Cc":{"file":"02.mp3","ipa":"k"},"Dd":{"file":"03.mp3","ipa":"d"},"Ee":{"file":"04.mp3","ipa":"e"},"Ff":{"file":"05.mp3","ipa":"f"},"Gg":{"file":"06.mp3","ipa":"g"},"Ii":{"file":"07.mp3","ipa":"i"},"Jj":{"file":"08.mp3","ipa":"x"},"Ll":{"file":"09.mp3","ipa":"l"},"Mm":{"file":"10.mp3","ipa":"m"},"Nn":{"file":"11.mp3","ipa":"n"},"Ññ":{"file":"12.mp3","ipa":"ɲ"},"Oo":{"file":"13.mp3","ipa":"o"},"Pp":{"file":"14.mp3","ipa":"p"},"Rr":{"file":"15.mp3","ipa":"r"},"Ss":{"file":"16.mp3","ipa":"s"},"Tt":{"file":"17.mp3","ipa":"t"},"Uu":{"file":"18.mp3","ipa":"u"},"Vv":{"file":"19.mp3","ipa":"b"},"Zz":{"file":"20.mp3","ipa":"s"}}};
 window.LPW_EXPLAIN = {"he":{"א":{"file":"00.mp3","text":"This letter is Alef. It is silent. It just holds a vowel, like ah. The picture word means lion."},"בּ":{"file":"01.mp3","text":"This letter is Bet. It makes the sound at the start of bear. The picture word means house."},"ג":{"file":"02.mp3","text":"This letter is Gimel. It makes the sound at the start of goat. The picture word means camel."},"ד":{"file":"03.mp3","text":"This letter is Dalet. It makes the sound at the start of dog. The picture word means fish."},"ה":{"file":"04.mp3","text":"This letter is Hey. It makes the sound at the start of hat. The picture word means mountain."},"ו":{"file":"05.mp3","text":"This letter is Vav. It makes the sound at the start of van. The picture word means rose."},"ז":{"file":"06.mp3","text":"This letter is Zayin. It makes the sound at the start of zebra. The picture word means zebra."},"ח":{"file":"07.mp3","text":"This letter is Chet. It makes a scratchy throat sound, like clearing your throat. The picture word means cat."},"ט":{"file":"08.mp3","text":"This letter is Tet. It makes the sound at the start of turtle. The picture word means peacock."},"י":{"file":"09.mp3","text":"This letter is Yod. It makes the sound at the start of yellow. The picture word means moon."},"כּ":{"file":"10.mp3","text":"This letter is Kaf. It makes the sound at the start of kite. The picture word means ball."},"ל":{"file":"11.mp3","text":"This letter is Lamed. It makes the sound at the start of lion. The picture word means heart."},"מ":{"file":"12.mp3","text":"This letter is Mem. It makes the sound at the start of moon. The picture word means car."},"נ":{"file":"13.mp3","text":"This letter is Nun. It makes the sound at the start of nest. The picture word means snake."},"ס":{"file":"14.mp3","text":"This letter is Samech. It makes the sound at the start of sun. The picture word means horse."},"ע":{"file":"15.mp3","text":"This letter is Ayin. It is silent. It just holds a vowel. The picture word means tree."},"פּ":{"file":"16.mp3","text":"This letter is Pey. It makes the sound at the start of pig. The picture word means elephant."},"צ":{"file":"17.mp3","text":"This letter is Tsadi. It makes the sound at the end of cats. The picture word means turtle."},"ק":{"file":"18.mp3","text":"This letter is Kof. It makes the sound at the start of kite. The picture word means monkey."},"ר":{"file":"19.mp3","text":"This letter is Resh. It makes a soft r sound, from the back of the throat. The picture word means train."},"שׁ":{"file":"20.mp3","text":"This letter is Shin. It makes the sound at the start of ship. The picture word means sun."},"ת":{"file":"21.mp3","text":"This letter is Tav. It makes the sound at the start of turtle. The picture word means apple."}},"el":{"Αα":{"file":"00.mp3","text":"This letter is Alpha. It makes the ah sound, like in father. The picture word means star."},"Ββ":{"file":"01.mp3","text":"This letter is Vita. It makes the sound at the start of van. The picture word means boat."},"Γγ":{"file":"02.mp3","text":"This letter is Gamma. It makes a soft, breathy g sound. The picture word means cat."},"Δδ":{"file":"03.mp3","text":"This letter is Delta. It makes the sound at the start of this. The picture word means tree."},"Εε":{"file":"04.mp3","text":"This letter is Epsilon. It makes the eh sound, like in egg. The picture word means elephant."},"Ζζ":{"file":"05.mp3","text":"This letter is Zita. It makes the sound at the start of zebra. The picture word means zebra."},"Ηη":{"file":"06.mp3","text":"This letter is Ita. It makes the ee sound, like in see. The picture word means sun."},"Θθ":{"file":"07.mp3","text":"This letter is Thita. It makes the sound at the start of thumb. The picture word means sea."},"Ιι":{"file":"08.mp3","text":"This letter is Yota. It makes the ee sound, like in see. The picture word means seahorse."},"Κκ":{"file":"09.mp3","text":"This letter is Kappa. It makes the sound at the start of kite. The picture word means hen."},"Λλ":{"file":"10.mp3","text":"This letter is Lambda. It makes the sound at the start of lion. The picture word means flower."},"Μμ":{"file":"11.mp3","text":"This letter is Mi. It makes the sound at the start of moon. The picture word means apple."},"Νν":{"file":"12.mp3","text":"This letter is Ni. It makes the sound at the start of nest. The picture word means water."},"Ξξ":{"file":"13.mp3","text":"This letter is Ksi. It makes the sound at the end of fox. The picture word means wood."},"Οο":{"file":"14.mp3","text":"This letter is Omikron. It makes the o sound, like in orange. The picture word means umbrella."},"Ππ":{"file":"15.mp3","text":"This letter is Pi. It makes the sound at the start of pig. The picture word means duck."},"Ρρ":{"file":"16.mp3","text":"This letter is Ro. It makes a rolled r. The picture word means clock."},"Σσς":{"file":"17.mp3","text":"This letter is Sigma. It makes the sound at the start of sun. The picture word means dog."},"Ττ":{"file":"18.mp3","text":"This letter is Taf. It makes the sound at the start of turtle. The picture word means cheese."},"Υυ":{"file":"19.mp3","text":"This letter is Ipsilon. It makes the ee sound, like in see. The picture word means submarine."},"Φφ":{"file":"20.mp3","text":"This letter is Fi. It makes the sound at the start of fish. The picture word means moon."},"Χχ":{"file":"21.mp3","text":"This letter is Hi. It makes a scratchy h sound, from the back of the throat. The picture word means turtle."},"Ψψ":{"file":"22.mp3","text":"This letter is Psi. It makes the sound at the end of cups. The picture word means fish."},"Ωω":{"file":"23.mp3","text":"This letter is Omega. It makes the o sound, like in orange. The picture word means ocean."}},"th":{"ก":{"file":"00.mp3","text":"This letter is Gor Gai. It makes a sound between g and k. The picture word means chicken."},"ข":{"file":"01.mp3","text":"This letter is Khor Khai. It makes the sound at the start of kite, with a puff of air. The picture word means egg."},"ค":{"file":"02.mp3","text":"This letter is Khor Khwai. It makes the sound at the start of kite, with a puff of air. The picture word means buffalo."},"ง":{"file":"03.mp3","text":"This letter is Ngor Ngu. It makes the sound at the end of sing. The picture word means snake."},"จ":{"file":"04.mp3","text":"This letter is Jor Jan. It makes the sound at the start of jam, but softer. The picture word means plate."},"ช":{"file":"05.mp3","text":"This letter is Chor Chang. It makes the sound at the start of chair. The picture word means elephant."},"ด":{"file":"06.mp3","text":"This letter is Dor Dek. It makes the sound at the start of dog. The picture word means child."},"ต":{"file":"07.mp3","text":"This letter is Dtor Dtao. It makes a sound between d and t. The picture word means turtle."},"น":{"file":"08.mp3","text":"This letter is Nor Nu. It makes the sound at the start of nest. The picture word means mouse."},"บ":{"file":"09.mp3","text":"This letter is Bor Baimai. It makes the sound at the start of bear. The picture word means leaf."},"ป":{"file":"10.mp3","text":"This letter is Bpor Bpla. It makes a sound between b and p. The picture word means fish."},"พ":{"file":"11.mp3","text":"This letter is Phor Phan. It makes the sound at the start of pig, with a puff of air. The picture word means offering tray."},"ฟ":{"file":"12.mp3","text":"This letter is For Fan. It makes the sound at the start of fish. The picture word means tooth."},"ม":{"file":"13.mp3","text":"This letter is Mor Ma. It makes the sound at the start of moon. The picture word means horse."},"ย":{"file":"14.mp3","text":"This letter is Yor Yak. It makes the sound at the start of yellow. The picture word means giant."},"ร":{"file":"15.mp3","text":"This letter is Ror Ruea. It makes a rolled r. The picture word means boat."},"ล":{"file":"16.mp3","text":"This letter is Lor Ling. It makes the sound at the start of lion. The picture word means monkey."},"ว":{"file":"17.mp3","text":"This letter is Wor Waen. It makes the sound at the start of whale. The picture word means ring."},"ส":{"file":"18.mp3","text":"This letter is Sor Suea. It makes the sound at the start of sun. The picture word means tiger."},"ห":{"file":"19.mp3","text":"This letter is Hor Hip. It makes the sound at the start of hat. The picture word means chest."},"อ":{"file":"20.mp3","text":"This letter is Or Ang. A vowel holder. Here it says ah. The picture word means basin."}},"es":{"Aa":{"file":"00.mp3","text":"This letter is A. It makes the ah sound, like in father. The picture word means tree."},"Bb":{"file":"01.mp3","text":"This letter is Be. It makes the sound at the start of bear. The picture word means boat."},"Cc":{"file":"02.mp3","text":"This letter is Ce. It makes the sound at the start of kite. The picture word means house."},"Dd":{"file":"03.mp3","text":"This letter is De. It makes the sound at the start of dog. The picture word means dolphin."},"Ee":{"file":"04.mp3","text":"This letter is E. It makes the eh sound, like in egg. The picture word means elephant."},"Ff":{"file":"05.mp3","text":"This letter is Efe. It makes the sound at the start of fish. The picture word means flower."},"Gg":{"file":"06.mp3","text":"This letter is Ge. It makes the sound at the start of goat. The picture word means cat."},"Ii":{"file":"07.mp3","text":"This letter is I. It makes the ee sound, like in see. The picture word means iguana."},"Jj":{"file":"08.mp3","text":"This letter is Jota. It makes a breathy h sound, from the throat. The picture word means giraffe."},"Ll":{"file":"09.mp3","text":"This letter is Ele. It makes the sound at the start of lion. The picture word means moon."},"Mm":{"file":"10.mp3","text":"This letter is Eme. It makes the sound at the start of moon. The picture word means mom."},"Nn":{"file":"11.mp3","text":"This letter is Ene. It makes the sound at the start of nest. The picture word means cloud."},"Ññ":{"file":"12.mp3","text":"This letter is Enye. It makes the ny sound in the middle of canyon. The picture word means rhea, a big bird."},"Oo":{"file":"13.mp3","text":"This letter is O. It makes the o sound, like in go. The picture word means bear."},"Pp":{"file":"14.mp3","text":"This letter is Pe. It makes the sound at the start of pig. The picture word means dog."},"Rr":{"file":"15.mp3","text":"This letter is Erre. It makes a rolled r. The picture word means mouse."},"Ss":{"file":"16.mp3","text":"This letter is Ese. It makes the sound at the start of sun. The picture word means sun."},"Tt":{"file":"17.mp3","text":"This letter is Te. It makes the sound at the start of turtle. The picture word means turtle."},"Uu":{"file":"18.mp3","text":"This letter is U. It makes the oo sound, like in moon. The picture word means grape."},"Vv":{"file":"19.mp3","text":"This letter is Uve. It makes the sound at the start of bear. The picture word means cow."},"Zz":{"file":"20.mp3","text":"This letter is Zeta. It makes the sound at the start of sun. The picture word means shoe."}}};
 window.LPW_APPROVED = {"en":["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"],"he":["א","בּ","ג","ד","ה","ו","ז","ח","ט","י","כּ","ל","מ","נ","ס","ע","פּ","צ","ק","ר","שׁ","ת"],"el":["Αα","Ββ","Γγ","Δδ","Εε","Ζζ","Ηη","Θθ","Ιι","Κκ","Λλ","Μμ","Νν","Ξξ","Οο","Ππ","Ρρ","Σσς","Ττ","Υυ","Φφ","Χχ","Ψψ","Ωω"],"th":["ก","ข","ค","ง","จ","ช","ด","ต","น","บ","ป","พ","ฟ","ม","ย","ร","ล","ว","ส","ห","อ"],"es":["Aa","Bb","Cc","Dd","Ee","Ff","Gg","Ii","Jj","Ll","Mm","Nn","Ññ","Oo","Pp","Rr","Ss","Tt","Uu","Vv","Zz"]};
+window.LPW_BUDDY = {"voice":"en-US-AvaNeural","clips":{"hi-friend":{"file":"hi-friend.mp3","text":"Hi friend! Let's play with letters!","group":"welcome"},"yay-here":{"file":"yay-here.mp3","text":"Yay, you're here! Tap any letter to start!","group":"welcome"},"ready":{"file":"ready.mp3","text":"Ready to learn? Let's go!","group":"welcome"},"awesome":{"file":"awesome.mp3","text":"Awesome job!","group":"cheer"},"you-did-it":{"file":"you-did-it.mp3","text":"You did it!","group":"cheer"},"superstar":{"file":"superstar.mp3","text":"Way to go, superstar!","group":"cheer"},"woohoo":{"file":"woohoo.mp3","text":"Woo-hoo! High five!","group":"cheer"},"so-smart":{"file":"so-smart.mp3","text":"You're so smart!","group":"cheer"},"nailed-it":{"file":"nailed-it.mp3","text":"Nailed it!","group":"cheer"},"great-listening":{"file":"great-listening.mp3","text":"Great listening!","group":"cheer"},"amazing":{"file":"amazing.mp3","text":"Amazing! Keep going!","group":"cheer"},"good-try":{"file":"good-try.mp3","text":"Good try! Let's try again!","group":"retry"},"almost":{"file":"almost.mp3","text":"Almost! You've got this!","group":"retry"},"oops":{"file":"oops.mp3","text":"Oops! Try again, friend!","group":"retry"},"keep-trying":{"file":"keep-trying.mp3","text":"That's okay! Keep trying!","group":"retry"},"new-sticker":{"file":"new-sticker.mp3","text":"Whoa, you unlocked a new sticker!","group":"sticker"},"stars":{"file":"stars.mp3","text":"Look at all those stars!","group":"sticker"},"sticker-proud":{"file":"sticker-proud.mp3","text":"I'm so proud of you!","group":"sticker"},"tap-giggle":{"file":"tap-giggle.mp3","text":"Hehe! That tickles! Let's learn a new sound!","group":"tap"},"tap-amazing":{"file":"tap-amazing.mp3","text":"You're doing amazing!","group":"tap"},"tap-hello":{"file":"tap-hello.mp3","text":"Hello! I'm your phonics buddy!","group":"tap"}}};
 window.LPW_SOUND_EMBED = null;
+window.LPW_BUDDY_EMBED = null;
 window.LPW_CLIPS = null;
 /* ---- data-en.js ---- */
 /* American English — the default language. Short-vowel phonics, A–Z with a picture word each. */
@@ -1255,7 +1339,7 @@ window.ART = window.ART || {};
   var BASE = REMOTE ? SITE : './audio/';
   var remoteDown = false; /* offline file:// copy: after one failed remote clip, go straight to the fallback */
   try { window.addEventListener('online', function () { remoteDown = false; }); } catch (e) { /* ignore */ }
-  var audio = null, token = 0, cur = null, timers = [], log = [], missing = [];
+  var audio = null, token = 0, cur = null, timers = [], log = [], missing = [], blog = [], runs = 0, speechUntil = 0;
 
   function has(key) { return !!key && Object.prototype.hasOwnProperty.call(TEXT, key) && (!EMBED || !!EMBED[key]); }
   function src(key) { return EMBED ? EMBED[key] : './audio/en/' + key + '.mp3'; }
@@ -1316,6 +1400,7 @@ window.ART = window.ART || {};
   /* Stop everything: current clip, queued clips, pending delayed speech, and Web Speech. */
   function stopAll() {
     token++;
+    speechUntil = 0;
     timers.forEach(clearTimeout); timers = [];
     cur = null;
     if (audio) {
@@ -1336,6 +1421,8 @@ window.ART = window.ART || {};
      onFail(i) if entry i cannot play (error / rejected); onDone() after the last one ends. Errors are handled quietly. */
   function run(entries, onFail, onDone) {
     stopAll();
+    /* Buddy lines (entry.buddy) never count as learning clips; any learning clip cancels them via stopAll(). */
+    if (!(entries[0] && entries[0].buddy)) runs++;
     var my = token, a = el();
     if (!a) { if (onFail) onFail(0); return false; }
     var i = 0, failed = false;
@@ -1351,7 +1438,7 @@ window.ART = window.ART || {};
       if (i >= entries.length) { cur = null; if (onDone) onDone(); return; }
       var e = entries[i];
       if (e.pause && !e.paused) { e.paused = true; later(function () { if (my === token) step(); }, e.pause); return; }
-      cur = e; log.push(e.key); if (log.length > 300) log.shift();
+      cur = e; if (e.buddy) { blog.push(e.key); if (blog.length > 100) blog.shift(); } else { log.push(e.key); if (log.length > 300) log.shift(); }
       a.onended = function () { if (my !== token) return; i++; step(); };
       a.onerror = function () { fail(); };
       try {
@@ -1390,6 +1477,16 @@ window.ART = window.ART || {};
         lang: cur ? cur.lang : null, text: cur ? (cur.text || TEXT[cur.key] || '') : null };
     },
     log: function () { return log.slice(); },
+    buddyLog: function () { return blog.slice(); },
+    /* busy: a clip is playing or a delayed clip is queued. runs: how many learning sequences have started. */
+    busy: function () {
+      var ss = false; try { ss = !!(window.speechSynthesis && window.speechSynthesis.speaking); } catch (e) { /* ignore */ }
+      return timers.length > 0 || ss || Date.now() < speechUntil || !!(audio && cur && !audio.paused && !audio.ended);
+    },
+    /* Device-voice fallback started (Web Speech): counts as a learning clip, busy for about as long as it talks. */
+    noteSpeech: function (text) { runs++; speechUntil = Date.now() + 700 + String(text || '').length * 90; },
+    runs: function () { return runs; },
+    buddyPlaying: function () { return !!(audio && cur && cur.buddy && !audio.paused && !audio.ended); },
     missing: function () { return missing.slice(); },
     keys: function () { return Object.keys(TEXT); },
     element: function () { return el(); }
@@ -1547,6 +1644,7 @@ window.ART = window.ART || {};
       try {
         var ss = window.speechSynthesis;
         if (!opts.queue) ss.cancel();
+        if (C && C.noteSpeech) C.noteSpeech(trs);
         items.forEach(function (it) {
           var u = new SpeechSynthesisUtterance(it.text);
           u.voice = v; u.lang = v.lang; u.rate = opts.rate || 0.8; u.pitch = 1.1; u.volume = 1;
@@ -1572,7 +1670,7 @@ window.ART = window.ART || {};
   var NEED = { letters: 5, builder: 1, bubbles: 3, stage: 10 }; /* actions to unlock a sticker */
   var memory = null;
 
-  function fresh() { return { stars: 0, lang: 'en', parent: false, prog: {}, stickers: {} }; }
+  function fresh() { return { stars: 0, lang: 'en', parent: false, buddy: true, prog: {}, stickers: {} }; }
   function load() {
     var s = null;
     try { var raw = window.localStorage && window.localStorage.getItem(KEY); if (raw) s = JSON.parse(raw); } catch (e) { s = null; }
@@ -1587,6 +1685,7 @@ window.ART = window.ART || {};
     if (!plain(s.stickers)) s.stickers = {};
     Object.keys(s.prog).forEach(function (L) { if (!plain(s.prog[L])) delete s.prog[L]; else if (s.prog[L].letters && !Array.isArray(s.prog[L].letters)) delete s.prog[L].letters; });
     s.parent = s.parent === true;
+    s.buddy = s.buddy !== false; /* Phonics Buddy: default ON */
     return s;
   }
   var ST = load();
@@ -1612,6 +1711,8 @@ window.ART = window.ART || {};
   function reduced() { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
   function restart(node, cls) { if (!node) return; node.classList.remove(cls); void node.offsetWidth; node.classList.add(cls); }
 
+  var JAR = 40;
+  function buddy(fn, arg) { try { if (window.BUDDY && BUDDY[fn]) BUDDY[fn](arg); } catch (e) { /* ignore */ } }
   var COLORS = ['#ff5a8a', '#ff9f1c', '#4d96ff', '#3ddc84', '#9b5de5', '#2ec4b6', '#ff5a5f', '#f7b801'];
 
   function confetti(n) {
@@ -1641,6 +1742,19 @@ window.ART = window.ART || {};
       (function (b) { setTimeout(function () { b.remove(); }, 800); })(b);
     }
   }
+  /* Little star sparkles flying out of a point (wins). Cheap: 8 spans, removed after 0.9 s. */
+  function sparkle(x, y, n) {
+    if (reduced()) return;
+    var fx = document.getElementById('fx'); if (!fx) return;
+    n = n || 8;
+    for (var i = 0; i < n; i++) {
+      var a = i / n * Math.PI * 2 + Math.random() * 0.5, d = 50 + Math.random() * 50, s = el('span', { class: 'sparkle' }, '\u2605');
+      s.style.left = x + 'px'; s.style.top = y + 'px'; s.style.color = COLORS[(i * 3) % COLORS.length];
+      s.style.setProperty('--dx', Math.cos(a) * d + 'px'); s.style.setProperty('--dy', Math.sin(a) * d + 'px');
+      fx.appendChild(s);
+      (function (s) { setTimeout(function () { s.remove(); }, 900); })(s);
+    }
+  }
   function center(node) {
     if (!node || !node.getBoundingClientRect) return { x: innerWidth / 2, y: innerHeight / 2 };
     var r = node.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
@@ -1652,7 +1766,10 @@ window.ART = window.ART || {};
   }
   function addStar(fromNode, n) {
     n = n || 1;
+    var jarBefore = Math.floor(ST.stars / JAR);
     ST.stars += n; save();
+    /* The Star Jar shows 40 stars: each time it fills up, the Buddy celebrates. */
+    if (Math.floor(ST.stars / JAR) > jarBefore) setTimeout(function () { buddy('sticker', 'stars'); }, 900);
     try { SFX.star(); } catch (e) { /* ignore */ }
     var fx = document.getElementById('fx'), sc = document.getElementById('starCount');
     if (fx && sc && !reduced()) {
@@ -1688,6 +1805,7 @@ window.ART = window.ART || {};
     fx.appendChild(t);
     try { SFX.win(); } catch (e) { /* ignore */ }
     confetti(90);
+    buddy('sticker');
     setTimeout(function () { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; }, 1800);
     setTimeout(function () { t.remove(); }, 2300);
   }
@@ -1705,7 +1823,7 @@ window.ART = window.ART || {};
 
   window.LPWCore = {
     ST: ST, save: save, el: el, esc: esc, shuffle: shuffle, restart: restart, reduced: reduced,
-    confetti: confetti, burst: burst, center: center, addStar: addStar, renderStars: renderStars,
+    confetti: confetti, burst: burst, sparkle: sparkle, center: center, buddy: buddy, addStar: addStar, renderStars: renderStars,
     progress: progress, MODES_LIST: MODES_LIST, NEED: NEED, COLORS: COLORS,
     D: function () { return window.LPW_DATA[ST.lang] || window.LPW_DATA.en; },
     /* Always-visible English meaning caption for non-English words (empty in English). */
@@ -1721,6 +1839,228 @@ window.ART = window.ART || {};
     say: function (items, opts) { return SPEECH.say(ST.lang, items, opts); }
   };
   window.MODES = window.MODES || {};
+})();
+
+/* ---- buddy.js ---- */
+/* Phonics Buddy "Hoot": a friendly owl in the bottom-left corner who cheers, encourages and giggles (English only).
+   Clips: window.LPW_BUDDY = {voice, clips: {key: {file, text, group}}};
+          window.LPW_BUDDY_EMBED = null (load ./audio/buddy/<file>) or {key: data URI} (standalone file).
+   Speech goes through the one shared CLIPS player, and only when it is idle, so a Buddy line never cuts off or overlaps
+   a learning clip. Any new learning clip (letter sound / name / word / explain) cancels the Buddy at once. */
+(function () {
+  var C = window.LPWCore, ST = C.ST;
+  var DATA = (window.LPW_BUDDY && window.LPW_BUDDY.clips) || {};
+  var EMBED = window.LPW_BUDDY_EMBED || null;
+
+  /* ---- the owl (inline SVG, round and bright) ---- */
+  var OWL =
+    '<svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">' +
+    '<ellipse cx="60" cy="112" rx="30" ry="5" fill="rgba(43,35,80,.16)"/>' +
+    '<g class="b-body">' +
+    '<path d="M30 30 L38 6 L50 24 Z" fill="#6a4cf0"/><path d="M90 30 L82 6 L70 24 Z" fill="#6a4cf0"/>' +
+    '<ellipse cx="60" cy="64" rx="40" ry="44" fill="#8b6cff"/>' +
+    '<ellipse cx="60" cy="80" rx="25" ry="26" fill="#ffe9a8"/>' +
+    '<path d="M50 74q4 4 8 0M62 74q4 4 8 0M54 86q4 4 8 0M46 86q2 3 4 1M68 87q2 2 4-1" stroke="#ffc94d" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<g class="b-wing-l"><ellipse cx="22" cy="70" rx="10" ry="22" fill="#6a4cf0" transform="rotate(14 22 70)"/></g>' +
+    '<g class="b-wing-r"><ellipse cx="98" cy="70" rx="10" ry="22" fill="#6a4cf0" transform="rotate(-14 98 70)"/></g>' +
+    '<circle cx="42" cy="48" r="18" fill="#fff"/><circle cx="78" cy="48" r="18" fill="#fff"/>' +
+    '<circle cx="42" cy="48" r="18" fill="none" stroke="#ff9fd0" stroke-width="4"/><circle cx="78" cy="48" r="18" fill="none" stroke="#5ad1ff" stroke-width="4"/>' +
+    '<g class="b-eyes"><circle cx="44" cy="50" r="9" fill="#2b2350"/><circle cx="76" cy="50" r="9" fill="#2b2350"/>' +
+    '<circle cx="47" cy="46" r="3.4" fill="#fff"/><circle cx="79" cy="46" r="3.4" fill="#fff"/></g>' +
+    '<circle cx="28" cy="64" r="5" fill="#ff8fc7" opacity=".7"/><circle cx="92" cy="64" r="5" fill="#ff8fc7" opacity=".7"/>' +
+    '<path class="b-beak" d="M53 60 L67 60 L60 71 Z" fill="#ff9f1c" stroke="#ff7a1c" stroke-width="2" stroke-linejoin="round"/>' +
+    '<path d="M46 106q4-6 8 0M66 106q4-6 8 0" stroke="#ff9f1c" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+    '</g></svg>';
+
+  /* ---- state ---- */
+  var btn = null, bubble = null, hideT = null, animT = null;
+  var pend = null, navN = 0, lastKey = null, lastSpeak = 0, lastCheer = -1e9, lastRetry = -1e9, lastWelcome = -1e9;
+  var started = false, welcomedModes = {}, fails = 0, lastSrc = '', lastText = '';
+  var CHEER_GAP = 8000, RETRY_GAP = 10000, WELCOME_GAP = 30000;
+
+  function now() { return Date.now(); }
+  function on() { return ST.buddy !== false; }
+  function keysOf(group) { return Object.keys(DATA).filter(function (k) { return DATA[k].group === group; }); }
+  /* Random line from a group, never the same line twice in a row. */
+  function pick(group) {
+    var ks = keysOf(group);
+    if (ks.length > 1) ks = ks.filter(function (k) { return k !== lastKey; });
+    return ks.length ? ks[Math.floor(Math.random() * ks.length)] : null;
+  }
+  function src(key) {
+    var d = DATA[key]; if (!d) return '';
+    if (EMBED) return EMBED[key] || '';
+    return './audio/buddy/' + d.file;
+  }
+
+  /* ---- look & feel ---- */
+  function anim(cls, ms) {
+    if (!btn) return;
+    ['dance', 'tilt', 'spin', 'wave'].forEach(function (c) { btn.classList.remove(c); });
+    void btn.offsetWidth;
+    btn.classList.add(cls);
+    clearTimeout(animT);
+    animT = setTimeout(function () { btn.classList.remove(cls); }, ms || 1100);
+  }
+  function showBubble(text, ms) {
+    if (!bubble) return;
+    lastText = text;
+    bubble.textContent = text;
+    bubble.classList.add('show');
+    clearTimeout(hideT);
+    hideT = setTimeout(hideBubble, ms || 2600);
+  }
+  function hideBubble() { if (bubble) bubble.classList.remove('show'); if (btn) btn.classList.remove('talk'); }
+  function middle() { var r = btn.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height * 0.4 }; }
+  function burst(big) {
+    if (!btn || C.reduced()) return;
+    var c = middle();
+    C.sparkle(c.x, c.y, big ? 12 : 7);
+    if (big) C.burst(c.x, c.y);
+  }
+
+  /* ---- speech: queued until the shared player is idle; learning clips always win ---- */
+  /* o.maxRuns: how many learning sequences may still start before this line (e.g. the tile's own letter sound);
+     one more than that means the child moved on, so the line is dropped. o.maxWait: give up after this many ms. */
+  function request(key, o) {
+    o = o || {};
+    if (!on() || !key || !DATA[key] || !window.CLIPS) return false;
+    cancel();
+    pend = { key: key, group: DATA[key].group, runs0: CLIPS.runs(), maxRuns: o.maxRuns || 0, t0: now(),
+      maxWait: o.maxWait || 7000, idle: 0, need: o.need || 2, nav: navN, timer: null };
+    tick();
+    return true;
+  }
+  function cancel() { if (pend) { clearTimeout(pend.timer); pend = null; } }
+  function tick() {
+    var p = pend; if (!p) return;
+    if (!on() || p.nav !== navN || CLIPS.runs() - p.runs0 > p.maxRuns || now() - p.t0 > p.maxWait) { pend = null; return; }
+    if (CLIPS.busy()) p.idle = 0; else p.idle++;
+    if (p.idle >= p.need) { pend = null; speak(p.key); return; }
+    p.timer = setTimeout(tick, 150);
+  }
+  function speak(key) {
+    var d = DATA[key];
+    lastKey = key; lastSpeak = now();
+    if (btn) btn.classList.add('talk');
+    showBubble(d.text, 2600);
+    var s = src(key);
+    lastSrc = s;
+    /* No clip (or it cannot load): the bubble text alone carries the message. Never Web Speech for the Buddy. */
+    if (!s) { fails++; return; }
+    var ok = CLIPS.run([{ key: 'buddy/' + key, src: s, lang: 'en', buddy: true, text: d.text }],
+      function () { fails++; },
+      function () { if (btn) btn.classList.remove('talk'); });
+    if (!ok) fails++;
+  }
+
+  /* ---- behaviours ---- */
+  function welcome(o) {
+    if (!on()) return;
+    anim('wave', 1400);
+    if (now() - lastWelcome < WELCOME_GAP) return;
+    lastWelcome = now();
+    request(pick('welcome'), { maxRuns: (o && o.maxRuns) || 1, maxWait: 9000 });
+  }
+  /* Big win: dance + sparkles; speaks at most once every ~8 s (bubble pops are frequent). */
+  function cheer(o) {
+    if (!on()) return;
+    o = o || {};
+    anim('dance', 1000);
+    burst(o.big !== false);
+    if (now() - lastCheer < CHEER_GAP) return;
+    lastCheer = now();
+    request(pick('cheer'), { maxRuns: o.maxRuns == null ? 1 : o.maxRuns, maxWait: o.maxWait || 9000 });
+  }
+  /* Gentle "hmm, try again": head tilt; speaks at most once every ~10 s, and only after the tile's own sound. */
+  function retry(o) {
+    if (!on()) return;
+    o = o || {};
+    anim('tilt', 1100);
+    if (o.quiet || now() - lastRetry < RETRY_GAP) return;
+    lastRetry = now();
+    request(pick('retry'), { maxRuns: o.maxRuns == null ? 2 : o.maxRuns, maxWait: o.maxWait || 6000 });
+  }
+  function sticker(key) {
+    if (!on()) return;
+    anim('dance', 1000);
+    burst(true);
+    if (!C.reduced()) C.confetti(30);
+    request(key && DATA[key] ? key : pick('sticker'), { maxRuns: 1, maxWait: 8000 });
+  }
+  function tapped() {
+    started = true;
+    try { SFX.giggle(); } catch (e) { /* ignore */ }
+    anim('spin', 900);
+    burst(false);
+    request(pick('tap'), { maxRuns: 0, maxWait: 5000, need: 1 });
+  }
+  /* Called by the app on every screen change: drops stale lines; entering a mode may say a welcome line. */
+  function nav(mode, prev) {
+    navN++;
+    if (pend && pend.group === 'welcome') { pend.nav = navN; pend.runs0 = CLIPS.runs(); pend.maxRuns = 1; pend.t0 = now(); }
+    else cancel();
+    if (!btn) return;
+    btn.setAttribute('data-mode', mode);
+    if (mode === 'home' || mode === prev || !started) return;
+    if (welcomedModes[mode]) { anim('wave', 1400); return; }
+    welcomedModes[mode] = 1;
+    welcome({ maxRuns: 1 });
+  }
+
+  /* ---- on / off (Parent Info toggle, saved in settings) ---- */
+  function setOn(v) {
+    ST.buddy = !!v; C.save();
+    document.body.classList.toggle('buddy-off', !ST.buddy);
+    if (!ST.buddy) {
+      cancel(); hideBubble();
+      if (window.CLIPS && CLIPS.buddyPlaying()) CLIPS.stop();
+    }
+    var t = document.getElementById('buddyToggle');
+    if (t) {
+      t.setAttribute('aria-pressed', String(ST.buddy));
+      t.querySelector('b').textContent = ST.buddy ? 'On' : 'Off';
+    }
+    return ST.buddy;
+  }
+
+  function init() {
+    btn = C.el('button', { id: 'buddy', class: 'buddy', type: 'button', 'aria-label': 'Phonics Buddy', title: 'Hoot, your Phonics Buddy' },
+      '<span class="bwrap">' + OWL + '</span>');
+    bubble = C.el('div', { id: 'buddyBubble', class: 'buddy-bubble', lang: 'en', dir: 'ltr', role: 'status', 'aria-live': 'polite' });
+    document.body.appendChild(bubble);
+    document.body.appendChild(btn);
+    btn.addEventListener('click', function (e) { e.stopPropagation(); tapped(); });
+    var t = document.getElementById('buddyToggle');
+    if (t) t.addEventListener('click', function () { setOn(!ST.buddy); try { SFX.tap(); } catch (e) { /* ignore */ } });
+    setOn(ST.buddy !== false);
+    /* Browsers only allow sound after a user gesture: the first tap anywhere (except on Hoot) says hello. */
+    var first = function (e) {
+      window.removeEventListener('pointerdown', first, true);
+      window.removeEventListener('keydown', first, true);
+      if (started || (btn && e && e.target && btn.contains(e.target))) { started = true; return; }
+      started = true;
+      welcome({ maxRuns: 1 });
+    };
+    window.addEventListener('pointerdown', first, true);
+    window.addEventListener('keydown', first, true);
+  }
+
+  window.BUDDY = {
+    init: init, nav: nav, setOn: setOn, on: on,
+    welcome: welcome, cheer: cheer, retry: retry, sticker: sticker, tap: tapped,
+    busy: function () { return !!pend || !!(window.CLIPS && CLIPS.buddyPlaying()); },
+    clips: function () { return DATA; }, src: src,
+    /* test hook */
+    state: function () {
+      var r = btn ? btn.getBoundingClientRect() : null;
+      return { on: on(), started: started, pending: pend ? pend.key : null, lastKey: lastKey, lastSrc: String(lastSrc).slice(0, 40),
+        bubble: !!(bubble && bubble.classList.contains('show')), text: lastText, fails: fails,
+        anim: btn ? ['dance', 'tilt', 'spin', 'wave'].filter(function (c) { return btn.classList.contains(c); }) : [],
+        box: r ? { x: r.left, y: r.top, w: r.width, h: r.height } : null };
+    },
+    resetLimits: function () { lastCheer = lastRetry = lastWelcome = -1e9; welcomedModes = {}; }
+  };
 })();
 
 /* ---- mode-letters.js ---- */
@@ -1830,6 +2170,7 @@ window.ART = window.ART || {};
   function tapLetter(btnEl, L, D, col) {
     try { SFX.tap(); } catch (e) { /* ignore */ }
     C.restart(btnEl, 'dance');
+    var isNew = (((C.ST.prog[D.code] || {}).letters) || []).indexOf(L.ch) < 0;
     btnEl.classList.add('seen');
     var spot = document.getElementById('spot'), en = D.code === 'en';
     var sm = window.CLIPS && CLIPS.soundMeta(D.code, soundKey(D, L)), ok = !!(window.CLIPS && CLIPS.approved(D.code, soundKey(D, L)));
@@ -1851,6 +2192,9 @@ window.ART = window.ART || {};
     playTap(D, L);
     C.addStar(btnEl);
     C.progress('letters', L.ch);
+    /* Every 5th new letter: Hoot dances and cheers once "/b/ … /b/ … bear" has finished. */
+    var seenN = (((C.ST.prog[D.code] || {}).letters) || []).length;
+    if (isNew && seenN % 5 === 0) C.buddy('cheer', { maxRuns: 1, maxWait: 9000 });
     if (window.innerWidth <= 900 && spot.scrollIntoView) {
       try { spot.scrollIntoView({ behavior: C.reduced() ? 'auto' : 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ }
     }
@@ -1959,6 +2303,8 @@ window.ART = window.ART || {};
           try { if (window.CLIPS) CLIPS.stop(); } catch (e) { /* ignore */ }
           C.later(function () { if (document.body.contains(tile)) speakTile(wk); }, 380);
         }
+        /* Hoot tilts its head; its "try again" line is queued until the tile's letter sound has finished. */
+        C.buddy('retry', { maxRuns: target ? 0 : 1 }); /* a further tap (another clip) drops the line */
         C.restart(tile, 'no');
         return false;
       }
@@ -1969,12 +2315,15 @@ window.ART = window.ART || {};
         items.push({ text: W.w, tr: W.tr });
         try { SFX.win(); } catch (e) { /* ignore */ }
         C.confetti(80);
+        var pc = C.center(box.querySelector('#bPic')); C.sparkle(pc.x, pc.y, 10);
         C.restart(box.querySelector('#bPic'), 'win');
         C.addStar(box.querySelector('#bPic'), 2);
         var cheerKey = C.cheer(box.querySelector('#bPic'));
         /* English: "C, A, T... Cat!" then the cheer that is on screen. */
         C.later(function () { if (document.body.contains(box)) C.say(items, { quiet: true, clip: ['spell-' + W.w, cheerKey] }); }, 450);
         C.progress('builder');
+        /* Hoot dances now and cheers after "C, A, T… Cat! Great job!" has finished. */
+        C.buddy('cheer', { maxRuns: 1, maxWait: 12000 });
         box.setAttribute('data-done', '1');
         var nb = C.el('button', { class: 'roundbtn go', id: 'nextWord', 'aria-label': 'Next word' }, ICON.next);
         nb.addEventListener('click', function () { MODES.builder.next(); window.LPWApp.go('builder'); });
@@ -2081,16 +2430,24 @@ window.ART = window.ART || {};
           b.classList.add('popped');
           C.confetti(50);
           C.say([{ text: target.w, tr: target.tr }], { quiet: true, clip: [C.wordKey(target.w), cheerKey] });
+          C.sparkle(c.x, c.y, 10);
+          C.buddy('cheer', { maxRuns: 1, maxWait: 6000 });
           C.progress('bubbles');
           box.setAttribute('data-solved', '1');
-          setTimeout(function () {
-            if (document.body.contains(box)) window.LPWApp.go('bubbles');
-          }, 2300);
+          /* Next round after 2.3 s, or a little later while Hoot finishes a cheer (never more than 6 s). */
+          var t0 = Date.now();
+          var advance = function () {
+            if (!document.body.contains(box)) return;
+            if (window.BUDDY && BUDDY.busy() && Date.now() - t0 < 6000) { setTimeout(advance, 200); return; }
+            window.LPWApp.go('bubbles');
+          };
+          setTimeout(advance, 2300);
           return;
         }
         wrong++;
         try { SFX.giggle(); } catch (e) { /* ignore */ }
         C.restart(b, 'no');
+        C.buddy('retry', { maxRuns: 0, quiet: wrong >= 2 }); /* after 2 misses the target word replays instead: Hoot only tilts */
         var g = C.el('span', { class: 'giggle' }, '♪'); b.appendChild(g);
         setTimeout(function () { g.remove(); }, 700);
         if (wrong >= 2) {
@@ -2112,6 +2469,7 @@ window.ART = window.ART || {};
   var C = window.LPWCore;
   var RAINBOW = ['#ff4d4d', '#ff7a1c', '#ff9f1c', '#ffd23f', '#a8e05f', '#3ddc84', '#2ec4b6', '#4d96ff', '#7b6cff', '#c86bff'];
   var tabNow = 'numbers';
+  var scaleNext = 0; /* playing the bars 1 → 10 in order is a little "song": Hoot cheers at the end */
   var EN_NUM = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
   MODES.stage = {
@@ -2147,6 +2505,8 @@ window.ART = window.ART || {};
             C.restart(b, 'hit');
             setTimeout(function () { b.classList.remove('hit'); }, 160);
             C.say([{ text: n.w, tr: n.tr }], { quiet: true, clip: C.wordKey(n.w) });
+            scaleNext = (i === scaleNext) ? scaleNext + 1 : (i === 0 ? 1 : 0);
+            if (scaleNext === 10) { scaleNext = 0; C.buddy('cheer', { maxRuns: 1, maxWait: 8000 }); }
             var dots = '<div class="dots">';
             for (var k = 0; k <= i; k++) dots += '<span style="animation-delay:' + (k * 0.05) + 's;display:block">' + ICON.star + '</span>';
             show((D.digits ? D.digits[i] + ' · ' : (i + 1) + ' · ') + n.w, n.tr, (i + 1) + ' · ' + EN_NUM[i], dots + '</div>');
@@ -2285,6 +2645,7 @@ window.ART = window.ART || {};
 
   function go(name) {
     if (name !== 'home' && !MODES[name]) name = 'home';
+    var prev = mode;
     mode = name;
     try { SPEECH.stop(); } catch (e) { /* ignore */ }
     screen.innerHTML = '';
@@ -2298,6 +2659,7 @@ window.ART = window.ART || {};
       renderHome(screen); mode = 'home';
     }
     window.scrollTo(0, 0);
+    try { if (window.BUDDY) BUDDY.nav(mode, prev); } catch (e) { /* ignore */ }
     return mode;
   }
 
@@ -2309,6 +2671,7 @@ window.ART = window.ART || {};
   if (typeof ST.lang !== 'string' || !LPW_DATA[ST.lang]) { ST.lang = 'en'; C.save(); }
   setParent(ST.parent);
   C.renderStars();
+  try { if (window.BUDDY) BUDDY.init(); } catch (e) { if (window.console) console.warn('buddy failed', e); }
   renderLangbar();
   document.documentElement.setAttribute('data-lang', ST.lang);
   go('home');
@@ -2319,8 +2682,10 @@ window.ART = window.ART || {};
     setLang: function (c) { return setLang(c, false); },
     goMode: go,
     setParent: setParent,
+    buddy: function () { return window.BUDDY ? BUDDY.state() : null; },
+    setBuddy: function (v) { return window.BUDDY ? BUDDY.setOn(v) : false; },
     state: function () {
-      return { lang: ST.lang, mode: mode, stars: ST.stars, parent: ST.parent, stickers: Object.keys(ST.stickers),
+      return { lang: ST.lang, mode: mode, stars: ST.stars, parent: ST.parent, buddy: ST.buddy !== false, stickers: Object.keys(ST.stickers),
         voice: SPEECH.voiceName(ST.lang) || null };
     },
     audioState: function () { return window.CLIPS ? CLIPS.state() : { playing: false, key: null }; },

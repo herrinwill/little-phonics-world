@@ -51,16 +51,24 @@
           b.classList.add('popped');
           C.confetti(50);
           C.say([{ text: target.w, tr: target.tr }], { quiet: true, clip: [C.wordKey(target.w), cheerKey] });
+          C.sparkle(c.x, c.y, 10);
+          C.buddy('cheer', { maxRuns: 1, maxWait: 6000 });
           C.progress('bubbles');
           box.setAttribute('data-solved', '1');
-          setTimeout(function () {
-            if (document.body.contains(box)) window.LPWApp.go('bubbles');
-          }, 2300);
+          /* Next round after 2.3 s, or a little later while Hoot finishes a cheer (never more than 6 s). */
+          var t0 = Date.now();
+          var advance = function () {
+            if (!document.body.contains(box)) return;
+            if (window.BUDDY && BUDDY.busy() && Date.now() - t0 < 6000) { setTimeout(advance, 200); return; }
+            window.LPWApp.go('bubbles');
+          };
+          setTimeout(advance, 2300);
           return;
         }
         wrong++;
         try { SFX.giggle(); } catch (e) { /* ignore */ }
         C.restart(b, 'no');
+        C.buddy('retry', { maxRuns: 0, quiet: wrong >= 2 }); /* after 2 misses the target word replays instead: Hoot only tilts */
         var g = C.el('span', { class: 'giggle' }, '♪'); b.appendChild(g);
         setTimeout(function () { g.remove(); }, 700);
         if (wrong >= 2) {

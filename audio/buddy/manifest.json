@@ -1,0 +1,110 @@
+{
+ "voice": "en-US-AvaNeural",
+ "clips": {
+  "hi-friend": {
+   "file": "hi-friend.mp3",
+   "text": "Hi friend! Let's play with letters!",
+   "group": "welcome"
+  },
+  "yay-here": {
+   "file": "yay-here.mp3",
+   "text": "Yay, you're here! Tap any letter to start!",
+   "group": "welcome"
+  },
+  "ready": {
+   "file": "ready.mp3",
+   "text": "Ready to learn? Let's go!",
+   "group": "welcome"
+  },
+  "awesome": {
+   "file": "awesome.mp3",
+   "text": "Awesome job!",
+   "group": "cheer"
+  },
+  "you-did-it": {
+   "file": "you-did-it.mp3",
+   "text": "You did it!",
+   "group": "cheer"
+  },
+  "superstar": {
+   "file": "superstar.mp3",
+   "text": "Way to go, superstar!",
+   "group": "cheer"
+  },
+  "woohoo": {
+   "file": "woohoo.mp3",
+   "text": "Woo-hoo! High five!",
+   "group": "cheer"
+  },
+  "so-smart": {
+   "file": "so-smart.mp3",
+   "text": "You're so smart!",
+   "group": "cheer"
+  },
+  "nailed-it": {
+   "file": "nailed-it.mp3",
+   "text": "Nailed it!",
+   "group": "cheer"
+  },
+  "great-listening": {
+   "file": "great-listening.mp3",
+   "text": "Great listening!",
+   "group": "cheer"
+  },
+  "amazing": {
+   "file": "amazing.mp3",
+   "text": "Amazing! Keep going!",
+   "group": "cheer"
+  },
+  "good-try": {
+   "file": "good-try.mp3",
+   "text": "Good try! Let's try again!",
+   "group": "retry"
+  },
+  "almost": {
+   "file": "almost.mp3",
+   "text": "Almost! You've got this!",
+   "group": "retry"
+  },
+  "oops": {
+   "file": "oops.mp3",
+   "text": "Oops! Try again, friend!",
+   "group": "retry"
+  },
+  "keep-trying": {
+   "file": "keep-trying.mp3",
+   "text": "That's okay! Keep trying!",
+   "group": "retry"
+  },
+  "new-sticker": {
+   "file": "new-sticker.mp3",
+   "text": "Whoa, you unlocked a new sticker!",
+   "group": "sticker"
+  },
+  "stars": {
+   "file": "stars.mp3",
+   "text": "Look at all those stars!",
+   "group": "sticker"
+  },
+  "sticker-proud": {
+   "file": "sticker-proud.mp3",
+   "text": "I'm so proud of you!",
+   "group": "sticker"
+  },
+  "tap-giggle": {
+   "file": "tap-giggle.mp3",
+   "text": "Hehe! That tickles! Let's learn a new sound!",
+   "group": "tap"
+  },
+  "tap-amazing": {
+   "file": "tap-amazing.mp3",
+   "text": "You're doing amazing!",
+   "group": "tap"
+  },
+  "tap-hello": {
+   "file": "tap-hello.mp3",
+   "text": "Hello! I'm your phonics buddy!",
+   "group": "tap"
+  }
+ }
+}

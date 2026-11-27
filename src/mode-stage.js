@@ -3,6 +3,7 @@
   var C = window.LPWCore;
   var RAINBOW = ['#ff4d4d', '#ff7a1c', '#ff9f1c', '#ffd23f', '#a8e05f', '#3ddc84', '#2ec4b6', '#4d96ff', '#7b6cff', '#c86bff'];
   var tabNow = 'numbers';
+  var scaleNext = 0; /* playing the bars 1 → 10 in order is a little "song": Hoot cheers at the end */
   var EN_NUM = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
   MODES.stage = {
@@ -38,6 +39,8 @@
             C.restart(b, 'hit');
             setTimeout(function () { b.classList.remove('hit'); }, 160);
             C.say([{ text: n.w, tr: n.tr }], { quiet: true, clip: C.wordKey(n.w) });
+            scaleNext = (i === scaleNext) ? scaleNext + 1 : (i === 0 ? 1 : 0);
+            if (scaleNext === 10) { scaleNext = 0; C.buddy('cheer', { maxRuns: 1, maxWait: 8000 }); }
             var dots = '<div class="dots">';
             for (var k = 0; k <= i; k++) dots += '<span style="animation-delay:' + (k * 0.05) + 's;display:block">' + ICON.star + '</span>';
             show((D.digits ? D.digits[i] + ' · ' : (i + 1) + ' · ') + n.w, n.tr, (i + 1) + ' · ' + EN_NUM[i], dots + '</div>');

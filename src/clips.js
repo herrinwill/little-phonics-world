@@ -13,7 +13,7 @@
   var BASE = REMOTE ? SITE : './audio/';
   var remoteDown = false; /* offline file:// copy: after one failed remote clip, go straight to the fallback */
   try { window.addEventListener('online', function () { remoteDown = false; }); } catch (e) { /* ignore */ }
-  var audio = null, token = 0, cur = null, timers = [], log = [], missing = [];
+  var audio = null, token = 0, cur = null, timers = [], log = [], missing = [], blog = [], runs = 0, speechUntil = 0;
 
   function has(key) { return !!key && Object.prototype.hasOwnProperty.call(TEXT, key) && (!EMBED || !!EMBED[key]); }
   function src(key) { return EMBED ? EMBED[key] : './audio/en/' + key + '.mp3'; }
@@ -74,6 +74,7 @@
   /* Stop everything: current clip, queued clips, pending delayed speech, and Web Speech. */
   function stopAll() {
     token++;
+    speechUntil = 0;
     timers.forEach(clearTimeout); timers = [];
     cur = null;
     if (audio) {
@@ -94,6 +95,8 @@
      onFail(i) if entry i cannot play (error / rejected); onDone() after the last one ends. Errors are handled quietly. */
   function run(entries, onFail, onDone) {
     stopAll();
+    /* Buddy lines (entry.buddy) never count as learning clips; any learning clip cancels them via stopAll(). */
+    if (!(entries[0] && entries[0].buddy)) runs++;
     var my = token, a = el();
     if (!a) { if (onFail) onFail(0); return false; }
     var i = 0, failed = false;
@@ -109,7 +112,7 @@
       if (i >= entries.length) { cur = null; if (onDone) onDone(); return; }
       var e = entries[i];
       if (e.pause && !e.paused) { e.paused = true; later(function () { if (my === token) step(); }, e.pause); return; }
-      cur = e; log.push(e.key); if (log.length > 300) log.shift();
+      cur = e; if (e.buddy) { blog.push(e.key); if (blog.length > 100) blog.shift(); } else { log.push(e.key); if (log.length > 300) log.shift(); }
       a.onended = function () { if (my !== token) return; i++; step(); };
       a.onerror = function () { fail(); };
       try {
@@ -148,6 +151,16 @@
         lang: cur ? cur.lang : null, text: cur ? (cur.text || TEXT[cur.key] || '') : null };
     },
     log: function () { return log.slice(); },
+    buddyLog: function () { return blog.slice(); },
+    /* busy: a clip is playing or a delayed clip is queued. runs: how many learning sequences have started. */
+    busy: function () {
+      var ss = false; try { ss = !!(window.speechSynthesis && window.speechSynthesis.speaking); } catch (e) { /* ignore */ }
+      return timers.length > 0 || ss || Date.now() < speechUntil || !!(audio && cur && !audio.paused && !audio.ended);
+    },
+    /* Device-voice fallback started (Web Speech): counts as a learning clip, busy for about as long as it talks. */
+    noteSpeech: function (text) { runs++; speechUntil = Date.now() + 700 + String(text || '').length * 90; },
+    runs: function () { return runs; },
+    buddyPlaying: function () { return !!(audio && cur && cur.buddy && !audio.paused && !audio.ended); },
     missing: function () { return missing.slice(); },
     keys: function () { return Object.keys(TEXT); },
     element: function () { return el(); }

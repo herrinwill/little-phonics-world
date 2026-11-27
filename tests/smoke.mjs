@@ -5,7 +5,7 @@
 // verifies the natural English voice clips load and never overlap, and asserts no errors.
 // Usage: node build.mjs && node tests/smoke.mjs
 import { createRequire } from 'node:module';
-import { existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { serve, mediaTracker, requiredKeys, clipFiles, loadClips, rapidTap,
@@ -34,7 +34,7 @@ const okRequest = (u) => u.startsWith('data:') || (T.http ? u.startsWith(origin 
 
 const VIEWPORTS = [
   { name: 'desktop', width: 1280, height: 800 },
-  { name: 'tablet', width: 768, height: 1024 },
+  { name: 'tablet', width: 820, height: 1180 },
   { name: 'phone', width: 390, height: 844 },
   { name: 'phone-landscape', width: 844, height: 390 }
 ];
@@ -59,6 +59,7 @@ const speechMock = () => {
   window.SpeechSynthesisUtterance = function (t) { this.text = t; this.lang = ''; this.voice = null; };
 };
 
+const buddyManifest = () => JSON.parse(readFileSync(join(root, 'audio', 'buddy', 'manifest.json'), 'utf8'));
 const failures = [];
 function check(cond, msg) { if (!cond) { failures.push(msg); console.log('  ✗ ' + msg); } }
 
@@ -101,14 +102,15 @@ for (const vp of VIEWPORTS) {
   check(await page.locator('.mean').count() === 0, `${vp.name}: no meaning captions on English home`);
   await homeLayout(page, vp);
   await snap('en-home', true);
-  // Sound credits: short note in the footer; full list (incl. CC BY-SA 3.0 link) under Parent Info.
+  // Sound credits: short note in the footer; full list under Parent Info. All voices are female; no Wikimedia Commons / CC BY-SA clips remain.
   const cr = await page.evaluate(() => ({ short: document.querySelector('#credits .short').textContent, full: document.querySelector('#credits .full').textContent,
     fullShown: getComputedStyle(document.querySelector('#credits .full')).display !== 'none', fs: parseFloat(getComputedStyle(document.getElementById('credits')).fontSize) }));
-  check(/Sound credits/.test(cr.short) && /Open Letter Sounds \(CC0\)/.test(cr.short) && /Microsoft Edge neural voices/.test(cr.short) && /CC BY-SA 3\.0/.test(cr.short), `${vp.name}: footer sound credits (${cr.short})`);
+  check(/Sound credits/.test(cr.short) && /Open Letter Sounds \(CC0\)/.test(cr.short) && /Microsoft Edge neural voices/.test(cr.short) && /female/.test(cr.short), `${vp.name}: footer sound credits (${cr.short})`);
   check(cr.fs <= 13, `${vp.name}: credits are small text (${cr.fs}px)`);
   check(!cr.fullShown, `${vp.name}: full credits hidden until Parent Info`);
-  const files = ['Voiceless bilabial plosive.ogg', 'Voiceless alveolar plosive.ogg', 'Open front unrounded vowel.ogg', 'Voiced velar fricative.ogg', 'Mid front unrounded vowel.ogg', 'Close front unrounded vowel.ogg', 'Velar nasal.ogg', 'Voiceless velar fricative.ogg'];
-  check(files.every((f) => cr.full.includes(f)) && cr.full.includes('https://creativecommons.org/licenses/by-sa/3.0/') && /Joni/.test(cr.full) && /Adamsa123/.test(cr.full) && /TFighterPilot/.test(cr.full), `${vp.name}: full Wikimedia credits listed`);
+  const allCredits = await page.evaluate(() => document.getElementById('credits').textContent);
+  check(!/Commons|CC BY-SA|Wikimedia|creativecommons/i.test(allCredits), `${vp.name}: credits contain no Commons / CC BY-SA lines`);
+  check(/CC0/.test(cr.full) && /Purple Computer/.test(cr.full) && /all female/.test(cr.full) && /en-US Ava/.test(cr.full) && /he-IL Hila/.test(cr.full) && /el-GR Athina/.test(cr.full) && /th-TH Premwadee/.test(cr.full) && /es-MX Dalia/.test(cr.full), `${vp.name}: full credits list Open Letter Sounds + the female Edge voices`);
 
   // Home + parent toggle
   check(await page.locator('#homeBtn').isVisible(), 'home button visible');
@@ -171,6 +173,7 @@ for (const vp of VIEWPORTS) {
     check(lc >= 12, `${lang}: >= 12 letters (${lc})`);
     await noHScroll(`${lang} letters`);
     await snap(`${lang}-letters`);
+    await buddyLayout(page, `${T.name} ${vp.name} ${lang} letters`);
 
     // 2. Word Builder
     await page.click('#homeBtn');
@@ -210,6 +213,7 @@ for (const vp of VIEWPORTS) {
     check((await stars()) > s0, `${lang} builder: stars increase`);
     await noHScroll(`${lang} builder`);
     await snap(`${lang}-builder`);
+    await buddyLayout(page, `${T.name} ${vp.name} ${lang} builder`);
     await page.click('#nextWord');
     check(await page.locator('#slots .slot').count() >= 2, `${lang} builder: next word loads`);
 
@@ -234,6 +238,7 @@ for (const vp of VIEWPORTS) {
     check((await stars()) > s0, `${vp.name} ${lang} bubbles: correct pop gives star`);
     await noHScroll(`${lang} bubbles`);
     await snap(`${lang}-bubbles`);
+    await buddyLayout(page, `${T.name} ${vp.name} ${lang} bubbles`);
 
     // 4. Sound Stage
     await page.click('#homeBtn');
@@ -249,6 +254,7 @@ for (const vp of VIEWPORTS) {
     check(barBox.width >= 64 && barBox.height >= 64, `${vp.name} ${lang} stage: bar tap target (${Math.round(barBox.width)}x${Math.round(barBox.height)})`);
     await noHScroll(`${lang} stage numbers`);
     await snap(`${lang}-stage`);
+    await buddyLayout(page, `${T.name} ${vp.name} ${lang} stage`);
     await page.click('.tab[data-tab="colors"]');
     check(await page.locator('.swatch').count() >= 6, `${lang} stage: >= 6 colors`);
     await page.locator('.swatch').nth(1).click();
@@ -262,6 +268,10 @@ for (const vp of VIEWPORTS) {
     if (lang !== 'en') check(await page.locator('.zoo button .mean').count() === 8, `${lang} stage: every animal shows English meaning`);
     await noHScroll(`${lang} stage animals`);
     await page.click('.tab[data-tab="numbers"]');
+    // Sticker Book in this language too: the Buddy never covers a sticker or the nav.
+    await page.evaluate(() => window.LPW.goMode('stickers'));
+    await buddyLayout(page, `${T.name} ${vp.name} ${lang} stickers`);
+    if (lang === 'he') await page.screenshot({ path: join(shots, `buddy-${T.shot}${vp.name}-he-stickers.png`) }).then(() => shotCount++);
   }
 
   // Speech: native clips for he/el/th/es; any device-voice use is correct-language only
@@ -289,6 +299,7 @@ for (const vp of VIEWPORTS) {
   check(await page.locator('.stk[data-id^="en-"]').count() === 4, `${vp.name}: English stickers present`);
   await noHScroll('stickers');
   await snap('stickers');
+  await buddyLayout(page, `${T.name} ${vp.name} stickers`);
 
   // LPW hook + persistence across reload
   const before = await stars();
@@ -302,6 +313,7 @@ for (const vp of VIEWPORTS) {
   await ctx.close();
 }
 await audioSuite();
+await buddySuite();
 }
 url = TARGETS[0].url; T = TARGETS[0];
 
@@ -391,15 +403,17 @@ for (const [label, saved, expectLang, expectStars] of [
 
 // Two builds from one source: web loads ./audio/en, standalone embeds every clip.
 {
-  const { readFileSync } = await import('node:fs');
   const a = readFileSync(join(root, 'index.html'), 'utf8'), b = readFileSync(join(root, 'Little-Phonics-World.html'), 'utf8');
   check(/window\.LPW_CLIPS = null;/.test(a) && !/"data:audio\/mpeg/.test(a), 'index.html loads clips from ./audio/en (no embedded audio)');
-  const n = (b.match(/"data:audio\/mpeg;base64,/g) || []).length;
-  check(n === clipFiles(root).size + SOUND_COUNTS.en, `standalone embeds all ${clipFiles(root).size} English clips + ${SOUND_COUNTS.en} English letter sounds (${n})`);
+  const n = (b.match(/"data:audio\/mpeg;base64,/g) || []).length, nb = Object.keys(buddyManifest().clips).length;
+  check(n === clipFiles(root).size + SOUND_COUNTS.en + nb, `standalone embeds all ${clipFiles(root).size} English clips + ${SOUND_COUNTS.en} English letter sounds + ${nb} Buddy clips (${n})`);
+  check(/window\.LPW_BUDDY_EMBED = null;/.test(a) && (b.match(/window\.LPW_BUDDY_EMBED = \{"[a-z-]+":"data:audio\/mpeg;base64,/g) || []).length === 1, 'Buddy clips: streamed by index.html, embedded in the standalone');
+  check(!/Commons|CC BY-SA/.test(a) && !/Commons|CC BY-SA/.test(b), 'no Commons / CC BY-SA text anywhere in either build');
   check(/window\.LPW_SOUND_EMBED = null;/.test(a), 'index.html loads letter sounds from ./audio/sound (none embedded)');
   check((b.match(/window\.LPW_SOUND_EMBED = \{"a":"data:audio\/mpeg;base64,/g) || []).length === 1, 'standalone embeds the English letter sounds');
-  check(Buffer.byteLength(b) < 2.5 * 1024 * 1024, `standalone < 2.5 MB (${(Buffer.byteLength(b) / 1048576).toFixed(2)} MB)`);
-  const strip = (x) => x.replace(/window\.LPW_SOUND_EMBED = [^\n]*\n/, '').replace(/window\.LPW_CLIPS = [\s\S]*?;\n\/\* ---- data-en/, '');
+  check(Buffer.byteLength(b) < 3.0 * 1024 * 1024, `standalone < 3.0 MB (${(Buffer.byteLength(b) / 1048576).toFixed(2)} MB)`);
+  console.log(`Standalone size: ${Buffer.byteLength(b)} bytes (${(Buffer.byteLength(b) / 1048576).toFixed(2)} MB); index.html: ${Buffer.byteLength(a)} bytes`);
+  const strip = (x) => x.replace(/window\.LPW_SOUND_EMBED = [^\n]*\n/, '').replace(/window\.LPW_BUDDY_EMBED = [^\n]*\n/, '').replace(/window\.LPW_CLIPS = [\s\S]*?;\n\/\* ---- data-en/, '');
   check(strip(a) === strip(b), 'both builds share identical game code');
   const bad = httpLog.filter(([, st]) => st !== 200);
   check(bad.length === 0, 'local HTTP server: every request 200 (' + JSON.stringify(bad.slice(0, 5)) + ')');
@@ -626,7 +640,7 @@ async function offlineRun(deviceOffline) {
     if (vmap[l]) check(r.spoken.length >= 1 && r.spoken[0].text === r.name && r.spoken.every((u) => u.lang === vmap[l]) && r.spoken.some((u) => u.text === r.word),
       `${tag}: ${l} letter falls back to the ${vmap[l]} device voice (${r.spoken.map((u) => u.text + '/' + u.lang)})`);
     else check(r.spoken.length === 0 && r.badge.includes(r.name), `${tag}: Thai (no device voice) falls back to the sound-out badge (${r.badge})`);
-    check(!r.st.playing, `${tag}: ${l} no clip left playing (${JSON.stringify(r.st)})`);
+    check(!r.st.playing || /^buddy\//.test(r.st.key || ''), `${tag}: ${l} no learning clip left playing (${JSON.stringify(r.st)})`); // Hoot may greet while the game is silent
     if (l === 'th') await page.screenshot({ path: join(shots, deviceOffline ? 'standalone-offline-th-badge.png' : 'standalone-unreachable-th-badge.png') }), shotCount++;
   }
   // Builder + bubbles offline too.
@@ -793,4 +807,241 @@ async function soundSuite(page) {
     check(st.key === last && st.now <= 1 && st.max <= 1, `${T.name}: ${l} rapid button presses end on the last one, one clip at a time (${st.key} vs ${last}, now=${st.now}, max=${st.max})`);
   }
   await page.evaluate(() => { window.LPW.setLang('en'); window.LPW.goMode('home'); });
+}
+
+/* Phonics Buddy layout: present, visible, on top (not covered), >= 64px, and its box never intersects any interactive
+   element: at the top of the page, scrolled to the bottom, and (for scrolling content) anywhere in its column. */
+async function buddyLayout(page, where) {
+  await page.waitForTimeout(120);
+  const r = await page.evaluate(() => {
+    const bd = document.getElementById('buddy');
+    if (!bd) return { missing: true };
+    const hits = new Set(), column = new Set();
+    const SEL = 'button, .lcard, .tile, .bubble, .bar, .slot, .stk, nav, #langbar, [role=tab], a';
+    const name = (e) => e.id ? '#' + e.id : (e.getAttribute('class') || e.tagName).split(' ').slice(0, 2).join('.') + (e.dataset.i || e.dataset.t || e.dataset.n || e.dataset.lang || '');
+    const scan = () => {
+      const b = bd.getBoundingClientRect();
+      document.querySelectorAll(SEL).forEach((e) => {
+        if (e === bd || bd.contains(e)) return;
+        const st = getComputedStyle(e);
+        if (st.visibility === 'hidden' || st.display === 'none') return;
+        const q = e.getBoundingClientRect();
+        if (q.width < 1 || q.height < 1) return;
+        const xo = q.left < b.right && q.right > b.left;
+        if (xo && q.top < b.bottom && q.bottom > b.top) hits.add(name(e));
+        if (xo && e.closest('#screen, #credits')) column.add(name(e));
+      });
+      return b;
+    };
+    const b = scan();
+    const cs = getComputedStyle(bd), c = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+    const out = { box: [b.left, b.top, b.width, b.height].map(Math.round), top: !!c && bd.contains(c),
+      visible: cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0.5 && b.left >= 0 && b.top >= 0 && b.bottom <= innerHeight + 0.5 && b.right <= innerWidth,
+      label: bd.getAttribute('aria-label'), tag: bd.tagName };
+    window.scrollTo(0, document.documentElement.scrollHeight); scan(); window.scrollTo(0, 0);
+    return { ...out, hits: [...hits], column: [...column] };
+  });
+  if (r.missing) { check(false, `${where}: Phonics Buddy missing`); return r; }
+  check(r.tag === 'BUTTON' && r.label === 'Phonics Buddy', `${where}: Buddy is a <button aria-label="Phonics Buddy">`);
+  check(r.visible && r.top, `${where}: Buddy visible and not covered (${JSON.stringify(r.box)}, top=${r.top})`);
+  check(r.box[2] >= 64 && r.box[3] >= 64 && r.box[2] <= 110 && r.box[3] <= 110, `${where}: Buddy size 64–110px (${r.box})`);
+  check(r.hits.length === 0, `${where}: Buddy overlaps interactive elements (${r.hits})`);
+  check(r.column.length === 0, `${where}: content sits in the Buddy's corner column (${r.column})`);
+  return r;
+}
+
+/* Phonics Buddy behaviour, per build: manifest + clip loading, welcome, tap, cheers, gentle retry ordering,
+   learning clips win, parent toggle, reduced motion. Zero console/page/audio errors; never two clips at once. */
+async function buddySuite() {
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  await ctx.addInitScript(speechMock);
+  await ctx.addInitScript(mediaTracker);
+  // Sampler: the sequence of clips actually playing, and whether two media elements ever played at once.
+  await ctx.addInitScript(() => {
+    window.__seq = []; window.__over = 0;
+    setInterval(() => {
+      if (!window.CLIPS || !window.__media) return;
+      const s = window.CLIPS.state();
+      if (s.playing && window.__seq[window.__seq.length - 1] !== s.key) window.__seq.push(s.key);
+      if (window.__media.playingNow() > 1) window.__over++;
+    }, 20);
+  });
+  if (!T.http) await routeSite(ctx, root, 'serve');
+  const page = await ctx.newPage();
+  const errs = [];
+  page.on('pageerror', (e) => errs.push('pageerror: ' + e.message));
+  page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errs.push(`console.${m.type()}: ${m.text()}`); });
+  page.on('request', (r) => { if (!okRequest(r.url())) errs.push('network request: ' + r.url()); });
+  page.on('response', (r) => { if (r.status() >= 400) errs.push(`HTTP ${r.status()} ${r.url()}`); });
+  await page.goto(url);
+  await page.waitForFunction(() => window.LPW && window.BUDDY && document.getElementById('buddy'));
+  const tag = `${T.name} buddy`;
+  const man = buddyManifest(), keys = Object.keys(man.clips);
+  const group = (g) => keys.filter((k) => man.clips[k].group === g);
+  const groupRe = (g) => '^buddy/(' + group(g).join('|') + ')$';
+  const idle = (ms = 12000) => page.waitForFunction(() => !window.CLIPS.busy() && !window.BUDDY.busy(), null, { timeout: ms, polling: 50 }).catch(() => {});
+  const blogLen = () => page.evaluate(() => window.CLIPS.buddyLog().length);
+  const waitBuddy = (re, from, ms) => page.waitForFunction(([re, from]) => window.CLIPS.buddyLog().slice(from).some((k) => new RegExp(re).test(k)), [re, from], { timeout: ms, polling: 50 }).then(async () => { await page.waitForTimeout(150); return true; }).catch(() => false);
+  const seqFrom = (n) => page.evaluate((n) => window.__seq.slice(n), n);
+  const seqLen = () => page.evaluate(() => window.__seq.length);
+
+  // 1. Manifest: 21 English clips in 5 groups; every key resolves to a clip that loads (relative URL / data: URI).
+  const counts = Object.fromEntries(['welcome', 'cheer', 'retry', 'sticker', 'tap'].map((g) => [g, group(g).length]));
+  check(man.voice === 'en-US-AvaNeural' && keys.length === 21, `${tag}: manifest has 21 en-US-Ava clips (${man.voice}, ${keys.length})`);
+  check(JSON.stringify(counts) === JSON.stringify({ welcome: 3, cheer: 8, retry: 4, sticker: 3, tap: 3 }), `${tag}: group sizes (${JSON.stringify(counts)})`);
+  const inPage = await page.evaluate(() => window.BUDDY.clips());
+  check(Object.keys(inPage).length === keys.length && keys.every((k) => inPage[k] && inPage[k].text === man.clips[k].text && inPage[k].group === man.clips[k].group && inPage[k].file === man.clips[k].file), `${tag}: every manifest key/text/group is in the build`);
+  const loads = await page.evaluate(async (keys) => Promise.all(keys.map((k) => new Promise((ok) => {
+    const a = new Audio(); let d = false;
+    const fin = (r) => { if (!d) { d = true; ok({ k, ...r, dur: a.duration, src: String(a.src).slice(0, 60) }); } };
+    a.addEventListener('canplaythrough', () => fin({ ok: true }));
+    a.addEventListener('loadeddata', () => { if (a.readyState >= 2) fin({ ok: true }); });
+    a.addEventListener('error', () => fin({ ok: false, err: a.error && a.error.code }));
+    setTimeout(() => fin({ ok: a.readyState >= 2, err: 'timeout' }), 8000);
+    a.preload = 'auto'; a.src = window.BUDDY.src(k); a.load();
+  }))), keys);
+  const wantSrc = T.http ? origin + '/audio/buddy/' : 'data:audio/mpeg;base64,';
+  for (const x of loads) check(x.ok && x.dur > 0.2 && x.src.startsWith(wantSrc), `${tag}: clip ${x.k} loads from ${wantSrc.slice(0, 30)}… (${x.src.slice(0, 40)}, ${x.dur}, ${x.err || 'ok'})`);
+  if (T.http) check(keys.every((k) => httpLog.some(([u, st]) => u === '/audio/buddy/' + man.clips[k].file && st === 200)), `${tag}: every ./audio/buddy/*.mp3 served with HTTP 200`);
+
+  // 2. Welcome: after the first user tap (autoplay rules) Hoot says one welcome line, with the bubble.
+  check((await page.evaluate(() => window.CLIPS.buddyLog().length)) === 0, `${tag}: silent before the first tap`);
+  await page.click('.hello');
+  check(await waitBuddy(groupRe('welcome'), 0, 6000), `${tag}: welcome line after the first tap (${await page.evaluate(() => window.CLIPS.buddyLog())})`);
+  const w = await page.evaluate(() => window.LPW.buddy());
+  check(w.bubble && w.text === man.clips[w.lastKey].text, `${tag}: welcome bubble shows the clip text (${w.text})`);
+  const bubbleCss = await page.evaluate(() => { const s = getComputedStyle(document.getElementById('buddyBubble')); return { pe: s.pointerEvents, fs: parseFloat(s.fontSize) }; });
+  check(bubbleCss.pe === 'none' && bubbleCss.fs >= 18, `${tag}: bubble never blocks taps and is >= 18px (${JSON.stringify(bubbleCss)})`);
+  await page.screenshot({ path: join(shots, `buddy-${T.shot}welcome.png`) }); shotCount++;
+  await idle();
+
+  // 3. Tapping Hoot: a bounce/spin + a random "tap" line (never the same twice in a row) from audio/buddy/.
+  let prevTap = null;
+  for (let i = 0; i < 3; i++) {
+    await idle();
+    const n0 = await blogLen();
+    await page.click('#buddy');
+    check((await page.evaluate(() => window.LPW.buddy().anim)).includes('spin'), `${tag}: tap ${i + 1} spins Hoot`);
+    check(await waitBuddy(groupRe('tap'), n0, 5000), `${tag}: tap ${i + 1} plays a tap line`);
+    const st = await page.evaluate(() => ({ a: window.CLIPS.state(), src: String(window.CLIPS.element().src).slice(0, 60), b: window.LPW.buddy() }));
+    check(/^buddy\/tap-/.test(st.a.key) && st.src.startsWith(wantSrc), `${tag}: tap ${i + 1} plays ${st.a.key} from ${st.src.slice(0, 40)}`);
+    check(st.b.bubble && st.b.text === man.clips[st.b.lastKey].text, `${tag}: tap ${i + 1} shows the bubble (${st.b.text})`);
+    check(st.b.lastKey !== prevTap, `${tag}: tap line not repeated (${prevTap} -> ${st.b.lastKey})`);
+    if (i === 0) { await page.screenshot({ path: join(shots, `buddy-${T.shot}tap.png`) }); shotCount++; }
+    prevTap = st.b.lastKey;
+  }
+  await idle();
+  await page.waitForTimeout(3000);
+  check(!(await page.evaluate(() => window.LPW.buddy().bubble)), `${tag}: bubble auto-hides`);
+
+  // 4. A learning clip always wins: tapping a letter while Hoot talks cancels Hoot at once.
+  await page.evaluate(() => window.LPW.goMode('letters'));
+  await idle();
+  await page.click('#buddy');
+  await page.waitForFunction(() => window.CLIPS.buddyPlaying(), null, { timeout: 5000 }).catch(() => {});
+  await page.locator('.lcard').nth(0).click();
+  await page.waitForTimeout(150);
+  const cut = await page.evaluate(() => ({ s: window.CLIPS.state(), bp: window.CLIPS.buddyPlaying() }));
+  check(cut.s.key === 'sound/en/00.mp3' && !cut.bp, `${tag}: a letter tap cuts Hoot off (${JSON.stringify(cut)})`);
+  await idle();
+
+  // 5. Completed word: Hoot dances at once and cheers after "spell … word … cheer" has finished.
+  await page.evaluate(() => window.LPW.goMode('builder'));
+  await idle();
+  await page.evaluate(() => window.BUDDY.resetLimits());
+  let n0 = await blogLen(), s0 = await seqLen();
+  const word = await page.locator('#slots .slot').evaluateAll((els) => els.map((e) => e.dataset.t));
+  for (const t of word) {
+    const i = await page.locator('#tray .tile').evaluateAll((els, t) => els.findIndex((e) => e.dataset.t === t && !e.classList.contains('used')), t);
+    await page.locator('#tray .tile').nth(i).click({ force: true });
+  }
+  check((await page.evaluate(() => window.LPW.buddy().anim)).includes('dance'), `${tag}: completed word -> Hoot dances`);
+  // (The first finished word also unlocks the Word Builder sticker, so Hoot may say its sticker line instead.)
+  check(await waitBuddy('^buddy/(' + group('cheer').concat(group('sticker')).join('|') + ')$', n0, 14000), `${tag}: completed word -> Hoot cheers (${await page.evaluate(() => window.CLIPS.buddyLog())})`);
+  let seq = await seqFrom(s0);
+  const iSpell = seq.findIndex((k) => /^spell-/.test(k)), iCheer = seq.findIndex((k) => /^buddy\//.test(k));
+  check(iSpell >= 0 && iCheer > iSpell && seq.slice(iSpell, iCheer).some((k) => /^cheer-/.test(k)), `${tag}: Hoot's cheer comes after spell + game cheer (${seq})`);
+  await page.screenshot({ path: join(shots, `buddy-${T.shot}builder-cheer.png`) }); shotCount++;
+  await idle();
+
+  // 6. Correct bubble: dance + cheer (rate-limited to one spoken cheer per ~8 s), then the next round loads.
+  await page.evaluate(() => window.LPW.goMode('bubbles'));
+  await idle();
+  await page.evaluate(() => window.BUDDY.resetLimits());
+  n0 = await blogLen(); s0 = await seqLen();
+  await page.locator('.bubble[data-ok]').click({ force: true });
+  check((await page.evaluate(() => window.LPW.buddy().anim)).includes('dance'), `${tag}: correct bubble -> Hoot dances`);
+  check(await waitBuddy(groupRe('cheer'), n0, 8000), `${tag}: correct bubble -> Hoot cheers`);
+  seq = await seqFrom(s0);
+  check(/^word-/.test(seq[0] || '') && seq.findIndex((k) => /^buddy\//.test(k)) > 0, `${tag}: bubble word first, then Hoot (${seq})`);
+  check(await page.waitForFunction(() => document.querySelector('#listen') && !document.querySelector('#listen[data-solved]'), null, { timeout: 9000 }).then(() => true).catch(() => false), `${tag}: next bubble round loads after the cheer`);
+  // Rate limit: a second correct pop right away dances but does not speak.
+  await idle();
+  n0 = await blogLen();
+  await page.locator('.bubble[data-ok]').click({ force: true });
+  await page.waitForTimeout(2600);
+  check((await blogLen()) === n0, `${tag}: bubble cheers are rate-limited (no second spoken cheer within 8 s)`);
+  await page.waitForFunction(() => document.querySelector('#listen') && !document.querySelector('#listen[data-solved]'), null, { timeout: 9000 }).catch(() => {});
+  await idle();
+
+  // 7. Wrong tile tap: boing + the tile's own letter sound FIRST; Hoot's "try again" only after it ends.
+  await page.evaluate(() => window.LPW.goMode('builder'));
+  await idle();
+  await page.evaluate(() => window.BUDDY.resetLimits());
+  n0 = await blogLen(); s0 = await seqLen();
+  const wt = await page.evaluate(() => {
+    const first = document.querySelector('#slots .slot').dataset.t, tiles = [...document.querySelectorAll('#tray .tile')];
+    const i = tiles.findIndex((e) => e.dataset.t !== first), t = tiles[i];
+    return { i, want: t ? window.CLIPS.sound('en', t.dataset.t).key : null };
+  });
+  await page.locator('#tray .tile').nth(wt.i).click({ force: true });
+  check((await page.evaluate(() => window.LPW.buddy().anim)).includes('tilt'), `${tag}: wrong tile -> Hoot tilts its head`);
+  check(await page.locator('#slots .slot.filled').count() === 0, `${tag}: wrong tile is not placed`);
+  check(await waitBuddy(groupRe('retry'), n0, 8000), `${tag}: wrong tile -> gentle retry line`);
+  seq = await seqFrom(s0);
+  check(seq[0] === wt.want && /^buddy\//.test(seq[1] || '') && seq.length === 2, `${tag}: tile sound ${wt.want} plays first, then Hoot (${seq})`);
+  await page.screenshot({ path: join(shots, `buddy-${T.shot}retry.png`) }); shotCount++;
+  await idle();
+
+  // 8. Parent Info toggle: Buddy off hides Hoot (and its corner space), is saved, and silences it; on brings it back.
+  await page.evaluate(() => window.LPW.setParent(true));
+  await page.click('#buddyToggle');
+  const off = await page.evaluate(() => ({ d: getComputedStyle(document.getElementById('buddy')).display, st: window.LPW.state().buddy,
+    pressed: document.getElementById('buddyToggle').getAttribute('aria-pressed'), pad: parseFloat(getComputedStyle(document.getElementById('screen')).paddingLeft) }));
+  check(off.d === 'none' && off.st === false && off.pressed === 'false' && off.pad <= 16, `${tag}: parent toggle hides the Buddy (${JSON.stringify(off)})`);
+  n0 = await blogLen();
+  await page.evaluate(() => { window.BUDDY.resetLimits(); window.BUDDY.cheer(); window.BUDDY.tap(); });
+  await page.waitForTimeout(800);
+  check((await blogLen()) === n0 && !(await page.evaluate(() => window.BUDDY.busy())), `${tag}: a hidden Buddy stays silent`);
+  await page.screenshot({ path: join(shots, `buddy-${T.shot}parent-off.png`) }); shotCount++;
+  await page.reload();
+  await page.waitForFunction(() => window.LPW && window.BUDDY);
+  check(await page.evaluate(() => getComputedStyle(document.getElementById('buddy')).display === 'none' && window.LPW.state().buddy === false), `${tag}: Buddy off is saved across reloads`);
+  await page.evaluate(() => window.LPW.setParent(true));
+  await page.click('#buddyToggle');
+  check(await page.evaluate(() => getComputedStyle(document.getElementById('buddy')).display !== 'none' && window.LPW.state().buddy === true), `${tag}: toggle turns the Buddy back on`);
+  await page.evaluate(() => window.LPW.setParent(false));
+
+  const m = await page.evaluate(() => ({ errors: window.__media.errors, max: window.__media.max, over: window.__over, spoken: window.__spoken.length, missing: window.CLIPS.missing() }));
+  check(m.errors.length === 0 && m.missing.length === 0, `${tag}: zero audio errors (${m.errors} / ${m.missing})`);
+  check(m.max <= 1 && m.over === 0, `${tag}: never more than one clip at once (max ${m.max}, over ${m.over})`);
+  check(m.spoken === 0, `${tag}: the Buddy never uses the device voice (${m.spoken})`);
+  check(errs.length === 0, `${tag}: no console/page errors (${errs.join(' | ')})`);
+  await ctx.close();
+
+  // 9. Reduced motion: no bouncing / spinning / sparkles, just fades.
+  const rctx = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce', hasTouch: true });
+  await rctx.addInitScript(speechMock);
+  if (!T.http) await routeSite(rctx, root, 'serve');
+  const rp = await rctx.newPage();
+  const rerrs = [];
+  rp.on('pageerror', (e) => rerrs.push(e.message));
+  rp.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') rerrs.push(m.text()); });
+  await rp.goto(url);
+  await rp.waitForFunction(() => window.LPW && window.BUDDY);
+  await rp.click('#buddy');
+  const rm = await rp.evaluate(() => ({ idle: getComputedStyle(document.querySelector('#buddy .bwrap')).animationName, sparkles: document.querySelectorAll('#fx .sparkle, #fx .burst, #fx .confetti').length }));
+  check(rm.idle === 'none' && rm.sparkles === 0, `${tag}: reduced motion -> no bounce or sparkles (${JSON.stringify(rm)})`);
+  check(rerrs.length === 0, `${tag}: reduced motion has no errors (${rerrs.join(' | ')})`);
+  await rctx.close();
 }

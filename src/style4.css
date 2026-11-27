@@ -1,0 +1,80 @@
+/* ===== Phonics Buddy "Hoot" + fun polish ===== */
+/* The Buddy lives in a fixed bottom-left corner. A left gutter (--bgut) is reserved on #screen and the footer,
+   so no button, letter card, tile, bubble or bar can ever sit under it, at any scroll position. */
+:root{--bsz:96px;--bgap:12px;--bgut:calc(var(--bsz) + var(--bgap) + 10px);--padl:14px}
+@media (max-width:640px){:root{--bsz:64px;--bgap:6px;--bgut:calc(var(--bsz) + var(--bgap) + 10px);--padl:10px}}
+@media (max-height:500px) and (orientation:landscape){:root{--bsz:72px;--bgap:8px;--bgut:calc(var(--bsz) + var(--bgap) + 8px)}}
+body.buddy-off{--bgut:0px}
+#screen{padding-left:max(var(--padl), env(safe-area-inset-left), calc(var(--bgut) - max(0px, (100% - 1200px) / 2)))}
+#credits{padding-left:max(16px, calc(var(--bgut) - max(0px, (100% - 1200px) / 2)))}
+
+.buddy{
+  position:fixed;left:max(var(--bgap), env(safe-area-inset-left));bottom:max(var(--bgap), env(safe-area-inset-bottom));
+  width:var(--bsz);height:var(--bsz);min-width:64px;min-height:64px;z-index:50;border-radius:50%;
+  background:radial-gradient(circle at 50% 40%,#fff 0 55%,#f1ecff 56% 100%);
+  box-shadow:0 0 0 4px #fff,0 6px 0 rgba(43,35,80,.16),0 10px 22px rgba(43,35,80,.18);
+  display:grid;place-items:center;transition:opacity .3s,transform .2s;
+}
+.buddy .bwrap{display:block;width:88%;height:88%;animation:bIdle 2.8s ease-in-out infinite}
+.buddy svg{width:100%;height:100%;overflow:visible}
+.buddy .b-eyes{transform-box:fill-box;transform-origin:center;animation:bBlink 4.6s infinite}
+.buddy .b-wing-r{transform-box:fill-box;transform-origin:20% 15%;animation:bWave 3.6s ease-in-out infinite}
+.buddy .b-beak{transform-box:fill-box;transform-origin:50% 0}
+.buddy.talk .b-beak{animation:bTalk .32s ease-in-out infinite alternate}
+.buddy.wave .b-wing-r{animation:bWaveBig .5s ease-in-out 3 alternate}
+.buddy.dance .bwrap{animation:bDance 1s cubic-bezier(.3,1.4,.5,1)}
+.buddy.tilt .bwrap{animation:bTilt 1.1s ease-in-out}
+.buddy.spin .bwrap{animation:bSpin .9s cubic-bezier(.3,1.3,.5,1)}
+.buddy:active{transform:scale(.92)}
+body.buddy-off .buddy,body.buddy-off .buddy-bubble{display:none}
+
+.buddy-bubble{
+  position:fixed;z-index:51;pointer-events:none;left:calc(var(--bgap) + var(--bsz) * .45);bottom:calc(var(--bgap) + var(--bsz) + 8px);
+  max-width:min(320px,calc(100vw - 24px));padding:10px 16px;border-radius:22px 22px 22px 6px;background:#fff;color:#2b2350;
+  font-size:19px;font-weight:900;line-height:1.3;box-shadow:0 0 0 4px #8b6cff,0 10px 22px rgba(43,35,80,.2);
+  opacity:0;visibility:hidden;transform:translateY(8px) scale(.9);transform-origin:0 100%;
+  transition:opacity .25s,transform .3s cubic-bezier(.3,1.6,.5,1),visibility 0s linear .3s;
+}
+.buddy-bubble.show{opacity:1;visibility:visible;transform:none;transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1),visibility 0s}
+@media (max-width:640px){.buddy-bubble{font-size:18px;left:var(--bgap);max-width:calc(100vw - 20px)}}
+
+@keyframes bIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes bBlink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+@keyframes bWave{0%,70%,100%{transform:rotate(0)}80%{transform:rotate(-24deg)}90%{transform:rotate(-6deg)}}
+@keyframes bWaveBig{from{transform:rotate(0)}to{transform:rotate(-40deg)}}
+@keyframes bTalk{from{transform:scaleY(1)}to{transform:scaleY(.6)}}
+@keyframes bDance{0%{transform:none}20%{transform:translateY(-22px) rotate(-10deg)}40%{transform:translateY(0) scale(1.08,.92)}
+  60%{transform:translateY(-14px) rotate(10deg)}80%{transform:translateY(0) scale(.96,1.04)}100%{transform:none}}
+@keyframes bTilt{0%,100%{transform:none}25%{transform:rotate(-14deg)}55%{transform:rotate(-14deg) translateX(-2px)}75%{transform:rotate(6deg)}}
+@keyframes bSpin{0%{transform:none}50%{transform:translateY(-14px) rotate(180deg) scale(1.1)}100%{transform:rotate(360deg)}}
+
+/* ---- Parent Info: Buddy on/off ---- */
+#credits .parent-tools{display:none;margin:4px 0 8px}
+body.parent-on #credits .parent-tools{display:block}
+.buddy-toggle{min-height:52px;padding:6px 18px;border-radius:999px;background:#fff;box-shadow:var(--shadow);font-size:16px;font-weight:900;color:#2b2350}
+.buddy-toggle b{display:inline-block;min-width:34px;margin-left:4px;padding:2px 10px;border-radius:999px;background:#3ddc84;color:#fff}
+.buddy-toggle[aria-pressed=false] b{background:#c9c3e3}
+
+/* ---- Fun polish: squish/pop on taps (uses the separate `scale` property, so it never fights the dance/drag
+   transforms and causes no layout shift), sparkles on wins ---- */
+.lcard,.bubble,.swatch,.zoo button,.lbtn,.mode-btn,.sticker-btn{transition:transform .15s,scale .22s cubic-bezier(.3,1.8,.5,1),box-shadow .2s,filter .2s}
+.bar{transition:transform .1s,scale .22s cubic-bezier(.3,1.8,.5,1),filter .2s}
+.tile{transition:scale .22s cubic-bezier(.3,1.8,.5,1)}
+.lcard:active,.tile:active,.bubble:active,.swatch:active,.zoo button:active{scale:.9 .86;transition-duration:.08s}
+.bar:active{scale:.94 .9;transition-duration:.08s}
+.sparkle{position:absolute;font-size:22px;line-height:1;margin:-11px 0 0 -11px;text-shadow:0 2px 0 rgba(43,35,80,.15);animation:sparkle .85s ease-out forwards}
+@keyframes sparkle{0%{transform:scale(.3) rotate(0);opacity:1}70%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(160deg);opacity:0}}
+
+/* Reduced motion: no bouncing, spinning or confetti; the bubble just fades. */
+@media (prefers-reduced-motion:reduce){
+  .buddy .bwrap,.buddy .b-eyes,.buddy .b-wing-r,.buddy .b-beak{animation:none!important}
+  .buddy-bubble{transform:none!important;transition:opacity .3s!important}
+  .sparkle{display:none}
+  .lcard,.tile,.bubble,.bar,.swatch,.zoo button{scale:none!important}
+}
+.tile.drag{scale:none}
+/* Phones: long words (5–6 letters) shrink their slots instead of spilling sideways into Hoot's corner. */
+@media (max-width:640px){
+  .slots{max-width:100%;gap:6px;padding:10px 6px}
+  .slot,.th .slot{flex:0 1 auto;min-width:40px}
+}

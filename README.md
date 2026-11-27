@@ -7,7 +7,7 @@ It has **zero external dependencies**: no CDNs, web fonts or third-party request
 ## How to play
 
 - **Online:** open the GitHub Pages URL for this repository. It serves `index.html`, which loads every voice clip from `./audio/<language>/`.
-- **Offline / to share:** double-click `Little-Phonics-World.html`. It is a single file (about 1.3 MB) with every English voice clip embedded, so it works from `file://` with no internet and needs no other files. The Hebrew, Greek, Thai and Spanish voices are streamed from this game's website when you are online. Offline, those languages quietly fall back to the device voice or the sound-out badge.
+- **Offline / to share:** double-click `Little-Phonics-World.html`. It is a single file (about 2.4 MB) with every English voice clip (and Hoot's lines) embedded, so it works from `file://` with no internet and needs no other files. The Hebrew, Greek, Thai and Spanish voices are streamed from this game's website when you are online. Offline, those languages quietly fall back to the device voice or the sound-out badge.
 
 Tap the big picture buttons. Nothing has to be read, there are no timers and no lives, and a wrong tap only makes a giggle.
 
@@ -33,6 +33,7 @@ Each language also has word-builder words, numbers 1–10, 7 colors and 8 animal
 2. **Word Builder Monsters**: bouncing letter monsters. Tap or drag them into the glowing slots. Each tile says its letter, and a finished word gets confetti, is spoken aloud and earns stars. A tile in the wrong slot gently bounces back. Hebrew fills from right to left, and Thai uses whole-syllable tiles so vowel and tone marks never break apart.
 3. **Listen & Pop Bubble Hunt**: hear a word and pop the matching picture bubble. Wrong taps only giggle and wiggle. After two wrong taps the word is replayed and the right bubble glows.
 4. **Rainbow Sound Stage** (free play): a rainbow xylophone for numbers 1–10 (each bar plays a note and says the number), plus color and animal boards.
+- **Hoot, the Phonics Buddy**: a friendly owl in the bottom-left corner. Hoot waves hello after your first tap, dances and cheers when you finish a word, pop the right bubble, find every 5th new letter or play the xylophone 1 → 10, and tilts its head and says "Almost! You've got this!" after a wrong tap (only after the tile's own sound has finished). Tap Hoot for a giggle. Hoot speaks English in every language, never talks over a letter, word or explanation, and can be turned off in Parent Info.
 - **Sticker Book & Star Jar**: stars fill a jar, and 20 stickers (4 games × 5 languages) unlock as you play. Progress is saved on the device (`localStorage`), and the game still works in private mode.
 
 ## Parent notes
@@ -43,6 +44,8 @@ Each language also has word-builder words, numbers 1–10, 7 colors and 8 animal
 - **Fallback (no clip / offline):** the game only speaks with a voice in the right language (`he-IL`, `el-GR`, `th-TH`, `es-ES`/`es-MX`), at a slow, kid-friendly rate. If your device has no voice for a language, it never uses a wrong-language voice. Instead a bouncing **sound-out badge** shows the pronunciation (e.g. "ar-YEH") with a chime, so you can say it together. Voices for Thai, Hebrew and Greek can be added in your OS speech settings.
 - Respects **reduced-motion** settings. Every tap target is at least 64 px, and the layout fits phones, tablets and desktops in portrait and landscape.
 - The **house button** (top left) always goes back home.
+- **Phonics Buddy on/off:** with Parent Info on, the footer shows a "Phonics Buddy: On/Off" button. The choice is saved on the device.
+- **All voices are female:** Open Letter Sounds (CC0) for the English letter sounds, and Microsoft Edge neural voices for everything else (English: Ava; Hebrew: Hila; Greek: Athina; Thai: Premwadee; Spanish: Dalia).
 
 ## Inspired by
 
@@ -55,6 +58,7 @@ src/            source files (CSS, per-language data, SVG art, audio, modes, app
 audio/en/       natural English voice clips (MP3) + manifest.json (key -> spoken text)
 audio/he|el|th|es/  native voice clips NNN.mp3 + manifest.json (exact spoken text -> file; embedded into both builds)
 audio/sound/<lang>/  letter SOUND clips NN.mp3 + manifest.json (114: en 26, he 22, el 24, th 21, es 21); approved.json; CREDITS.md
+audio/buddy/     Hoot's 21 English lines (en-US Ava) + manifest.json {voice, clips: {key: {file, text, group}}}; streamed by index.html, embedded in the standalone
 audio/explain/<lang>/ English "Explain in English" clips NN.mp3 + manifest.json (88: he/el/th/es)
 build.mjs       builds index.html (clips by relative URL) and Little-Phonics-World.html (clips embedded) from the same source
 tests/          headless-Chrome smoke tests (Playwright): index.html over a local HTTP server, the standalone file over file://
